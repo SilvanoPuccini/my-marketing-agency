@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Biblioteca · MMA</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  .toolbar { display: flex; align-items: center; gap: 8px; padding: 10px 0; margin-bottom: 16px; }
+  .toolbar .input { max-width: 280px; }
+  .toolbar .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--r-2); font-size: 12px; color: var(--fg-2); cursor: pointer; }
+  .toolbar .chip.act { background: var(--violet-soft); color: var(--violet-400); border-color: transparent; }
+  .lib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .asset {
+    background: var(--bg-1); border: 1px solid var(--line-1);
+    border-radius: var(--r-3); overflow: hidden;
+    display: flex; flex-direction: column; cursor: pointer;
+    transition: border-color 120ms ease;
+  }
+  .asset:hover { border-color: var(--line-3); }
+  .asset .thumb {
+    aspect-ratio: 1/1;
+    background: repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px);
+    border-bottom: 1px solid var(--line-1);
+    display: grid; place-items: center;
+    color: var(--fg-3); font-family: var(--font-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    position: relative;
+  }
+  .asset .thumb .play { width: 36px; height: 36px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); display: grid; place-items: center; color: #fff; }
+  .asset .thumb .kind { position: absolute; top: 8px; left: 8px; font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: var(--r-1); background: rgba(0,0,0,0.5); color: var(--fg-1); text-transform: uppercase; letter-spacing: 0.06em; }
+  .asset .meta { padding: 10px 12px; font-size: 12px; }
+  .asset .name { font-weight: 500; color: var(--fg-1); }
+  .asset .sub { color: var(--fg-3); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  .folders { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .folder { background: var(--bg-1); border: 1px solid var(--line-1); border-radius: var(--r-3); padding: 14px; cursor: pointer; }
+  .folder:hover { border-color: var(--line-3); }
+  .folder .ttl { font-weight: 500; font-size: 13px; }
+  .folder .cnt { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); margin-top: 4px; }
+  @media (max-width: 900px) { .lib-grid { grid-template-columns: repeat(2, 1fr); } .folders { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <div class="topbar">
+      <div class="crumb"><span>Estudio Pampas</span><span class="crumb-sep">/</span><span style="color: var(--fg-1);">Biblioteca</span></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-secondary btn-sm">Importar de Drive</button>
+      <button class="btn btn-primary btn-sm">+ Subir archivos</button>
+    </div>
+    <div class="page">
+      <div class="page-h">
+        <div>
+          <h2>Biblioteca</h2>
+          <p>1.842 archivos · 28,4 GB de 100 GB del plan · ordenados por última edición.</p>
+        </div>
+      </div>
+
+      <div class="folders">
+        <div class="folder"><div class="ttl">Por cuenta</div><div class="cnt">18 carpetas · 1.620 archivos</div></div>
+        <div class="folder"><div class="ttl">Stock — Marca propia</div><div class="cnt">142 archivos · logos, fuentes, paletas</div></div>
+        <div class="folder"><div class="ttl">Plantillas reusables</div><div class="cnt">38 archivos · reels, carruseles, stories</div></div>
+        <div class="folder"><div class="ttl">Papelera</div><div class="cnt">42 archivos · 30 días para recuperar</div></div>
+      </div>
+
+      <div class="toolbar">
+        <input class="input" placeholder="Buscar archivo, cuenta, etiqueta…" />
+        <span class="chip act">Todo</span>
+        <span class="chip">Reels</span>
+        <span class="chip">Posts</span>
+        <span class="chip">Stories</span>
+        <span class="chip">Carruseles</span>
+        <span class="chip">Raw / sin editar</span>
+        <div style="flex:1"></div>
+        <span class="chip">+ Filtro</span>
+      </div>
+
+      <div class="lib-grid">
+        <div class="asset"><div class="thumb"><span class="kind">REEL</span><span class="play">▶</span></div><div class="meta"><div class="name">apertura-temporada-v3.mp4</div><div class="sub">DON TITO · HOY 12:14</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">CARR</span>[1080×1080 · 5]</div><div class="meta"><div class="name">5-tips-emprender.psd</div><div class="sub">TALAMPAYA · HOY 09:30</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">POST</span>[1080×1080]</div><div class="meta"><div class="name">cliente-del-mes-rocio.jpg</div><div class="sub">BSAS CO. · AYER</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">STORY</span>[1080×1920]</div><div class="meta"><div class="name">promo-viernes-2x1.fig</div><div class="sub">EMPANADAS · AYER</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">RAW</span><span class="play">▶</span></div><div class="meta"><div class="name">DJI_0142.MOV</div><div class="sub">DON TITO · VIE 25 ABR</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">REEL</span><span class="play">▶</span></div><div class="meta"><div class="name">receta-semanal-14.mp4</div><div class="sub">CAFAYATE · VIE 25</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">POST</span>[1080×1080]</div><div class="meta"><div class="name">vino-del-mes-malbec.jpg</div><div class="sub">CAFAYATE · JUE 24</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">CARR</span>[1080×1080 · 8]</div><div class="meta"><div class="name">guia-barrios-palermo.fig</div><div class="sub">BSAS CO. · MIÉ 23</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">LOGO</span>[SVG]</div><div class="meta"><div class="name">don-tito-logo-v2.svg</div><div class="sub">DON TITO · MAR 22</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">PAUTA</span>[PDF]</div><div class="meta"><div class="name">brief-pampero-invierno.pdf</div><div class="sub">PAMPERO · MAR 22</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">REEL</span><span class="play">▶</span></div><div class="meta"><div class="name">behind-the-scenes-04.mp4</div><div class="sub">PAMPERO · LUN 21</div></div></div>
+        <div class="asset"><div class="thumb"><span class="kind">POST</span>[1080×1080]</div><div class="meta"><div class="name">cafe-del-dia-cortado.jpg</div><div class="sub">CASA MATE · LUN 21</div></div></div>
+      </div>
+
+      <div class="row gap-3 mt-6 faint mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">
+        <span>Mostrando 12 de 1.842</span>
+        <div style="flex:1"></div>
+        <button class="btn btn-secondary btn-sm">Cargar más</button>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="sidebar.js"></script>
+<script>renderSidebar('library');</script>
+</body>
+</html>
