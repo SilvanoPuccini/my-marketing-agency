@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lucía Fernández · MMA</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  .prof-head { display: flex; gap: 24px; align-items: flex-start; padding: 28px 0 24px; border-bottom: 1px solid var(--line-1); margin-bottom: 24px; }
+  .prof-avatar { width: 88px; height: 88px; border-radius: var(--r-3); background: linear-gradient(135deg, var(--violet-500), var(--violet-600)); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: 32px; color: #fff; flex-shrink: 0; box-shadow: 0 0 0 1px var(--violet-400) inset; }
+  .prof-info h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; font-weight: 600; }
+  .prof-meta { display: flex; gap: 16px; margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .prof-meta span::before { content: "▸ "; color: var(--violet-500); }
+  .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  .panel { background: var(--bg-1); border: 1px solid var(--line-1); border-radius: var(--r-3); }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line-1); }
+  .panel-h h3 { margin: 0; font-size: 14px; font-weight: 600; }
+  .panel-h .meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .row-i { display: grid; grid-template-columns: 180px 1fr auto; gap: 18px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--line-1); }
+  .row-i:last-child { border-bottom: 0; }
+  .row-i .l { font-size: 13px; color: var(--fg-2); }
+  .activity-i { display: flex; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line-1); align-items: flex-start; }
+  .activity-i:last-child { border-bottom: 0; }
+  .activity-i .dot-c { width: 8px; height: 8px; border-radius: 999px; background: var(--violet-500); margin-top: 6px; flex-shrink: 0; }
+  .activity-i .dot-c.gray { background: var(--bg-3); }
+  .activity-i .dot-c.green { background: var(--status-approved); }
+  .activity-i .when { font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+  .activity-i .body { font-size: 13px; line-height: 1.55; }
+  .activity-i .body b { font-weight: 500; }
+  .acc-row { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--line-1); }
+  .acc-row:last-child { border-bottom: 0; }
+  .acc-row .av { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-3); display: grid; place-items: center; font-family: var(--font-mono); font-size: 10px; }
+  .acc-row .nm { font-size: 13px; }
+  .acc-row .ct { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-1); border: 1px solid var(--line-1); border-radius: var(--r-3); overflow: hidden; margin-bottom: 16px; }
+  .stat-c { background: var(--bg-1); padding: 14px 16px; }
+  .stat-c .lbl { font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-c .val { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <div class="topbar">
+      <div class="crumb"><a href="team.html" style="color: inherit;">Equipo</a><span class="crumb-sep">/</span><span style="color: var(--fg-1);">Lucía Fernández</span></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-secondary btn-sm">Editar perfil</button>
+      <button class="btn btn-primary btn-sm">Mensaje directo</button>
+    </div>
+    <div class="page">
+      <div class="prof-head">
+        <div class="prof-avatar">LF</div>
+        <div class="prof-info" style="flex: 1;">
+          <h1>Lucía Fernández</h1>
+          <div class="row gap-3 mt-2" style="align-items: center;">
+            <span class="pill pill-violet"><span class="dot"></span>Directora</span>
+            <span class="pill pill-approved"><span class="dot"></span>Activa ahora</span>
+            <span class="faint" style="font-size: 13px;">lucia@estudiopampas.com.ar · +54 9 11 5847 9921</span>
+          </div>
+          <div class="prof-meta">
+            <span>EN MMA DESDE NOV 2024</span>
+            <span>BUENOS AIRES, AR</span>
+            <span>UTC−3</span>
+            <span>18 / 18 CUENTAS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-c"><div class="lbl">Piezas revisadas (abr)</div><div class="val mono">142</div></div>
+        <div class="stat-c"><div class="lbl">Tiempo promedio de revisión</div><div class="val mono">12 min</div></div>
+        <div class="stat-c"><div class="lbl">Aprobadas a la primera</div><div class="val mono">87%</div></div>
+      </div>
+
+      <div class="grid-2">
+        <section class="panel">
+          <div class="panel-h"><h3>Actividad reciente</h3><span class="meta">ÚLTIMOS 7 DÍAS</span></div>
+          <div class="activity-i"><div class="dot-c"></div><div class="body"><b>Aprobó</b> "Reel apertura temporada" para <b>Don Tito</b><div class="when">HOY · 12:18</div></div></div>
+          <div class="activity-i"><div class="dot-c"></div><div class="body"><b>Reasignó</b> "Carrusel 5 tips" a Camila Sosa <span class="faint">(antes Tomás Acuña)</span><div class="when">HOY · 11:42</div></div></div>
+          <div class="activity-i"><div class="dot-c green"></div><div class="body"><b>Cerró</b> el reporte mensual de <b>Vinos Cafayate</b> · 22 páginas<div class="when">HOY · 10:08</div></div></div>
+          <div class="activity-i"><div class="dot-c"></div><div class="body">Comentó en "Story menú": <i style="color: var(--fg-2);">"Subamos la saturación del fondo, queda apagado en feed."</i><div class="when">AYER · 18:30</div></div></div>
+          <div class="activity-i"><div class="dot-c gray"></div><div class="body"><b>Invitó</b> a Federico Núñez como Account<div class="when">AYER · 14:12</div></div></div>
+          <div class="activity-i"><div class="dot-c green"></div><div class="body"><b>Aprobó</b> 8 piezas de <b>Buenos Aires Co.</b> en lote<div class="when">VIE 25 · 16:55</div></div></div>
+          <div class="activity-i"><div class="dot-c"></div><div class="body"><b>Creó</b> la cuenta <b>Talampaya Outdoors</b> y subió el brief inicial<div class="when">VIE 25 · 09:20</div></div></div>
+          <div class="activity-i"><div class="dot-c"></div><div class="body"><b>Cambió el plan</b> de Pampero Indumentaria de Mensual a Trimestral<div class="when">JUE 24 · 17:08</div></div></div>
+        </section>
+
+        <div>
+          <section class="panel">
+            <div class="panel-h"><h3>Cuentas asignadas</h3><span class="meta">18 · DIRECTORA</span></div>
+            <div class="acc-row"><div class="av">DT</div><div class="nm">Parrilla Don Tito</div><span class="ct">12 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">VC</div><div class="nm">Vinos Cafayate</div><span class="ct">22 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">PA</div><div class="nm">Pampero Indumentaria</div><span class="ct">15 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">EN</div><div class="nm">Empanadas del Norte</div><span class="ct">8 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">BC</div><div class="nm">Buenos Aires Co.</div><span class="ct">10 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">TA</div><div class="nm">Talampaya Outdoors</div><span class="ct">6 PIEZAS</span></div>
+            <div class="acc-row"><div class="av">CM</div><div class="nm">Casa Mate</div><span class="ct">9 PIEZAS</span></div>
+            <div class="acc-row faint mono" style="justify-content: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 18px;"><a href="accounts.html" style="color: inherit;">Ver las 18 cuentas →</a></div>
+          </section>
+
+          <section class="panel mt-4">
+            <div class="panel-h"><h3>Permisos</h3></div>
+            <div class="row-i"><div class="l">Crear cuentas</div><span class="pill pill-approved"><span class="dot"></span>Sí</span><div></div></div>
+            <div class="row-i"><div class="l">Invitar miembros</div><span class="pill pill-approved"><span class="dot"></span>Sí</span><div></div></div>
+            <div class="row-i"><div class="l">Editar facturación</div><span class="pill pill-approved"><span class="dot"></span>Sí</span><div></div></div>
+            <div class="row-i"><div class="l">Eliminar cuentas</div><span class="pill pill-approved"><span class="dot"></span>Sí</span><div></div></div>
+            <div class="row-i"><div class="l">Acceso a API</div><span class="pill pill-approved"><span class="dot"></span>Sí</span><div></div></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="sidebar.js"></script>
+<script>renderSidebar('profile');</script>
+</body>
+</html>

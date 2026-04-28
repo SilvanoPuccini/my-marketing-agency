@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>My Marketing Agency · La operación de tu agencia, en un solo lugar</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  body { background: var(--bg-0); }
+
+  .lp-nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(12px);
+    background: rgba(10,10,15,0.72);
+    border-bottom: 1px solid var(--line-1);
+  }
+  .lp-nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; gap: 32px;
+    padding: 14px 32px;
+  }
+  .lp-logo { display: flex; align-items: center; gap: 10px; }
+  .lp-logo .mark {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--violet-500), var(--violet-600));
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+    color: #fff;
+    box-shadow: 0 0 0 1px var(--violet-400) inset;
+  }
+  .lp-logo .name { font-weight: 600; letter-spacing: -0.015em; }
+  .lp-nav nav { display: flex; gap: 4px; margin-left: 8px; }
+  .lp-nav nav a {
+    padding: 6px 12px; font-size: 13px; color: var(--fg-2);
+    border-radius: var(--r-2);
+  }
+  .lp-nav nav a:hover { color: var(--fg-1); background: var(--bg-2); }
+  .lp-nav .spacer { flex: 1; }
+  .lp-nav .lang {
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
+    padding: 4px 8px; border: 1px solid var(--line-2); border-radius: var(--r-1);
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 1200px; margin: 0 auto;
+    padding: 80px 32px 48px;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--violet-400);
+    background: var(--violet-soft);
+    border: 1px solid var(--violet-soft);
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+  }
+  .hero-tag .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--violet-400); box-shadow: 0 0 8px var(--violet-400); }
+
+  .hero h1 {
+    margin: 24px 0 18px;
+    font-size: 64px;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    max-width: 920px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--fg-3);
+  }
+  .hero h1 .accent {
+    background: linear-gradient(180deg, var(--violet-400), var(--violet-500));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.lead {
+    font-size: 17px; color: var(--fg-2); max-width: 640px;
+    margin: 0; line-height: 1.55;
+  }
+  .hero-cta { display: flex; gap: 10px; margin-top: 28px; align-items: center; }
+  .hero-meta {
+    display: flex; gap: 24px; margin-top: 36px;
+    color: var(--fg-3); font-size: 12px;
+    font-family: var(--font-mono);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .hero-meta span::before { content: "▸ "; color: var(--violet-500); }
+
+  /* PRODUCT MOCK */
+  .mock-wrap {
+    max-width: 1200px; margin: 24px auto 64px;
+    padding: 0 32px;
+    position: relative;
+  }
+  .mock {
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7),
+                0 0 0 1px rgba(124,58,237,0.08);
+    position: relative;
+  }
+  .mock::before {
+    content: ""; position: absolute; inset: -1px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(124,58,237,0.12), transparent 30%);
+    pointer-events: none;
+  }
+  .mock-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line-1);
+    background: var(--bg-1);
+  }
+  .mock-dots { display: flex; gap: 6px; }
+  .mock-dots span { width: 10px; height: 10px; border-radius: 999px; background: var(--bg-4); }
+  .mock-url {
+    flex: 1; text-align: center;
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
+  }
+  .mock-body {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 460px;
+    background: var(--bg-0);
+  }
+  .mock-side { background: var(--bg-1); border-right: 1px solid var(--line-1); padding: 14px 10px; }
+  .ms-brand { display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px; border-bottom: 1px solid var(--line-1); margin-bottom: 8px; }
+  .ms-brand .m { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--violet-500), var(--violet-600)); }
+  .ms-brand .n { font-size: 12px; font-weight: 600; }
+  .ms-i { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 12px; color: var(--fg-2); border-radius: 6px; }
+  .ms-i.act { background: var(--bg-2); color: var(--fg-1); box-shadow: inset 2px 0 0 var(--violet-500); }
+  .ms-i .ico { width: 12px; height: 12px; border-radius: 3px; background: var(--fg-4); }
+  .ms-i.act .ico { background: var(--violet-500); }
+
+  .mock-main { padding: 16px 18px; min-width: 0; }
+  .mock-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .mock-h h4 { margin: 0; font-size: 14px; font-weight: 600; }
+  .mock-h .actions { display: flex; gap: 6px; }
+  .mock-h .pseudo-btn { padding: 4px 9px; font-size: 11px; border-radius: 4px; background: var(--violet-500); color: #fff; }
+  .mock-h .pseudo-btn.ghost { background: var(--bg-2); color: var(--fg-2); border: 1px solid var(--line-2); }
+
+  .cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .cal-h {
+    font-family: var(--font-mono); font-size: 9px; color: var(--fg-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 4px 6px;
+  }
+  .cal-c {
+    background: var(--bg-1);
+    border: 1px solid var(--line-1);
+    border-radius: 6px;
+    padding: 6px;
+    min-height: 64px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--fg-3);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .cal-c .d { color: var(--fg-2); }
+  .cal-c.muted { background: transparent; }
+  .cal-pill {
+    font-size: 8.5px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: var(--fg-1);
+    text-transform: none;
+    letter-spacing: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-sans);
+    font-weight: 500;
+  }
+  .cal-pill.draft { background: var(--status-draft-bg); color: var(--status-draft); }
+  .cal-pill.sent { background: var(--status-sent-bg); color: var(--status-sent); }
+  .cal-pill.appr { background: var(--status-approved-bg); color: var(--status-approved); }
+  .cal-pill.pub { background: var(--status-published-bg); color: var(--status-published); }
+  .cal-pill.rej { background: var(--status-rejected-bg); color: var(--status-rejected); }
+
+  /* LOGOS */
+  .logos {
+    max-width: 1200px; margin: 0 auto;
+    padding: 24px 32px 64px;
+    color: var(--fg-3);
+  }
+  .logos-h {
+    text-align: center; font-family: var(--font-mono);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--fg-3); margin-bottom: 24px;
+  }
+  .logos-row {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+    align-items: center;
+  }
+  .logos-row span {
+    text-align: center;
+    font-weight: 600; font-size: 14px;
+    letter-spacing: -0.015em;
+    color: var(--fg-3);
+    opacity: 0.8;
+  }
+
+  /* FEATURES */
+  .features {
+    max-width: 1200px; margin: 0 auto;
+    padding: 96px 32px;
+    border-top: 1px solid var(--line-1);
+  }
+  .section-tag {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--violet-400);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+  .section-h2 {
+    font-size: 40px; letter-spacing: -0.025em; line-height: 1.1;
+    font-weight: 600; max-width: 720px; margin: 0 0 16px;
+  }
+  .section-sub { color: var(--fg-2); max-width: 580px; font-size: 16px; margin: 0; }
+
+  .f-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line-1);
+    border: 1px solid var(--line-1);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .f {
+    background: var(--bg-0);
+    padding: 28px;
+    min-height: 220px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .f-num {
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--fg-3);
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+  .f h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .f p { color: var(--fg-2); margin: 0; font-size: 14px; }
+
+  /* FLOW BLOCK */
+  .flow {
+    max-width: 1200px; margin: 0 auto;
+    padding: 96px 32px;
+    border-top: 1px solid var(--line-1);
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .flow-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--line-2); }
+  .flow-item { padding: 16px 0 16px 24px; position: relative; }
+  .flow-item::before {
+    content: ""; position: absolute; left: -5px; top: 24px;
+    width: 9px; height: 9px; border-radius: 999px; background: var(--bg-3);
+    border: 1px solid var(--line-3);
+  }
+  .flow-item.act::before { background: var(--violet-500); border-color: var(--violet-500); box-shadow: 0 0 12px var(--violet-glow); }
+  .flow-item .step {
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .flow-item h4 { margin: 4px 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .flow-item p { margin: 0; color: var(--fg-2); font-size: 14px; }
+
+  .flow-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-3);
+    padding: 18px;
+  }
+  .fc-h {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line-1); margin-bottom: 14px;
+  }
+  .fc-title { font-weight: 600; font-size: 14px; }
+  .fc-meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); }
+  .fc-img {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--r-2);
+    background:
+      repeating-linear-gradient(45deg, var(--bg-2) 0 10px, var(--bg-3) 10px 20px);
+    display: grid; place-items: center;
+    color: var(--fg-3);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--line-1);
+  }
+  .fc-cap {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--fg-2);
+    line-height: 1.5;
+  }
+  .fc-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* PRICING */
+  .pricing {
+    max-width: 1200px; margin: 0 auto;
+    padding: 96px 32px;
+    border-top: 1px solid var(--line-1);
+  }
+  .price-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-top: 48px;
+  }
+  .price-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line-1);
+    border-radius: var(--r-3);
+    padding: 28px;
+    display: flex; flex-direction: column;
+  }
+  .price-card.feat {
+    border-color: var(--violet-500);
+    background: linear-gradient(180deg, rgba(124,58,237,0.08), transparent 50%), var(--bg-1);
+    box-shadow: 0 0 0 1px var(--violet-500), 0 24px 40px -16px var(--violet-glow);
+    position: relative;
+  }
+  .price-card.feat::after {
+    content: "Más elegido"; position: absolute; top: -10px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--violet-500); color: #fff;
+    padding: 4px 8px; border-radius: var(--r-1);
+  }
+  .price-card h3 { margin: 0; font-size: 18px; font-weight: 600; }
+  .price-card .price { font-size: 36px; font-weight: 600; letter-spacing: -0.02em; margin: 12px 0 4px; }
+  .price-card .price small { font-size: 13px; color: var(--fg-3); font-weight: 400; }
+  .price-card .desc { color: var(--fg-2); font-size: 14px; min-height: 42px; }
+  .price-card ul { list-style: none; padding: 0; margin: 24px 0 24px; display: flex; flex-direction: column; gap: 10px; }
+  .price-card ul li { font-size: 13px; color: var(--fg-2); display: flex; gap: 10px; }
+  .price-card ul li::before { content: "✓"; color: var(--violet-400); font-family: var(--font-mono); }
+
+  /* CASOS — Case studies */
+  .casos {
+    max-width: 1200px; margin: 0 auto;
+    padding: 96px 32px;
+    border-top: 1px solid var(--line-1);
+  }
+  .casos-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 1px;
+    background: var(--line-1);
+    border: 1px solid var(--line-1);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .caso {
+    background: var(--bg-0);
+    padding: 28px;
+    display: flex; flex-direction: column;
+    min-height: 320px;
+  }
+  .caso-feat {
+    background: var(--bg-1);
+    grid-row: span 2;
+    padding: 36px;
+    background:
+      radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%),
+      var(--bg-1);
+  }
+  .caso .meta {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; gap: 12px;
+  }
+  .caso .meta .dot { color: var(--fg-4); }
+  .caso .name {
+    margin-top: 16px;
+    font-weight: 600; font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .caso-feat .name { font-size: 22px; margin-top: 24px; }
+  .caso .quote {
+    margin-top: 16px;
+    font-size: 18px; line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--fg-1);
+    flex: 1;
+  }
+  .caso-feat .quote { font-size: 24px; line-height: 1.3; }
+  .caso .quote::before { content: "“"; color: var(--violet-400); margin-right: 4px; }
+  .caso .quote::after { content: "”"; color: var(--violet-400); margin-left: 2px; }
+  .caso .who {
+    margin-top: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .caso .who .av {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--bg-3); border: 1px solid var(--line-2);
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+    color: var(--violet-400);
+  }
+  .caso .who .info { font-size: 12px; line-height: 1.35; }
+  .caso .who .info b { font-weight: 600; color: var(--fg-1); }
+  .caso .who .info span { color: var(--fg-3); display: block; }
+  .caso-stats {
+    margin-top: 20px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    border-top: 1px dashed var(--line-2);
+    padding-top: 16px;
+  }
+  .caso-stats .s .v {
+    font-family: var(--font-mono);
+    font-size: 22px; font-weight: 600;
+    color: var(--violet-400);
+    letter-spacing: -0.02em;
+  }
+  .caso-stats .s .l {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+  .caso .more {
+    margin-top: 16px;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--violet-400);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .caso-tile {
+    background: var(--bg-0);
+    padding: 24px;
+    display: flex; flex-direction: column;
+  }
+  .caso-tile .num {
+    font-family: var(--font-mono); font-size: 36px;
+    font-weight: 600; color: var(--violet-400);
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .caso-tile .lbl {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em;
+    margin-top: 8px;
+  }
+  .caso-tile p {
+    margin: 16px 0 0; font-size: 13px; color: var(--fg-2); line-height: 1.5;
+    flex: 1;
+  }
+  .caso-tile .from {
+    margin-top: 16px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* CAMBIOS — Changelog */
+  .cambios {
+    max-width: 1200px; margin: 0 auto;
+    padding: 96px 32px;
+    border-top: 1px solid var(--line-1);
+  }
+  .cambios-grid {
+    display: grid; grid-template-columns: 1fr 2fr; gap: 64px;
+    margin-top: 56px;
+    align-items: flex-start;
+  }
+  .cambios-side {
+    position: sticky; top: 96px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .cambios-side .meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line-2);
+    font-size: 12px;
+  }
+  .cambios-side .meta-row .k { color: var(--fg-3); }
+  .cambios-side .meta-row .v { color: var(--fg-1); font-family: var(--font-mono); font-size: 11px; }
+  .cambios-side .sub-cta {
+    margin-top: 12px;
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-2);
+    padding: 14px;
+    font-size: 12.5px;
+    color: var(--fg-2);
+    line-height: 1.5;
+  }
+  .cambios-side .sub-cta .t {
+    font-weight: 600; color: var(--fg-1);
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .cambios-side .sub-cta input {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-2);
+    padding: 8px 10px;
+    color: var(--fg-1);
+    font-size: 12px;
+    outline: none;
+  }
+  .cambios-side .sub-cta input:focus { border-color: var(--violet-500); }
+
+  .changelog { display: flex; flex-direction: column; }
+  .release {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line-1);
+  }
+  .release:first-child { padding-top: 0; }
+  .release:last-child { border-bottom: 0; }
+  .release-h {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .release-h .ver {
+    font-family: var(--font-mono);
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--fg-1);
+  }
+  .release-h .date {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .release-h .tag {
+    font-family: var(--font-mono); font-size: 10px;
+    padding: 2px 8px;
+    border-radius: var(--r-1);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .tag-major { background: var(--violet-soft); color: var(--violet-400); }
+  .tag-minor { background: var(--status-sent-bg); color: var(--status-sent); }
+  .tag-fix   { background: var(--status-approved-bg); color: var(--status-approved); }
+
+  .release h3 {
+    margin: 0 0 6px;
+    font-size: 18px; font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .release p.intro {
+    margin: 0 0 16px; color: var(--fg-2); font-size: 14px; line-height: 1.55;
+    max-width: 640px;
+  }
+  .change-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .change-list li {
+    display: flex; gap: 12px;
+    font-size: 13.5px; color: var(--fg-2); line-height: 1.5;
+  }
+  .change-list li .badge {
+    flex-shrink: 0;
+    font-family: var(--font-mono); font-size: 9.5px;
+    padding: 2px 6px;
+    border-radius: var(--r-1);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    align-self: flex-start;
+    margin-top: 1px;
+    min-width: 56px;
+    text-align: center;
+  }
+  .badge-new   { background: var(--violet-soft); color: var(--violet-400); }
+  .badge-fix   { background: var(--status-approved-bg); color: var(--status-approved); }
+  .badge-imp   { background: var(--status-sent-bg); color: var(--status-sent); }
+  .badge-int   { background: var(--bg-3); color: var(--fg-3); }
+  .change-list li b { color: var(--fg-1); font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .casos, .cambios { padding: 64px 20px; }
+    .casos-grid { grid-template-columns: 1fr; }
+    .caso-feat { grid-row: auto; }
+    .cambios-grid { grid-template-columns: 1fr; gap: 32px; }
+    .cambios-side { position: static; }
+  }
+
+  /* FOOTER CTA */
+  .cta-band {
+    max-width: 1200px; margin: 0 auto 64px;
+    padding: 64px 48px;
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-3);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-band::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(60% 80% at 80% 50%, var(--violet-glow), transparent 70%);
+    pointer-events: none;
+  }
+  .cta-band h3 { margin: 0; font-size: 28px; letter-spacing: -0.02em; max-width: 520px; }
+  .cta-band p { color: var(--fg-2); margin: 8px 0 0; max-width: 520px; }
+  .cta-band .btns { display: flex; gap: 10px; position: relative; }
+
+  /* FOOTER */
+  footer.lp-foot {
+    max-width: 1200px; margin: 0 auto;
+    padding: 32px;
+    border-top: 1px solid var(--line-1);
+    display: flex; justify-content: space-between; gap: 32px;
+    color: var(--fg-3);
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+  footer.lp-foot .links a { margin-left: 16px; color: var(--fg-3); }
+  footer.lp-foot .links a:hover { color: var(--fg-1); }
+
+  @media (max-width: 900px) {
+    .hero { padding: 56px 20px 32px; }
+    .hero h1 { font-size: 40px; }
+    .mock-wrap { padding: 0 12px; }
+    .mock-body { grid-template-columns: 1fr; }
+    .mock-side { display: none; }
+    .features, .flow, .pricing { padding: 64px 20px; }
+    .f-grid { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; gap: 32px; }
+    .price-grid { grid-template-columns: 1fr; }
+    .cta-band { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+    .logos-row { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  }
+</style>
+</head>
+<body>
+  <header class="lp-nav">
+    <div class="lp-nav-inner">
+      <div class="lp-logo">
+        <div class="mark">M</div>
+        <div class="name">My Marketing Agency</div>
+      </div>
+      <nav>
+        <a href="#producto">Producto</a>
+        <a href="#flujo">Flujo</a>
+        <a href="#precios">Precios</a>
+        <a href="#casos">Casos</a>
+        <a href="#cambios">Cambios</a>
+      </nav>
+      <div class="spacer"></div>
+      <span class="lang">ES‑AR</span>
+      <a href="login.html" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="login.html" class="btn btn-primary btn-sm">Empezar gratis</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="hero-tag"><span class="dot"></span>v2.4 · ahora con flujo de aprobación de cliente</span>
+    <h1>
+      La operación de tu agencia,<br/>
+      <span class="accent">en un solo lugar.</span><br/>
+      <em>Sin planillas, sin grupos de WhatsApp.</em>
+    </h1>
+    <p class="lead">
+      Calendario editorial, aprobaciones del cliente y reportes — pensado para
+      agencias de marketing argentinas que manejan entre 5 y 50 cuentas. Llevá
+      todo el ciclo, desde la idea hasta la publicación, con la prolijidad que
+      tu cliente espera.
+    </p>
+    <div class="hero-cta">
+      <a href="login.html" class="btn btn-primary btn-lg">Empezar gratis · 14 días</a>
+      <a href="#producto" class="btn btn-secondary btn-lg">Ver el producto →</a>
+    </div>
+    <div class="hero-meta">
+      <span>Sin tarjeta</span>
+      <span>Hosteado en AR</span>
+      <span>Setup en 10 min</span>
+    </div>
+  </section>
+
+  <section class="mock-wrap" id="producto">
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="mock-dots"><span></span><span></span><span></span></div>
+        <div class="mock-url">app.mymarketing.com.ar / calendario / abril‑2026</div>
+        <div style="width: 48px;"></div>
+      </div>
+      <div class="mock-body">
+        <aside class="mock-side">
+          <div class="ms-brand"><div class="m"></div><div class="n">MMA</div></div>
+          <div class="ms-i"><span class="ico"></span>Panel</div>
+          <div class="ms-i"><span class="ico"></span>Cuentas</div>
+          <div class="ms-i act"><span class="ico"></span>Calendario</div>
+          <div class="ms-i"><span class="ico"></span>Biblioteca</div>
+          <div class="ms-i"><span class="ico"></span>Reportes</div>
+          <div class="ms-i"><span class="ico"></span>Equipo</div>
+        </aside>
+        <main class="mock-main">
+          <div class="mock-h">
+            <div>
+              <h4>Abril 2026</h4>
+              <div class="mono" style="font-size:11px; color:var(--fg-3); margin-top:2px;">12 PIEZAS · 3 PENDIENTES DE APROBACIÓN</div>
+            </div>
+            <div class="actions">
+              <span class="pseudo-btn ghost">Filtrar</span>
+              <span class="pseudo-btn">+ Nueva pieza</span>
+            </div>
+          </div>
+          <div class="cal">
+            <div class="cal-h">Lun</div><div class="cal-h">Mar</div><div class="cal-h">Mié</div>
+            <div class="cal-h">Jue</div><div class="cal-h">Vie</div><div class="cal-h">Sáb</div><div class="cal-h">Dom</div>
+            <div class="cal-c muted"><span class="d">30</span></div>
+            <div class="cal-c muted"><span class="d">31</span></div>
+            <div class="cal-c"><span class="d">01</span><span class="cal-pill draft">Reel apertura</span></div>
+            <div class="cal-c"><span class="d">02</span><span class="cal-pill sent">Carrusel tips</span></div>
+            <div class="cal-c"><span class="d">03</span></div>
+            <div class="cal-c"><span class="d">04</span></div>
+            <div class="cal-c"><span class="d">05</span></div>
+            <div class="cal-c"><span class="d">06</span><span class="cal-pill appr">Story menú</span></div>
+            <div class="cal-c"><span class="d">07</span><span class="cal-pill pub">Post lanzamiento</span><span class="cal-pill draft">Reel BTS</span></div>
+            <div class="cal-c"><span class="d">08</span></div>
+            <div class="cal-c"><span class="d">09</span><span class="cal-pill rej">Pieza promo</span></div>
+            <div class="cal-c"><span class="d">10</span><span class="cal-pill sent">Carrusel</span></div>
+            <div class="cal-c"><span class="d">11</span></div>
+            <div class="cal-c"><span class="d">12</span></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <section class="logos">
+    <div class="logos-h">Más de 240 agencias en Argentina ya operan con MMA</div>
+    <div class="logos-row">
+      <span>Estudio Pampas</span>
+      <span>Plata Comunicación</span>
+      <span>Casa Mate</span>
+      <span>Ñandú Studio</span>
+      <span>Talampaya</span>
+      <span>Buenos Aires Co.</span>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="section-tag">Producto</div>
+    <h2 class="section-h2">Lo que tu equipo necesita, sin lo que no.</h2>
+    <p class="section-sub">Cinco años escuchando agencias argentinas. Lo construimos para resolver lo que se rompe — no para impresionar a un VC.</p>
+
+    <div class="f-grid">
+      <div class="f">
+        <div class="f-num">01 / Calendario</div>
+        <h3>Calendario editorial real</h3>
+        <p>Mensual, semanal, por cuenta o consolidado. Arrastrá una pieza para reagendarla, dupliícala para una serie, marcá feriados argentinos.</p>
+      </div>
+      <div class="f">
+        <div class="f-num">02 / Aprobaciones</div>
+        <h3>Cliente aprueba en 2 clicks</h3>
+        <p>Portal limitado para tu cliente. Aprueba, pide cambios o comenta sobre la pieza. Sin emails, sin "te paso por WhatsApp".</p>
+      </div>
+      <div class="f">
+        <div class="f-num">03 / Equipo</div>
+        <h3>Roles sin fricción</h3>
+        <p>Director, account, diseñador, copy, cliente. Cada uno ve lo que tiene que ver — ni más, ni menos.</p>
+      </div>
+      <div class="f">
+        <div class="f-num">04 / Cuentas</div>
+        <h3>Una cuenta, todo el contexto</h3>
+        <p>Brief, marca, paleta, pauta mensual, links a Drive, contratos. La memoria de la agencia, ordenada.</p>
+      </div>
+      <div class="f">
+        <div class="f-num">05 / Reportes</div>
+        <h3>Reportes que el cliente entiende</h3>
+        <p>Métricas reales, sin chamuyo. Generá un PDF mensual con un click — con tu marca, no la nuestra.</p>
+      </div>
+      <div class="f">
+        <div class="f-num">06 / Integraciones</div>
+        <h3>Donde ya trabajás</h3>
+        <p>Drive, Notion, Meta Business Suite, WhatsApp Business. Importá briefs, exportá piezas, sin copiar y pegar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="flow" id="flujo">
+    <div>
+      <div class="section-tag">Flujo</div>
+      <h2 class="section-h2">De la idea publicada, en un hilo.</h2>
+      <p class="section-sub" style="margin-bottom: 32px;">Cada pieza pasa por cuatro estados claros. Tu cliente sabe en qué está. Tu equipo sabe qué sigue.</p>
+      <div class="flow-list">
+        <div class="flow-item">
+          <div class="step">01 · Borrador</div>
+          <h4>Tu equipo arma la pieza</h4>
+          <p>Copy, arte, fecha. Comentarios internos, sin que el cliente vea.</p>
+        </div>
+        <div class="flow-item act">
+          <div class="step">02 · Enviada</div>
+          <h4>Cliente recibe la propuesta</h4>
+          <p>Notificación por mail. Vista limpia, sin sidebar de agencia.</p>
+        </div>
+        <div class="flow-item">
+          <div class="step">03 · Aprobada o con cambios</div>
+          <h4>Decisión, en contexto</h4>
+          <p>El cliente aprueba o anota cambios sobre la pieza misma.</p>
+        </div>
+        <div class="flow-item">
+          <div class="step">04 · Publicada</div>
+          <h4>Cierra el ciclo</h4>
+          <p>Marcás como publicada, queda en el histórico, suma al reporte.</p>
+        </div>
+      </div>
+    </div>
+    <div class="flow-card">
+      <div class="fc-h">
+        <div>
+          <div class="fc-title">Reel — apertura de temporada</div>
+          <div class="fc-meta">EMP · LUN 13 ABR · 18:00</div>
+        </div>
+        <span class="pill pill-sent"><span class="dot"></span>Enviada</span>
+      </div>
+      <div class="fc-img">[ reel · 1080×1920 ]</div>
+      <div class="fc-cap">
+        "Volvemos con todo. Nueva carta, mismas brasas. Te esperamos en Palermo,
+        miércoles a sábados desde las 19. #ParrillaPorteña #AperturaDeTemporada"
+      </div>
+      <div class="fc-actions">
+        <span class="btn btn-secondary btn-sm">Pedir cambios</span>
+        <span class="btn btn-primary btn-sm">Aprobar pieza</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="precios">
+    <div class="section-tag">Precios</div>
+    <h2 class="section-h2">Transparente. En pesos.</h2>
+    <p class="section-sub">Sin pricing en dólares "porque queda lindo". Sin escalones que esconden funciones que necesitás. Cancelás cuando quieras.</p>
+    <div class="price-grid">
+      <div class="price-card">
+        <h3>Solo</h3>
+        <div class="price">$0 <small>/ mes</small></div>
+        <div class="desc">Para freelancers que arman su primer flujo de cliente.</div>
+        <ul>
+          <li>1 cuenta</li>
+          <li>Calendario y aprobaciones</li>
+          <li>1 cliente externo</li>
+          <li>Reportes básicos</li>
+        </ul>
+        <a href="login.html" class="btn btn-secondary">Empezar</a>
+      </div>
+      <div class="price-card feat">
+        <h3>Estudio</h3>
+        <div class="price">$84.000 <small>/ mes + IVA</small></div>
+        <div class="desc">Para agencias de 3 a 12 personas con cartera activa.</div>
+        <ul>
+          <li>Hasta 25 cuentas</li>
+          <li>Equipo ilimitado</li>
+          <li>Portal de cliente con tu marca</li>
+          <li>Reportes en PDF · export Drive</li>
+          <li>Soporte por WhatsApp</li>
+        </ul>
+        <a href="login.html" class="btn btn-primary">Probar 14 días gratis</a>
+      </div>
+      <div class="price-card">
+        <h3>Casa</h3>
+        <div class="price">A medida</div>
+        <div class="desc">Para agencias grandes y holdings. SLA, SSO, infra dedicada.</div>
+        <ul>
+          <li>Cuentas ilimitadas</li>
+          <li>SSO + auditoría</li>
+          <li>Onboarding dedicado</li>
+          <li>SLA 99.9%</li>
+        </ul>
+        <a href="#" class="btn btn-secondary">Hablar con ventas</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="casos" id="casos">
+    <div class="section-tag">Casos</div>
+    <h2 class="section-h2">Agencias que dejaron las planillas.</h2>
+    <p class="section-sub">Historias reales de equipos que pasaron a operar con MMA — y cómo se notó en las horas y en la facturación.</p>
+
+    <div class="casos-grid">
+      <article class="caso caso-feat">
+        <div class="meta">
+          <span>ESTUDIO PAMPAS</span>
+          <span class="dot">·</span>
+          <span>BUENOS AIRES · 12 PERSONAS</span>
+        </div>
+        <div class="name">Cortar los grupos de WhatsApp con clientes — y recuperar 15 horas semanales.</div>
+        <div class="quote">
+          Pasamos de 4 horas semanales por cuenta solo en mensajería, a 20 minutos.
+          Con 18 cuentas activas, eso es una persona entera que ahora hace estrategia.
+        </div>
+        <div class="who">
+          <div class="av">LF</div>
+          <div class="info">
+            <b>Lucía Fernández</b>
+            <span>Directora · Estudio Pampas</span>
+          </div>
+        </div>
+        <div class="caso-stats">
+          <div class="s"><div class="v">−72%</div><div class="l">Tiempo en mensajería</div></div>
+          <div class="s"><div class="v">+9</div><div class="l">Cuentas nuevas / año</div></div>
+          <div class="s"><div class="v">1,4d</div><div class="l">Tiempo medio de aprobación</div></div>
+        </div>
+        <div class="more">Leer caso completo →</div>
+      </article>
+
+      <article class="caso">
+        <div class="meta">
+          <span>PLATA COMUNICACIÓN</span>
+          <span class="dot">·</span>
+          <span>CÓRDOBA · 6 PERSONAS</span>
+        </div>
+        <div class="name">El cliente aprueba en el día, no en la semana.</div>
+        <div class="quote">
+          Antes mandaba JPG por mail y rezaba. Ahora ven, comentan y aprueban en
+          una sola pantalla. Cierro el mes el 28, no el 6 del siguiente.
+        </div>
+        <div class="who">
+          <div class="av">FN</div>
+          <div class="info">
+            <b>Federico Nuñez</b>
+            <span>Director · Plata Comunicación</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="caso">
+        <div class="meta">
+          <span>ÑANDÚ STUDIO</span>
+          <span class="dot">·</span>
+          <span>ROSARIO · 4 PERSONAS</span>
+        </div>
+        <div class="name">Dejamos de perder piezas en Drive.</div>
+        <div class="quote">
+          Cada cuenta tiene su brief, su paleta y su histórico en el mismo lugar.
+          El nuevo del equipo se enchufa el primer día.
+        </div>
+        <div class="who">
+          <div class="av">SI</div>
+          <div class="info">
+            <b>Sofía Iglesias</b>
+            <span>Lead de diseño · Ñandú</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="caso-tile">
+        <div class="num">240+</div>
+        <div class="lbl">Agencias activas en AR</div>
+        <p>De freelancers con 2 cuentas a estudios con 40. La mayoría arranca con una sola cuenta para probar.</p>
+        <div class="from">Datos a abril 2026</div>
+      </article>
+
+      <article class="caso-tile">
+        <div class="num">18.4k</div>
+        <div class="lbl">Piezas publicadas / mes</div>
+        <p>Reels, posts, carruseles y stories que pasaron por el flujo de aprobación de cliente este mes.</p>
+        <div class="from">Promedio rolling 90 días</div>
+      </article>
+
+      <article class="caso-tile">
+        <div class="num">94%</div>
+        <div class="lbl">Renueva el plan al año</div>
+        <p>Las que no renuevan, casi siempre cerraron la agencia o se mudaron al exterior. Lo decimos sin filtro.</p>
+        <div class="from">Cohortes 2024 + 2025</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="cambios" id="cambios">
+    <div class="section-tag">Cambios</div>
+    <h2 class="section-h2">Cambios recientes.</h2>
+    <p class="section-sub">Lo que entró, lo que mejoramos y lo que rompimos a propósito. Publicamos cada release acá — sin marketing‑speak.</p>
+
+    <div class="cambios-grid">
+      <aside class="cambios-side">
+        <div class="meta-row"><span class="k">Versión actual</span><span class="v">v2.4.1</span></div>
+        <div class="meta-row"><span class="k">Última release</span><span class="v">22 ABR 2026</span></div>
+        <div class="meta-row"><span class="k">Frecuencia</span><span class="v">~CADA 2 SEM.</span></div>
+        <div class="meta-row"><span class="k">Estado</span><span class="v" style="color: var(--status-approved);">● OPERATIVO</span></div>
+
+        <div class="sub-cta">
+          <div class="t">Recibí los cambios por mail</div>
+          Una vez por mes, lo importante. Sin newsletters de cinco párrafos.
+          <input type="email" placeholder="vos@tuestudio.com.ar" />
+        </div>
+
+        <div class="sub-cta">
+          <div class="t">Pedí una feature</div>
+          Tenés algo que falta y te haría la vida más fácil. Mandalo, lo leemos.
+          <a href="#" style="display: inline-block; margin-top: 8px; color: var(--violet-400); font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em;">Abrir formulario →</a>
+        </div>
+      </aside>
+
+      <div class="changelog">
+        <article class="release">
+          <div class="release-h">
+            <span class="ver">v2.4.1</span>
+            <span class="date">22 ABR 2026</span>
+            <span class="tag tag-fix">Fix</span>
+          </div>
+          <h3>Arreglos rápidos sobre el flujo de aprobación</h3>
+          <p class="intro">Tres cositas que rompimos sin querer en v2.4 y que ya están corregidas. Si las viste, perdón. Si no las viste, mejor.</p>
+          <ul class="change-list">
+            <li><span class="badge badge-fix">Fix</span><span><b>Comentarios duplicados</b> — al pedir cambios desde el portal del cliente, el comentario podía guardarse dos veces si el wifi tartamudeaba.</span></li>
+            <li><span class="badge badge-fix">Fix</span><span><b>Calendario en Safari iOS</b> — las piezas de los días 28–31 quedaban tapadas por el toolbar inferior. Reservamos el padding correcto.</span></li>
+            <li><span class="badge badge-fix">Fix</span><span><b>Export PDF de reportes</b> — los caracteres con tilde se rompían cuando la cuenta tenía nombre con ñ.</span></li>
+          </ul>
+        </article>
+
+        <article class="release">
+          <div class="release-h">
+            <span class="ver">v2.4</span>
+            <span class="date">15 ABR 2026</span>
+            <span class="tag tag-major">Major</span>
+          </div>
+          <h3>Nuevo flujo de aprobación de cliente</h3>
+          <p class="intro">El cambio más grande del trimestre. Reescribimos el portal del cliente para que aprobar una pieza sea de verdad un click. Migración automática para todas las cuentas.</p>
+          <ul class="change-list">
+            <li><span class="badge badge-new">Nuevo</span><span><b>Decisión grande, contexto al lado.</b> Aprobar / pedir cambios queda fijo en pantalla mientras el cliente lee el copy y mira la pieza.</span></li>
+            <li><span class="badge badge-new">Nuevo</span><span><b>Atajos de teclado.</b> <span class="kbd" style="font-size:10px;">A</span> aprobar, <span class="kbd" style="font-size:10px;">C</span> pedir cambios, <span class="kbd" style="font-size:10px;">→</span> siguiente pieza.</span></li>
+            <li><span class="badge badge-new">Nuevo</span><span><b>Vista previa multi‑formato.</b> El cliente ve el reel en 9:16 y el corte 1:1 sin tener que abrir nada.</span></li>
+            <li><span class="badge badge-imp">Mejora</span><span><b>Notificaciones por mail con preview.</b> El cliente ve la pieza antes de hacer click — menos "no entendí qué tengo que aprobar".</span></li>
+            <li><span class="badge badge-imp">Mejora</span><span><b>Historial de versiones</b> visible para el cliente, con tabs v1 / v2 / v3.</span></li>
+          </ul>
+        </article>
+
+        <article class="release">
+          <div class="release-h">
+            <span class="ver">v2.3</span>
+            <span class="date">31 MAR 2026</span>
+            <span class="tag tag-minor">Minor</span>
+          </div>
+          <h3>Carga del equipo y vista de capacidad</h3>
+          <p class="intro">Para directoras como Lucía: saber, de un vistazo, quién está al límite y quién puede tomar una pieza más esta semana.</p>
+          <ul class="change-list">
+            <li><span class="badge badge-new">Nuevo</span><span><b>Panel "Carga del equipo"</b> en el dashboard, con barras por persona y semana.</span></li>
+            <li><span class="badge badge-new">Nuevo</span><span><b>Filtro por account manager</b> en la lista de cuentas.</span></li>
+            <li><span class="badge badge-imp">Mejora</span><span><b>Asignación múltiple</b> de piezas a varios miembros del equipo (copy + diseño + account).</span></li>
+            <li><span class="badge badge-int">Interno</span><span>Reescribimos el motor de notificaciones. Nadie debería notarlo, pero todo va más rápido.</span></li>
+          </ul>
+        </article>
+
+        <article class="release">
+          <div class="release-h">
+            <span class="ver">v2.2</span>
+            <span class="date">14 MAR 2026</span>
+            <span class="tag tag-minor">Minor</span>
+          </div>
+          <h3>Integración con Meta Business Suite</h3>
+          <p class="intro">Conectá tu cuenta de Meta una sola vez por cliente. Las piezas aprobadas se programan solas en Instagram + Facebook a la fecha y hora pactada.</p>
+          <ul class="change-list">
+            <li><span class="badge badge-new">Nuevo</span><span><b>Conexión Meta Business</b> — autorización OAuth, token rotativo, sin guardar contraseñas.</span></li>
+            <li><span class="badge badge-new">Nuevo</span><span><b>Programación automática</b> al aprobar — la pieza pasa de "Aprobada" a "Programada" sin intervención manual.</span></li>
+            <li><span class="badge badge-imp">Mejora</span><span><b>Calendario de feriados argentinos</b> resaltados, con sugerencia de no publicar el 1° de mayo o el 25 de mayo salvo que confirmes.</span></li>
+            <li><span class="badge badge-fix">Fix</span><span><b>Zonas horarias</b> — todo el sistema ahora trabaja en <span class="mono">America/Argentina/Buenos_Aires</span> por default. Adiós a piezas publicadas a las 3 AM.</span></li>
+          </ul>
+        </article>
+
+        <article class="release">
+          <div class="release-h">
+            <span class="ver">v2.1</span>
+            <span class="date">26 FEB 2026</span>
+            <span class="tag tag-minor">Minor</span>
+          </div>
+          <h3>Reportes en PDF con tu marca</h3>
+          <p class="intro">Generá el reporte mensual del cliente en un click — con tu logo, tus colores y la firma del account. Se acabó el "después te lo paso por mail".</p>
+          <ul class="change-list">
+            <li><span class="badge badge-new">Nuevo</span><span><b>Plantilla de reporte</b> editable por agencia. Subí logo, colores y portada una sola vez.</span></li>
+            <li><span class="badge badge-new">Nuevo</span><span><b>Export a Drive</b> — el PDF queda guardado en la carpeta que indiques.</span></li>
+            <li><span class="badge badge-imp">Mejora</span><span><b>Métricas reales</b> traídas desde Meta Insights — no más copiar y pegar.</span></li>
+          </ul>
+        </article>
+
+        <article class="release" style="opacity: 0.7;">
+          <div class="release-h">
+            <span class="ver">v2.0</span>
+            <span class="date">29 ENE 2026</span>
+            <span class="tag tag-major">Major</span>
+          </div>
+          <h3>MMA 2.0 — rediseño completo</h3>
+          <p class="intro">Después de un año escuchando agencias, rediseñamos todo. Nuevo sistema de diseño, nueva navegación, nuevo motor de calendario. Si venís de v1, te llevamos los datos.</p>
+          <a href="#" style="font-family: var(--font-mono); font-size: 11px; color: var(--violet-400); text-transform: uppercase; letter-spacing: 0.06em;">Ver release notes completas →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div>
+      <h3>Probalo con una de tus cuentas esta semana.</h3>
+      <p>Setup en 10 minutos. Sin tarjeta. Si no te convence, te ayudamos a exportar todo a una planilla y listo.</p>
+    </div>
+    <div class="btns">
+      <a href="login.html" class="btn btn-secondary btn-lg">Ver demo</a>
+      <a href="login.html" class="btn btn-primary btn-lg">Empezar gratis →</a>
+    </div>
+  </section>
+
+  <footer class="lp-foot">
+    <div>© 2026 MMA · Hecho en Buenos Aires</div>
+    <div class="links">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos</a>
+      <a href="#">Estado</a>
+      <a href="#">Contacto</a>
+    </div>
+  </footer>
+</body>
+</html>
