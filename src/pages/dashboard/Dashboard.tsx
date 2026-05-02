@@ -1,67 +1,91 @@
+import { useState } from 'react'
 import { TopBar } from '@/components/layout/TopBar'
+import { useAuthStore } from '@/stores/auth.store'
+import {
+  useDashboardStats,
+  useAttentionPieces,
+  useTeamLoad,
+  useAccountsWithPauta,
+  useRecentActivity,
+  getISOWeek,
+  type Period,
+} from '@/features/dashboard/hooks/useDashboard'
+import { CreatePieceModal } from '@/features/pieces/components/CreatePieceModal'
+import { PieceDetailModal } from '@/features/pieces/components/PieceDetailModal'
 
-const STATS = [
-  {
-    label: 'Piezas activas',
-    value: '142',
-    delta: '▲ 12 vs. mes pasado',
-    deltaUp: true,
-    spark: [30, 50, 40, 65, 55, 75, 90],
-  },
-  {
-    label: 'Pendientes de aprobación',
-    value: '8',
-    delta: '▲ 3 desde ayer',
-    deltaUp: false,
-    spark: [40, 30, 50, 35, 60, 55, 80],
-  },
-  {
-    label: 'Tiempo medio de aprobación',
-    value: '1,4d',
-    delta: '▼ 0,3d vs. mes pasado',
-    deltaUp: true,
-    spark: [80, 70, 75, 55, 60, 45, 40],
-  },
-  {
-    label: 'Tasa de aprobación',
-    value: '87%',
-    delta: '▲ 4pp vs. mes pasado',
-    deltaUp: true,
-    spark: [55, 60, 50, 70, 75, 80, 88],
-  },
-]
+// ─── Helpers ─────────────────────────────────────────────────
 
-const ATTENTION_ITEMS = [
-  { title: 'Reel — apertura de temporada', account: 'Parrilla Don Tito · Reel · LUN 28 ABR · 18:00', status: 'rejected', label: 'Cambios pedidos', when: 'hace 2 h' },
-  { title: 'Carrusel — 5 tips para emprender', account: 'Talampaya Coworking · Carrusel · MAR 29 ABR · 09:00', status: 'sent', label: 'Esperando cliente', when: 'hace 1 d' },
-  { title: 'Story — promo viernes 2x1', account: 'Empanadas del Norte · Story · VIE 02 MAY · 12:00', status: 'draft', label: 'Borrador', when: 'hoy' },
-  { title: 'Post — caso Cliente del Mes', account: 'Buenos Aires Co. · Post · JUE 01 MAY · 11:00', status: 'sent', label: 'Esperando cliente', when: 'hace 4 h' },
-  { title: 'Reel — receta semanal #14', account: 'Vinos Cafayate · Reel · MIÉ 30 ABR · 19:30', status: 'rejected', label: 'Cambios pedidos', when: 'ayer' },
-]
+function greeting(fullName: string): string {
+  const h = new Date().getHours()
+  const saludo = h < 12 ? 'Buen día' : h < 19 ? 'Buenas tardes' : 'Buenas noches'
+  return `${saludo}, ${fullName.split(' ')[0]} 👋`
+}
 
-const TEAM_LOAD = [
-  { name: 'Mateo Rodríguez · Diseño', done: 12, total: 14, pct: 86, variant: '' },
-  { name: 'Camila Sosa · Copy', done: 7, total: 12, pct: 58, variant: 'ok' },
-  { name: 'Juan Pablo Gómez · Account', done: 14, total: 14, pct: 100, variant: 'warn' },
-  { name: 'Sofía Iglesias · Diseño', done: 9, total: 14, pct: 64, variant: 'ok' },
-  { name: 'Tomás Acuña · Copy jr.', done: 5, total: 10, pct: 50, variant: 'ok' },
-]
+function todayLabel(): string {
+  const str = new Date().toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
-const ACTIVITY = [
-  { initials: 'RP', name: 'Rocío Paz', action: 'aprobó', target: 'Reel — Volvemos con todo', account: 'PARRILLA DON TITO', when: 'HACE 14 MIN', violet: true },
-  { initials: 'MR', name: 'Mateo Rodríguez', action: 'subió', target: '3 versiones del carrusel #ABR-014', account: 'TALAMPAYA', when: 'HACE 1 H', violet: false },
-  { initials: 'CS', name: 'Camila Sosa', action: 'comentó en', target: 'Story promo viernes', account: 'EMPANADAS DEL NORTE', when: 'HACE 2 H', violet: false },
-  { initials: 'FN', name: 'Federico Nuñez', action: 'pidió cambios en', target: 'Reel receta semanal #14', account: 'VINOS CAFAYATE', when: 'HACE 5 H', violet: false },
-  { initials: 'JP', name: 'Juan Pablo Gómez', action: 'creó la cuenta', target: 'Librería La Torre', account: 'NUEVA CUENTA', when: 'AYER 18:42', violet: false },
-]
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 2) return 'ahora'
+  if (mins < 60) return `hace ${mins} min`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `hace ${hours} h`
+  const days = Math.floor(hours / 24)
+  if (days === 1) return 'ayer'
+  return `hace ${days} d`
+}
 
-const ACCOUNTS_PAUTA = [
-  { initials: 'DT', name: 'Parrilla Don Tito', sub: 'Pauta · $480.000 · Meta + IG', pieces: '12 PIEZAS', status: 'approved', label: 'Al día' },
-  { initials: 'EN', name: 'Empanadas del Norte', sub: 'Pauta · $260.000 · IG + TikTok', pieces: '8 PIEZAS', status: 'sent', label: '2 por aprobar' },
-  { initials: 'TC', name: 'Talampaya Coworking', sub: 'Pauta · $180.000 · LinkedIn + IG', pieces: '14 PIEZAS', status: 'approved', label: 'Al día' },
-  { initials: 'VC', name: 'Vinos Cafayate', sub: 'Pauta · $620.000 · IG + Meta + TikTok', pieces: '22 PIEZAS', status: 'rejected', label: 'Demora' },
-  { initials: 'BC', name: 'Buenos Aires Co.', sub: 'Pauta · $340.000 · IG + LinkedIn', pieces: '10 PIEZAS', status: 'approved', label: 'Al día' },
-]
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
+  const day = d.getDate()
+  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
+  return `${wd} ${day} ${mo}`
+}
+
+function formatBudget(n: number): string {
+  return `$${n.toLocaleString('es-AR')}`
+}
+
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('')
+}
+
+function teamVariant(pct: number): string {
+  if (pct >= 95) return 'warn'
+  if (pct >= 75) return ''
+  return 'ok'
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'Borrador',
+  sent_client: 'Esperando cliente',
+  approved: 'Aprobado',
+  rejected: 'Cambios pedidos',
+  published: 'Publicado',
+}
+
+const STATUS_ACTIONS: Record<string, string> = {
+  draft: 'guardó como borrador',
+  sent_client: 'envió al cliente',
+  approved: 'aprobó',
+  rejected: 'pidió cambios en',
+  published: 'publicó',
+}
+
+// ─── UI Components ────────────────────────────────────────────
 
 function StatusPill({ status, label }: { status: string; label: string }) {
   return (
@@ -83,7 +107,7 @@ function Spark({ values }: { values: number[] }) {
             flex: 1,
             background: v === max ? 'var(--violet-500)' : 'var(--violet-soft)',
             borderRadius: 1,
-            height: `${v}%`,
+            height: `${Math.max(8, v)}%`,
           }}
         />
       ))}
@@ -91,7 +115,7 @@ function Spark({ values }: { values: number[] }) {
   )
 }
 
-function Avatar({ initials, violet }: { initials: string; violet?: boolean }) {
+function Avatar({ initials: init, violet }: { initials: string; violet?: boolean }) {
   return (
     <div
       style={{
@@ -110,7 +134,7 @@ function Avatar({ initials, violet }: { initials: string; violet?: boolean }) {
         flexShrink: 0,
       }}
     >
-      {initials}
+      {init}
     </div>
   )
 }
@@ -129,43 +153,110 @@ const panelH: React.CSSProperties = {
   borderBottom: '1px solid var(--line-1)',
 }
 
+function EmptyRow({ message }: { message: string }) {
+  return (
+    <div style={{ padding: '24px 18px', color: 'var(--fg-3)', fontSize: 13, textAlign: 'center' }}>
+      {message}
+    </div>
+  )
+}
+
+// ─── Dashboard ────────────────────────────────────────────────
+
 export function Dashboard() {
+  const { user } = useAuthStore()
+  const agencyId = user?.agency_id
+  const [showCreate, setShowCreate] = useState(false)
+  const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
+  const [period, setPeriod] = useState<Period>('week')
+
+  const stats = useDashboardStats(agencyId, period)
+  const attention = useAttentionPieces(agencyId)
+  const teamLoad = useTeamLoad(agencyId)
+  const pauta = useAccountsWithPauta(agencyId)
+  const activity = useRecentActivity(agencyId)
+
+  const weekNumber = getISOWeek(new Date())
+
+  const statsCards = [
+    {
+      label: 'Piezas activas',
+      value: stats.isLoading ? '—' : String(stats.data?.active ?? 0),
+      delta: '— vs. mes pasado',
+      deltaUp: true,
+      spark: [30, 40, 35, 50, 45, 55, stats.data?.active ?? 10],
+    },
+    {
+      label: 'Pendientes de aprobación',
+      value: stats.isLoading ? '—' : String(stats.data?.pending ?? 0),
+      delta: '— desde ayer',
+      deltaUp: false,
+      spark: [20, 30, 25, 40, 35, 45, stats.data?.pending ?? 5],
+    },
+    {
+      label: 'Tiempo medio de aprobación',
+      value: '—',
+      delta: 'Sin datos aún',
+      deltaUp: true,
+      spark: [50, 50, 50, 50, 50, 50, 50],
+    },
+    {
+      label: 'Tasa de aprobación',
+      value: stats.isLoading ? '—' : `${stats.data?.approvalRate ?? 0}%`,
+      delta: '— vs. mes pasado',
+      deltaUp: true,
+      spark: [40, 50, 45, 60, 55, 65, stats.data?.approvalRate ?? 0],
+    },
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <TopBar
-        breadcrumb={['Estudio Pampas', 'Panel']}
+        breadcrumb={[user?.agency_id ? 'Mi agencia' : 'Panel', 'Panel']}
         actions={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}>
-              Hoy
-            </button>
-            <button style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}>
-              + Nueva pieza
-            </button>
-          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
+          >
+            + Nueva pieza
+          </button>
         }
       />
 
-      <div style={{ padding: '24px 32px', overflowY: 'auto' }}>
+      <div className="page-content" style={{ padding: '24px 32px', overflowY: 'auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24, gap: 16 }}>
           <div>
             <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
-              Buen día, Lucía 👋
+              {user ? greeting(user.full_name) : 'Buen día 👋'}
             </h2>
             <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>
-              Hoy es lunes 27 de abril. Tu equipo tiene 7 piezas para entregar esta semana.
+              Hoy es {todayLabel()}.
+              {(stats.data?.pending ?? 0) > 0
+                ? ` Tenés ${stats.data!.pending} pieza${stats.data!.pending !== 1 ? 's' : ''} esperando aprobación.`
+                : ' Todo al día por ahora.'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}>Esta semana</button>
-            <button style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid transparent', background: 'transparent', cursor: 'pointer' }}>Mes</button>
+            {(['today', 'week', 'month'] as Period[]).map((p) => {
+              const label = p === 'today' ? 'Hoy' : p === 'week' ? 'Esta semana' : 'Mes'
+              const active = period === p
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPeriod(p)}
+                  style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, cursor: 'pointer', borderRadius: 'var(--r-2)', border: active ? '1px solid var(--violet-400)' : '1px solid var(--line-2)', background: active ? 'var(--violet-soft)' : 'var(--bg-2)', color: active ? 'var(--violet-400)' : 'var(--fg-2)' }}
+                >
+                  {label}
+                </button>
+              )
+            })}
           </div>
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
-          {STATS.map((s) => (
+        <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
+          {statsCards.map((s) => (
             <div key={s.label} style={{ background: 'var(--bg-1)', padding: '18px 20px' }}>
               <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {s.label}
@@ -182,7 +273,7 @@ export function Dashboard() {
         </div>
 
         {/* Row 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginTop: 24 }}>
+        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginTop: 24 }}>
           {/* Attention items */}
           <section style={panel}>
             <div style={panelH}>
@@ -190,12 +281,17 @@ export function Dashboard() {
                 Necesitan tu atención
               </h3>
               <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                8 PIEZAS · ORDENADAS POR URGENCIA
+                {attention.isLoading ? '—' : `${attention.data?.length ?? 0} PIEZAS`} · ORDENADAS POR URGENCIA
               </span>
             </div>
-            {ATTENTION_ITEMS.map((item) => (
+            {attention.isLoading && <EmptyRow message="Cargando..." />}
+            {!attention.isLoading && (attention.data?.length ?? 0) === 0 && (
+              <EmptyRow message="No hay piezas pendientes. ¡Todo en orden!" />
+            )}
+            {attention.data?.map((item) => (
               <div
-                key={item.title}
+                key={item.id}
+                onClick={() => setSelectedPiece(item.id)}
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '32px 1fr auto auto auto',
@@ -211,10 +307,13 @@ export function Dashboard() {
                 <div style={{ width: 32, height: 32, borderRadius: 6, background: 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)', border: '1px solid var(--line-1)' }} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>{item.account}</div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>
+                    {item.accounts?.name ?? '—'} · {item.type} · {formatDate(item.scheduled_date)}
+                    {item.scheduled_time ? ` · ${item.scheduled_time.slice(0, 5)}` : ''}
+                  </div>
                 </div>
-                <StatusPill status={item.status} label={item.label} />
-                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{item.when}</span>
+                <StatusPill status={item.status} label={STATUS_LABELS[item.status] ?? item.status} />
+                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{relativeTime(item.updated_at)}</span>
                 <span style={{ color: 'var(--fg-3)' }}>→</span>
               </div>
             ))}
@@ -224,57 +323,72 @@ export function Dashboard() {
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Carga del equipo</h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>SEMANA 17</span>
+              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                SEMANA {weekNumber}
+              </span>
             </div>
             <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {TEAM_LOAD.map((m) => (
-                <div key={m.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</span>
-                    <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{m.done} / {m.total}</span>
+              {teamLoad.isLoading && <EmptyRow message="Cargando..." />}
+              {!teamLoad.isLoading && (teamLoad.data?.length ?? 0) === 0 && (
+                <EmptyRow message="Sin piezas programadas esta semana." />
+              )}
+              {teamLoad.data?.map((m) => {
+                const variant = teamVariant(m.pct)
+                return (
+                  <div key={m.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>
+                        {m.fullName}{m.position ? ` · ${m.position}` : ''}
+                      </span>
+                      <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{m.done} / {m.total}</span>
+                    </div>
+                    <div style={{ height: 6, background: 'var(--bg-3)', borderRadius: 999, overflow: 'hidden', marginTop: 8 }}>
+                      <span
+                        style={{
+                          display: 'block',
+                          height: '100%',
+                          borderRadius: 999,
+                          width: `${m.pct}%`,
+                          background: variant === 'warn' ? '#F59E0B' : variant === 'ok' ? 'var(--status-approved)' : 'var(--violet-500)',
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div style={{ height: 6, background: 'var(--bg-3)', borderRadius: 999, overflow: 'hidden', marginTop: 8 }}>
-                    <span
-                      style={{
-                        display: 'block',
-                        height: '100%',
-                        borderRadius: 999,
-                        width: `${m.pct}%`,
-                        background: m.variant === 'warn' ? '#F59E0B' : m.variant === 'ok' ? 'var(--status-approved)' : 'var(--violet-500)',
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         </div>
 
         {/* Row 2 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
+        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
           {/* Recent activity */}
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Actividad reciente</h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ÚLTIMAS 24 H</span>
+              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ÚLTIMAS ACTUALIZACIONES</span>
             </div>
             <div style={{ padding: '6px 0' }}>
-              {ACTIVITY.map((a) => (
+              {activity.isLoading && <EmptyRow message="Cargando..." />}
+              {!activity.isLoading && (activity.data?.length ?? 0) === 0 && (
+                <EmptyRow message="Sin actividad reciente." />
+              )}
+              {activity.data?.map((a) => (
                 <div
-                  key={a.name + a.when}
+                  key={a.id}
                   style={{ display: 'flex', gap: 12, padding: '12px 18px' }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                 >
-                  <Avatar initials={a.initials} violet={a.violet} />
+                  <Avatar initials={initials(a.users?.full_name ?? '?')} violet={a.status === 'approved'} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-                      <span style={{ fontWeight: 500 }}>{a.name}</span>
-                      <span style={{ color: 'var(--fg-2)' }}> {a.action} </span>
-                      <span style={{ color: 'var(--violet-400)' }}>{a.target}</span>
+                      <span style={{ fontWeight: 500 }}>{a.users?.full_name ?? 'Alguien'}</span>
+                      <span style={{ color: 'var(--fg-2)' }}> {STATUS_ACTIONS[a.status] ?? 'actualizó'} </span>
+                      <span style={{ color: 'var(--violet-400)' }}>{a.title}</span>
                     </div>
                     <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', marginTop: 4, textTransform: 'uppercase' }}>
-                      {a.account} · {a.when}
+                      {a.accounts?.name ?? '—'} · {relativeTime(a.updated_at).toUpperCase()}
                     </div>
                   </div>
                 </div>
@@ -286,34 +400,54 @@ export function Dashboard() {
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Cuentas con pauta este mes</h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ABRIL · 14 ACTIVAS</span>
+              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {pauta.isLoading ? '—' : `${pauta.data?.length ?? 0} ACTIVAS`}
+              </span>
             </div>
-            {ACCOUNTS_PAUTA.map((a) => (
+            {pauta.isLoading && <EmptyRow message="Cargando..." />}
+            {!pauta.isLoading && (pauta.data?.length ?? 0) === 0 && (
+              <EmptyRow message="Sin cuentas con pauta este mes." />
+            )}
+            {pauta.data?.map((a) => (
               <div
-                key={a.name}
+                key={a.id}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '32px 1fr auto auto',
+                  gridTemplateColumns: '32px 1fr auto',
                   gap: 14,
                   alignItems: 'center',
                   padding: '12px 18px',
                   borderBottom: '1px solid var(--line-1)',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
               >
-                <Avatar initials={a.initials} />
+                <Avatar initials={initials(a.name)} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{a.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>{a.sub}</div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>
+                    Pauta · {formatBudget(a.monthly_budget ?? 0)}
+                    {a.plan ? ` · ${a.plan}` : ''}
+                  </div>
                 </div>
-                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{a.pieces}</span>
-                <StatusPill status={a.status} label={a.label} />
+                <StatusPill status="approved" label="Al día" />
               </div>
             ))}
           </section>
         </div>
       </div>
+
+      {showCreate && (
+        <CreatePieceModal onClose={() => setShowCreate(false)} />
+      )}
+
+      {selectedPiece && (
+        <PieceDetailModal
+          pieceId={selectedPiece}
+          onClose={() => setSelectedPiece(null)}
+        />
+      )}
     </div>
   )
 }

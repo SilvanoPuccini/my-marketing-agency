@@ -1,147 +1,210 @@
 import { Link } from 'react-router-dom'
+import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
+import { useAuthStore } from '@/stores/auth.store'
 
-const PENDING = [
-  { kind: 'REEL', ratio: '9/16', title: 'Apertura de temporada', meta: 'REEL · LUN 28 ABR · 18:00', blurb: '"Volvemos con todo. Nueva carta, mismas brasas. Te esperamos en Palermo…"', version: 'v3 · 24 s', status: 'rejected', statusLabel: 'Cambios pedidos', play: true },
-  { kind: 'POST', ratio: '1/1', title: 'Vino de la semana — Malbec 2021', meta: 'POST · MAR 29 ABR · 12:00', blurb: '"Para acompañar el bife de chorizo. Lo recomienda Tito en persona."', version: 'v1', status: 'sent', statusLabel: 'Para revisar', play: false },
-  { kind: 'STORY', ratio: '9/16', title: 'Mesa libre esta noche', meta: 'STORY · MIÉ 30 ABR · 20:00', blurb: '"Quedan 2 mesas. Reservas por DM o al 11‑5547‑8821."', version: 'v1', status: 'sent', statusLabel: 'Para revisar', play: false },
-]
+const TYPE_RATIO: Record<string, string> = {
+  post: '1/1', reel: '9/16', story: '9/16', carrusel: '1/1', ad: '1/1', blog: '1/1',
+}
 
-const PUBLISHED = [
-  { title: 'Reservas del fin de semana', meta: 'POST · DOM 26 ABR · 21:00 · INSTAGRAM', when: 'AYER' },
-  { title: 'Detrás de la parrilla', meta: 'STORY · VIE 24 ABR · 20:00 · INSTAGRAM', when: 'VIE 24' },
-  { title: 'Vino de la semana — Cabernet 2020', meta: 'POST · MAR 22 ABR · 12:00 · INSTAGRAM', when: 'MAR 22' },
-  { title: 'Cómo se hace el bife de chorizo perfecto', meta: 'REEL · LUN 21 ABR · 19:00 · INSTAGRAM + TIKTOK', when: 'LUN 21' },
-]
+function formatDate(dateStr: string, timeStr: string | null): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
+  const day = d.getDate()
+  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
+  const time = timeStr?.slice(0, 5) ?? '--:--'
+  return `${wd} ${day} ${mo} · ${time}`
+}
+
+function formatPublished(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+  if (d.toDateString() === today.toDateString()) return 'HOY'
+  if (d.toDateString() === yesterday.toDateString()) return 'AYER'
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase().replace('.', '')
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  sent_client: 'Para revisar',
+  rejected:    'Cambios pedidos',
+  approved:    'Aprobada',
+  published:   'Publicada',
+}
 
 export function ClientPortal() {
+  const { user } = useAuthStore()
+  const { data, isLoading } = useClientPieces(user?.id)
+
+  const firstName = user?.full_name?.split(' ')[0] ?? 'Cliente'
+  const pendingCount = data?.pendingCount ?? 0
+  const approvedCount = data?.approvedCount ?? 0
+  const publishedCount = data?.publishedCount ?? 0
+  const nextPiece = data?.pending[0]
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto', padding: '32px' }}>
-        {/* Hero block */}
-        <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{
-            background: 'radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%), var(--bg-1)',
-            border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 28,
-          }}>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
-              Hola Rocio
-            </div>
-            <h1 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 600, letterSpacing: '-0.02em' }}>
-              Hay 3 piezas esperando tu mirada.
-            </h1>
-            <p style={{ color: 'var(--fg-2)', margin: 0, maxWidth: 540 }}>
-              Tu equipo de Estudio Pampas dejó listas las propuestas de esta semana. Tomate 5 minutos: aprobá lo que te guste, comentá lo que quieras cambiar.
-            </p>
-            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-              <Link
-                to="/portal/pieces/apr-0142"
-                style={{ padding: '9px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-              >
-                Revisar la primera →
-              </Link>
-              <button style={{ padding: '9px 16px', fontSize: 13, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}>
-                Ver el calendario completo
-              </button>
-            </div>
+        {isLoading ? (
+          <div style={{ color: 'var(--fg-3)', fontSize: 14, padding: '60px 0', textAlign: 'center' }}>
+            Cargando tu portal…
           </div>
-
-          <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <h4 className="mono" style={{ margin: 0, fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pendientes</h4>
-              <div className="mono" style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.025em', color: 'var(--violet-400)', lineHeight: 1, marginTop: 4 }}>3</div>
-              <p style={{ margin: 0, color: 'var(--fg-2)', fontSize: 13, marginTop: 4 }}>Piezas para que apruebes esta semana.</p>
-            </div>
-            <div style={{ height: 1, background: 'var(--line-1)' }} />
-            {[
-              { l: 'Aprobadas este mes', v: '9' },
-              { l: 'Publicadas', v: '7' },
-              { l: 'Próxima publicación', v: 'LUN 28 · 18:00' },
-            ].map((kv) => (
-              <div key={kv.l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                <span style={{ color: 'var(--fg-3)' }}>{kv.l}</span>
-                <span className="mono">{kv.v}</span>
+        ) : (
+          <>
+            {/* Hero block */}
+            <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+              <div style={{
+                background: 'radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%), var(--bg-1)',
+                border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 28,
+              }}>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+                  Hola, {firstName}
+                </div>
+                <h1 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 600, letterSpacing: '-0.02em' }}>
+                  {pendingCount > 0
+                    ? `Hay ${pendingCount} pieza${pendingCount !== 1 ? 's' : ''} esperando tu mirada.`
+                    : '¡Estás al día! No hay piezas pendientes.'}
+                </h1>
+                <p style={{ color: 'var(--fg-2)', margin: 0, maxWidth: 540 }}>
+                  {pendingCount > 0
+                    ? 'Tu equipo dejó listas las propuestas. Tomate 5 minutos: aprobá lo que te guste, comentá lo que quieras cambiar.'
+                    : 'Tu equipo está trabajando en las próximas entregas. Te avisamos en cuanto haya algo nuevo para revisar.'}
+                </p>
+                {pendingCount > 0 && nextPiece && (
+                  <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                    <Link
+                      to={`/portal/pieces/${nextPiece.id}`}
+                      style={{ padding: '9px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                    >
+                      Revisar la primera →
+                    </Link>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* Pending approval */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Esperando tu aprobación</h2>
-          <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>3 piezas · ordenadas por fecha de publicación</span>
-        </div>
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <h4 className="mono" style={{ margin: 0, fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pendientes</h4>
+                  <div className="mono" style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.025em', color: 'var(--violet-400)', lineHeight: 1, marginTop: 4 }}>
+                    {pendingCount}
+                  </div>
+                  <p style={{ margin: 0, color: 'var(--fg-2)', fontSize: 13, marginTop: 4 }}>
+                    {pendingCount === 1 ? 'Pieza para que apruebes.' : 'Piezas para que apruebes.'}
+                  </p>
+                </div>
+                <div style={{ height: 1, background: 'var(--line-1)' }} />
+                {[
+                  { l: 'Aprobadas este mes', v: String(approvedCount) },
+                  { l: 'Publicadas',          v: String(publishedCount) },
+                  { l: 'Próxima publicación',  v: nextPiece ? formatDate(nextPiece.scheduled_date, nextPiece.scheduled_time) : '—' },
+                ].map((kv) => (
+                  <div key={kv.l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                    <span style={{ color: 'var(--fg-3)' }}>{kv.l}</span>
+                    <span className="mono">{kv.v}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
-          {PENDING.map((p) => (
-            <Link
-              key={p.title}
-              to="/portal/pieces/apr-0142"
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div
-                style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--line-3)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--line-1)' }}
-              >
-                <div style={{
-                  aspectRatio: p.ratio,
-                  background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
-                  borderBottom: '1px solid var(--line-1)',
-                  display: 'grid', placeItems: 'center',
-                  color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 10,
-                  textTransform: 'uppercase', letterSpacing: '0.06em', position: 'relative',
-                }}>
-                  <span style={{ position: 'absolute', top: 10, left: 10 }}>
-                    <span className={`pill pill-${p.status}`}><span className="dot" />{p.statusLabel}</span>
+            {/* Pending approval */}
+            {data && data.pending.length > 0 && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
+                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Esperando tu aprobación</h2>
+                  <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>
+                    {data.pending.length} pieza{data.pending.length !== 1 ? 's' : ''} · ordenadas por fecha
                   </span>
-                  {p.play && (
-                    <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', display: 'grid', placeItems: 'center', color: '#fff' }}>▶</div>
-                  )}
-                  {!p.play && <span>[{p.kind}]</span>}
                 </div>
-                <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{p.meta}</div>
-                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>{p.title}</h3>
-                  <div style={{ color: 'var(--fg-2)', fontSize: 12.5, lineHeight: 1.45 }}>{p.blurb}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderTop: '1px solid var(--line-1)', background: 'var(--bg-2)', fontSize: 12, color: 'var(--fg-2)' }}>
-                  <span>{p.version}</span>
-                  <span style={{ color: 'var(--violet-400)', fontWeight: 500 }}>Revisar →</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
 
-        {/* Published */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Lo último publicado</h2>
-          <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Tu equipo cerró estas piezas en los últimos 7 días.</span>
-        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+                  {data.pending.map((p) => (
+                    <Link
+                      key={p.id}
+                      to={`/portal/pieces/${p.id}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div
+                        style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--line-3)' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--line-1)' }}
+                      >
+                        <div style={{
+                          aspectRatio: TYPE_RATIO[p.type] ?? '1/1',
+                          background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
+                          borderBottom: '1px solid var(--line-1)',
+                          display: 'grid', placeItems: 'center',
+                          color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 10,
+                          textTransform: 'uppercase', letterSpacing: '0.06em', position: 'relative',
+                        }}>
+                          <span style={{ position: 'absolute', top: 10, left: 10 }}>
+                            <span className={`pill pill-${p.status}`}><span className="dot" />{STATUS_LABELS[p.status] ?? p.status}</span>
+                          </span>
+                          {(p.type === 'reel' || p.type === 'story') && (
+                            <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', display: 'grid', placeItems: 'center', color: '#fff' }}>▶</div>
+                          )}
+                          {p.type !== 'reel' && p.type !== 'story' && <span>[{p.type.toUpperCase()}]</span>}
+                        </div>
+                        <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            {p.type.toUpperCase()} · {formatDate(p.scheduled_date, p.scheduled_time)}
+                          </div>
+                          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>{p.title}</h3>
+                          {p.copy && (
+                            <div style={{ color: 'var(--fg-2)', fontSize: 12.5, lineHeight: 1.45 }}>
+                              "{p.copy.slice(0, 80)}{p.copy.length > 80 ? '…' : ''}"
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderTop: '1px solid var(--line-1)', background: 'var(--bg-2)', fontSize: 12, color: 'var(--fg-2)' }}>
+                          <span className="mono" style={{ fontSize: 10 }}>{p.platform ?? '—'}</span>
+                          <span style={{ color: 'var(--violet-400)', fontWeight: 500 }}>Revisar →</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
 
-        <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
-          {PUBLISHED.map((p) => (
-            <div
-              key={p.title}
-              style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto auto', gap: 14, alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--line-1)', cursor: 'pointer' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-            >
-              <div style={{ width: 36, height: 36, borderRadius: 6, background: 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)', border: '1px solid var(--line-1)' }} />
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</div>
-                <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>{p.meta}</div>
-              </div>
-              <span className="pill pill-published"><span className="dot" />Publicada</span>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{p.when}</span>
+            {/* Published */}
+            {data && data.published.length > 0 && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
+                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Lo último publicado</h2>
+                  <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Tu equipo cerró estas piezas.</span>
+                </div>
+
+                <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
+                  {data.published.map((p) => (
+                    <div
+                      key={p.id}
+                      style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto auto', gap: 14, alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--line-1)', cursor: 'pointer' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <div style={{ width: 36, height: 36, borderRadius: 6, background: 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)', border: '1px solid var(--line-1)' }} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</div>
+                        <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>
+                          {p.type.toUpperCase()} · {formatDate(p.scheduled_date, p.scheduled_time)}{p.platform ? ` · ${p.platform.toUpperCase()}` : ''}
+                        </div>
+                      </div>
+                      <span className="pill pill-published"><span className="dot" />Publicada</span>
+                      <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
+                        {formatPublished(p.scheduled_date)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <div style={{ marginTop: 48, padding: 20, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--fg-3)', fontSize: 12 }}>
+              <span>¿Algo no cierra? Hablale a tu account manager.</span>
+              <span className="mono" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>VISTA DE CLIENTE</span>
             </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 48, padding: 20, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--fg-3)', fontSize: 12 }}>
-          <span>¿Algo no cierra? Hablale a tu account, <strong style={{ color: 'var(--fg-2)' }}>Juan Pablo</strong> · jp@estudiopampas.com.ar</span>
-          <span className="mono" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>VISTA DE CLIENTE · ESTUDIO PAMPAS</span>
-        </div>
+          </>
+        )}
       </div>
     </div>
   )
