@@ -1,0 +1,187 @@
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
+
+export type Period = 'today' | 'week' | 'month'
+
+function getWeekRange() {
+  const now = new Date()
+  const day = now.getDay()
+  const diffToMon = day === 0 ? -6 : 1 - day
+  const mon = new Date(now)
+  mon.setDate(now.getDate() + diffToMon)
+  const sun = new Date(mon)
+  sun.setDate(mon.getDate() + 6)
+  return {
+    start: mon.toISOString().split('T')[0],
+    end: sun.toISOString().split('T')[0],
+    weekNumber: getISOWeek(now),
+  }
+}
+
+function getPeriodRange(period: Period) {
+  const now = new Date()
+  const today = now.toISOString().split('T')[0]
+  if (period === 'today') return { start: today, end: today }
+  if (period === 'week') {
+    const { start, end } = getWeekRange()
+    return { start, end }
+  }
+  // month
+  const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  return { start, end }
+}
+
+function getISOWeek(d: Date): number {
+  const tmp = new Date(d.getTime())
+  tmp.setHours(0, 0, 0, 0)
+  tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7))
+  const w1 = new Date(tmp.getFullYear(), 0, 4)
+  return 1 + Math.round(((tmp.getTime() - w1.getTime()) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7)
+}
+
+export function useDashboardStats(agencyId: string | undefined, period: Period = 'week') {
+  const { start, end } = getPeriodRange(period)
+  return useQuery({
+    queryKey: ['dashboard', 'stats', agencyId, period],
+    enabled: !!agencyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pieces')
+        .select('status')
+        .gte('scheduled_date', start)
+        .lte('scheduled_date', end)
+      if (error) throw error
+      const map: Record<string, number> = {}
+      for (const row of data ?? []) map[row.status] = (map[row.status] ?? 0) + 1
+      const active = (map.draft ?? 0) + (map.sent_client ?? 0) + (map.approved ?? 0) + (map.rejected ?? 0)
+      const pending = map.sent_client ?? 0
+      const decided = (map.approved ?? 0) + (map.rejected ?? 0)
+      const approvalRate = decided > 0 ? Math.round(((map.approved ?? 0) / decided) * 100) : 0
+      return { active, pending, approvalRate }
+    },
+  })
+}
+
+export type AttentionPiece = {
+  id: string
+  title: string
+  type: string
+  status: string
+  updated_at: string
+  scheduled_date: string
+  scheduled_time: string | null
+  accounts: { name: string } | null
+}
+
+export function useAttentionPieces(agencyId: string | undefined) {
+  return useQuery({
+    queryKey: ['dashboard', 'attention', agencyId],
+    enabled: !!agencyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pieces')
+        .select('id, title, type, status, updated_at, scheduled_date, scheduled_time, accounts(name)')
+        .in('status', ['draft', 'sent_client', 'rejected'])
+        .order('updated_at', { ascending: false })
+        .limit(8)
+      if (error) throw error
+      return (data ?? []) as AttentionPiece[]
+    },
+  })
+}
+
+export type TeamMemberLoad = {
+  id: string
+  fullName: string
+  position: string | null
+  done: number
+  total: number
+  pct: number
+}
+
+export function useTeamLoad(agencyId: string | undefined) {
+  const { start, end, weekNumber } = getWeekRange()
+  return useQuery({
+    queryKey: ['dashboard', 'team-load', agencyId, start],
+    enabled: !!agencyId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pieces')
+        .select('author_id, status, users!author_id(full_name, position)')
+        .gte('scheduled_date', start)
+        .lte('scheduled_date', end)
+      if (error) throw error
+
+      const map = new Map<string, Omit<TeamMemberLoad, 'id' | 'pct'>>()
+      for (const piece of data ?? []) {
+        const user = piece.users as { full_name: string; position: string | null } | null
+        if (!map.has(piece.author_id)) {
+          map.set(piece.author_id, {
+            fullName: user?.full_name ?? '—',
+            position: user?.position ?? null,
+            done: 0,
+            total: 0,
+          })
+        }
+        const entry = map.get(piece.author_id)!
+        entry.total++
+        if (piece.status === 'published') entry.done++
+      }
+
+      return Array.from(map.entries()).map(([id, v]) => ({
+        id,
+        ...v,
+        pct: v.total > 0 ? Math.round((v.done / v.total) * 100) : 0,
+      }))
+    },
+    meta: { weekNumber },
+  })
+}
+
+export function useAccountsWithPauta(agencyId: string | undefined) {
+  return useQuery({
+    queryKey: ['dashboard', 'pauta', agencyId],
+    enabled: !!agencyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('id, name, monthly_budget, plan, is_active')
+        .not('monthly_budget', 'is', null)
+        .gt('monthly_budget', 0)
+        .eq('is_active', true)
+        .order('monthly_budget', { ascending: false })
+        .limit(5)
+      if (error) throw error
+      return data ?? []
+    },
+  })
+}
+
+export type ActivityItem = {
+  id: string
+  title: string
+  status: string
+  updated_at: string
+  accounts: { name: string } | null
+  users: { full_name: string } | null
+}
+
+export function useRecentActivity(agencyId: string | undefined) {
+  return useQuery({
+    queryKey: ['dashboard', 'activity', agencyId],
+    enabled: !!agencyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pieces')
+        .select('id, title, status, updated_at, accounts(name), users!author_id(full_name)')
+        .order('updated_at', { ascending: false })
+        .limit(5)
+      if (error) throw error
+      return (data ?? []) as ActivityItem[]
+    },
+  })
+}
+
+export { getISOWeek }

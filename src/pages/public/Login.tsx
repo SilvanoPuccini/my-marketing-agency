@@ -1,29 +1,40 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { useAuthStore } from '@/stores/auth.store'
 
-export function Login() {
-  const [email, setEmail] = useState('lucia@estudiopampas.com.ar')
-  const [password, setPassword] = useState('••••••••••')
-  const [remember, setRemember] = useState(true)
-  const navigate = useNavigate()
-  const { setUser } = useAuthStore()
+const loginSchema = z.object({
+  email:    z.string().min(1, 'El email es obligatorio').email('Email inválido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  remember: z.boolean(),
+})
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    // Mock login — en producción conectaría con Supabase Auth
-    setUser({
-      id: '1',
-      agency_id: 'agency-1',
-      email,
-      full_name: 'Lucía Fernández',
-      initials: 'LF',
-      role: 'admin_agency',
-      position: 'Directora',
-      is_active: true,
-      created_at: '2024-01-01T00:00:00Z',
-    })
-    navigate('/dashboard')
+type LoginValues = z.infer<typeof loginSchema>
+
+export function Login() {
+  const [serverError, setServerError] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const { login } = useAuthStore()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '', remember: true },
+  })
+
+  async function onSubmit(values: LoginValues) {
+    setServerError(null)
+    const { error: authError, role } = await login(values.email, values.password)
+    if (authError) {
+      setServerError('Email o contraseña incorrectos.')
+      return
+    }
+    navigate(role === 'client' ? '/portal' : '/dashboard')
   }
 
   const inputStyle: React.CSSProperties = {
@@ -73,7 +84,10 @@ export function Login() {
         />
 
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
+        <Link
+          to="/"
+          style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', textDecoration: 'none', color: 'inherit' }}
+        >
           <div
             style={{
               width: 30,
@@ -94,7 +108,7 @@ export function Login() {
           <span style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 15 }}>
             My Marketing Agency
           </span>
-        </div>
+        </Link>
 
         {/* Content */}
         <div
@@ -183,7 +197,8 @@ export function Login() {
         }}
       >
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
           style={{ width: '100%', maxWidth: 360 }}
         >
           <h2
@@ -249,104 +264,65 @@ export function Login() {
           <div style={{ marginBottom: 14 }}>
             <label
               htmlFor="email"
-              style={{
-                display: 'block',
-                fontSize: 12,
-                color: 'var(--fg-3)',
-                marginBottom: 6,
-                fontWeight: 500,
-              }}
+              style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}
             >
               Correo de trabajo
             </label>
             <input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register('email')}
               placeholder="vos@tuestudio.com.ar"
               style={inputStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--violet-500)'
-                e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)'
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--line-2)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--violet-500)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.boxShadow = 'none' }}
             />
+            {errors.email && (
+              <p style={{ color: 'var(--status-rejected)', fontSize: 11, marginTop: 4 }}>{errors.email.message}</p>
+            )}
           </div>
 
           {/* Password */}
           <div style={{ marginBottom: 20 }}>
             <label
               htmlFor="pass"
-              style={{
-                display: 'block',
-                fontSize: 12,
-                color: 'var(--fg-3)',
-                marginBottom: 6,
-                fontWeight: 500,
-              }}
+              style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}
             >
               Contraseña
             </label>
             <input
               id="pass"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register('password')}
               placeholder="••••••••"
               style={inputStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--violet-500)'
-                e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)'
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--line-2)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--violet-500)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.boxShadow = 'none' }}
             />
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: 6,
-                fontSize: 12,
-                color: 'var(--fg-3)',
-              }}
-            >
+            {errors.password && (
+              <p style={{ color: 'var(--status-rejected)', fontSize: 11, marginTop: 4 }}>{errors.password.message}</p>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 12, color: 'var(--fg-3)' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  style={{ accentColor: 'var(--violet-500)' }}
-                />
+                <input type="checkbox" {...register('remember')} style={{ accentColor: 'var(--violet-500)' }} />
                 Mantener sesión
               </label>
-              <a href="#" style={{ color: 'var(--violet-400)' }}>
-                Olvidé mi contraseña
-              </a>
+              <a href="#" style={{ color: 'var(--violet-400)' }}>Olvidé mi contraseña</a>
             </div>
           </div>
 
+          {serverError && (
+            <div style={{ marginBottom: 12, padding: '9px 12px', borderRadius: 'var(--r-2)', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: 'var(--status-rejected)', fontSize: 13 }}>
+              {serverError}
+            </div>
+          )}
+
           <button
             type="submit"
-            style={{
-              width: '100%',
-              padding: 11,
-              fontSize: 14,
-              fontWeight: 500,
-              color: '#fff',
-              borderRadius: 'var(--r-2)',
-              border: '1px solid var(--violet-400)',
-              background: 'var(--violet-500)',
-              cursor: 'pointer',
-              boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset',
-            }}
+            disabled={isSubmitting}
+            style={{ width: '100%', padding: 11, fontSize: 14, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}
           >
-            Entrar al panel →
+            {isSubmitting ? 'Ingresando…' : 'Entrar al panel →'}
           </button>
 
           <div

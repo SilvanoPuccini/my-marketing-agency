@@ -212,3 +212,33 @@
     font-feature-settings: 'tnum';
   }
 }
+
+/* ===== Responsive utilities ===== */
+@media (max-width: 1023px) {
+  /* Dashboard stat cards: 2 cols on tablet */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Dashboard panel rows: single column */
+  .dashboard-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Page content padding */
+  .page-content {
+    padding: 16px !important;
+  }
+
+  /* Hide columns that don't fit */
+  .col-hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Single column stat grid on phone */
+  .stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

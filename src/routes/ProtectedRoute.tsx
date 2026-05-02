@@ -7,7 +7,16 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, isLoading, user } = useAuthStore()
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', height: '100vh', background: 'var(--bg-0)' }}>
+        <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid var(--violet-500)', borderTopColor: 'transparent', animation: 'spin 0.7s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    )
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />

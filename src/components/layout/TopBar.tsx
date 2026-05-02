@@ -1,4 +1,6 @@
-import { Search } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import { useUiStore } from '@/stores/ui.store'
 
 interface TopBarProps {
   breadcrumb: string[]
@@ -6,6 +8,9 @@ interface TopBarProps {
 }
 
 export function TopBar({ breadcrumb, actions }: TopBarProps) {
+  const isMobile = useIsMobile()
+  const { toggleSidebar } = useUiStore()
+
   return (
     <div
       style={{
@@ -20,6 +25,26 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
         zIndex: 10,
       }}
     >
+      {/* Hamburger — mobile only */}
+      {isMobile && (
+        <button
+          onClick={toggleSidebar}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--fg-2)',
+            cursor: 'pointer',
+            padding: 4,
+            display: 'flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }}
+          aria-label="Abrir menú"
+        >
+          <Menu size={18} />
+        </button>
+      )}
+
       {/* Breadcrumb */}
       <div
         style={{
@@ -42,8 +67,8 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
         ))}
       </div>
 
-      {/* Search */}
-      <div style={{ flex: 1, maxWidth: 420, position: 'relative' }}>
+      {/* Search — hidden on mobile */}
+      <div style={{ flex: 1, maxWidth: 420, position: 'relative', display: isMobile ? 'none' : undefined }}>
         <Search
           size={13}
           style={{

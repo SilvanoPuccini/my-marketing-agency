@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ClientLayout } from '@/components/layout/ClientLayout'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
+import { useAuthStore } from '@/stores/auth.store'
 
 import { Landing } from '@/pages/public/Landing'
 import { Login } from '@/pages/public/Login'
@@ -16,6 +17,11 @@ import { Settings } from '@/pages/dashboard/Settings'
 import { Profile } from '@/pages/dashboard/Profile'
 import { ClientPortal } from '@/pages/client-portal/ClientPortal'
 import { ClientApproval } from '@/pages/client-portal/ClientApproval'
+
+function RootRedirect() {
+  const { user } = useAuthStore()
+  return <Navigate to={user?.role === 'client' ? '/portal' : '/dashboard'} replace />
+}
 
 export function AppRouter() {
   return (
@@ -49,7 +55,7 @@ export function AppRouter() {
         </Route>
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<RootRedirect />} />
       </Routes>
     </BrowserRouter>
   )
