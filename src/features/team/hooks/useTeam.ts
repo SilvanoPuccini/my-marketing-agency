@@ -35,24 +35,38 @@ export function useTeam(agencyId: string | undefined) {
         .from('users')
         .select(`
           id, full_name, role, position, is_active,
-          account_members(account_id),
-          pieces!author_id(id, status, scheduled_date)
+          account_members(account_id)
         `)
         .eq('agency_id', agencyId!)
-        .eq('role', 'team_member')
+        .in('role', ['admin_agency', 'team_member'])
         .order('full_name')
 
       if (error) throw error
 
+      // Fetch weekly pieces per user separately (author_id FK may not exist)
+      const wStart2 = wStart
+      const wEnd2 = wEnd
+      const userIds = (data ?? []).map(u => u.id)
+      const { data: piecesData } = userIds.length > 0
+        ? await supabase
+            .from('pieces')
+            .select('id, status, scheduled_date, author_id')
+            .in('author_id', userIds)
+            .gte('scheduled_date', wStart2)
+            .lte('scheduled_date', wEnd2)
+        : { data: [] }
+
+      const piecesByUser = new Map<string, { id: string; status: string }[]>()
+      for (const p of (piecesData ?? [])) {
+        if (!piecesByUser.has(p.author_id)) piecesByUser.set(p.author_id, [])
+        piecesByUser.get(p.author_id)!.push(p)
+      }
+
       return (data ?? []).map((u): TeamMemberRow => {
         const members = u.account_members as { account_id: string }[]
-        const pieces = u.pieces as { id: string; status: string; scheduled_date: string }[]
-
-        const weekPieces = pieces.filter(
-          (p) => p.scheduled_date >= wStart && p.scheduled_date <= wEnd
-        )
-        const done = weekPieces.filter((p) => p.status === 'published').length
-        const total = weekPieces.length
+        const userPieces = piecesByUser.get(u.id) ?? []
+        const done = userPieces.filter((p) => p.status === 'published').length
+        const total = userPieces.length
         const loadPct = total > 0 ? Math.round((done / total) * 100) : 0
 
         return {

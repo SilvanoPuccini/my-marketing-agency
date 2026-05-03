@@ -38,7 +38,23 @@ export function Team() {
         breadcrumb={['Mi agencia', 'Equipo']}
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}>Exportar</button>
+            <button
+              onClick={() => {
+                const header = ['Nombre', 'Rol', 'Cuentas', 'Estado']
+                const rows = filtered.map(m => [m.full_name, m.role, m.accountCount, m.is_active ? 'Activo' : 'Inactivo'].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+                const csv = '\uFEFF' + [header.join(','), ...rows].join('\r\n')
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = 'equipo.csv'
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                URL.revokeObjectURL(url)
+              }}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+            >Exportar</button>
             <button
               onClick={() => setShowInvite(true)}
               style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
@@ -49,7 +65,7 @@ export function Team() {
         }
       />
 
-      <div style={{ padding: '24px 32px' }}>
+      <div className="page-content" style={{ padding: '24px 32px' }}>
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Equipo</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>

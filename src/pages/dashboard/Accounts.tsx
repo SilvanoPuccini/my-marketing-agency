@@ -117,7 +117,7 @@ export function Accounts() {
         }
       />
 
-      <div style={{ padding: '24px 32px' }}>
+      <div className="page-content" style={{ padding: '24px 32px' }}>
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Cuentas</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>
@@ -131,7 +131,7 @@ export function Accounts() {
         </div>
 
         {/* Toolbar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', marginBottom: 16 }}>
+        <div className="accounts-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', marginBottom: 16 }}>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

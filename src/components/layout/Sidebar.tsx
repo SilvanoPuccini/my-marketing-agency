@@ -4,32 +4,76 @@ import {
   LayoutGrid, Users, Calendar, Library,
   BarChart2, UsersRound, CreditCard, Settings, LogOut,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
+import { supabase } from '@/lib/supabase'
 
-interface NavItem {
-  to: string
-  icon: React.ReactNode
-  label: string
-  count?: number | string
-  section?: string
+const PLAN_LIMITS: Record<string, { accounts: number }> = {
+  solo:    { accounts: 8   },
+  estudio: { accounts: 25  },
+  casa:    { accounts: 999 },
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', icon: <LayoutGrid size={15} />, label: 'Panel', section: 'Operación' },
-  { to: '/accounts',  icon: <Users size={15} />,      label: 'Cuentas' },
-  { to: '/calendar',  icon: <Calendar size={15} />,   label: 'Calendario' },
-  { to: '/library',   icon: <Library size={15} />,    label: 'Biblioteca' },
-  { to: '/reports',   icon: <BarChart2 size={15} />,  label: 'Reportes' },
-  { to: '/team',      icon: <UsersRound size={15} />, label: 'Equipo', section: 'Estudio' },
-  { to: '/billing',   icon: <CreditCard size={15} />, label: 'Facturación' },
-  { to: '/settings',  icon: <Settings size={15} />,   label: 'Ajustes' },
-]
+interface NavItem {
+  to:       string
+  icon:     React.ReactNode
+  label:    string
+  count?:   number | string
+  section?: string
+}
 
 function SidebarContent() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+
+  const { data: agency } = useAgencySettings()
+
+  const { data: counts } = useQuery({
+    queryKey: ['sidebar-counts'],
+    queryFn: async () => {
+      const now = new Date()
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+      const lastDay  = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+
+      const [accs, piecesMonth, team] = await Promise.all([
+        supabase.from('accounts').select('id', { count: 'exact', head: true }),
+        supabase
+          .from('pieces')
+          .select('id', { count: 'exact', head: true })
+          .gte('scheduled_date', firstDay)
+          .lte('scheduled_date', lastDay),
+        supabase
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .in('role', ['admin_agency', 'team_member'])
+          .eq('is_active', true),
+      ])
+      return {
+        accounts: accs.count        ?? 0,
+        pieces:   piecesMonth.count ?? 0,
+        team:     team.count        ?? 0,
+      }
+    },
+  })
+
+  const agencyName  = agency?.name ?? 'Mi agencia'
+  const plan        = agency?.plan ?? 'estudio'
+  const planLimits  = PLAN_LIMITS[plan] ?? PLAN_LIMITS.estudio
+  const brandLetter = agencyName.charAt(0).toUpperCase()
+
+  const NAV_ITEMS: NavItem[] = [
+    { to: '/dashboard', icon: <LayoutGrid size={15} />, label: 'Panel',       section: 'Operación' },
+    { to: '/accounts',  icon: <Users size={15} />,      label: 'Cuentas',     count: counts?.accounts },
+    { to: '/calendar',  icon: <Calendar size={15} />,   label: 'Calendario',  count: counts?.pieces   },
+    { to: '/library',   icon: <Library size={15} />,    label: 'Biblioteca'   },
+    { to: '/reports',   icon: <BarChart2 size={15} />,  label: 'Reportes'     },
+    { to: '/team',      icon: <UsersRound size={15} />, label: 'Equipo',      section: 'Estudio', count: counts?.team },
+    { to: '/billing',   icon: <CreditCard size={15} />, label: 'Facturación'  },
+    { to: '/settings',  icon: <Settings size={15} />,   label: 'Ajustes'      },
+  ]
 
   function handleLogout() {
     logout()
@@ -41,27 +85,27 @@ function SidebarContent() {
   return (
     <aside
       style={{
-        background: 'var(--bg-1)',
-        borderRight: '1px solid var(--line-1)',
-        padding: '16px 12px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px',
-        height: '100vh',
-        overflowY: 'auto',
-        width: 240,
-        flexShrink: 0,
+        background:     'var(--bg-1)',
+        borderRight:    '1px solid var(--line-1)',
+        padding:        '16px 12px',
+        display:        'flex',
+        flexDirection:  'column',
+        gap:            '4px',
+        height:         '100vh',
+        overflowY:      'auto',
+        width:          240,
+        flexShrink:     0,
       }}
     >
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 14px', marginBottom: 4, borderBottom: '1px solid var(--line-1)' }}>
         <div style={{ width: 26, height: 26, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset', flexShrink: 0 }}>
-          M
+          {brandLetter}
         </div>
         <div>
-          <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>Estudio Pampas</div>
+          <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>{agencyName}</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-            PLAN ESTUDIO · 18 / 25
+            PLAN {plan.toUpperCase()} · {counts?.accounts ?? 0} / {planLimits.accounts}
           </div>
         </div>
       </div>
@@ -80,13 +124,17 @@ function SidebarContent() {
             <NavLink
               to={item.to}
               style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '7px 10px', borderRadius: 'var(--r-2)',
-                color: isActive ? 'var(--fg-1)' : 'var(--fg-2)',
-                fontSize: 13, fontWeight: 500,
+                display:    'flex',
+                alignItems: 'center',
+                gap:        10,
+                padding:    '7px 10px',
+                borderRadius: 'var(--r-2)',
+                color:      isActive ? 'var(--fg-1)' : 'var(--fg-2)',
+                fontSize:   13,
+                fontWeight: 500,
                 transition: 'background 100ms ease, color 100ms ease',
                 background: isActive ? 'var(--bg-2)' : 'transparent',
-                boxShadow: isActive ? 'inset 2px 0 0 var(--violet-500)' : 'none',
+                boxShadow:  isActive ? 'inset 2px 0 0 var(--violet-500)' : 'none',
                 textDecoration: 'none',
               })}
               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--fg-1)' }}

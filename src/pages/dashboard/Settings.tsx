@@ -38,15 +38,11 @@ const NAV_SECTIONS = [
   { group: 'Estudio', items: [
     { key: 'general',  label: 'General' },
     { key: 'brand',    label: 'Marca y portales' },
-    { key: 'dominios', label: 'Dominios' },
     { key: 'integ',    label: 'Integraciones' },
     { key: 'notif',    label: 'Notificaciones' },
   ]},
-  { group: 'Acceso', items: [
-    { key: 'sso', label: 'SSO y seguridad' },
-    { key: 'api', label: 'API y webhooks' },
-  ]},
   { group: 'Avanzado', items: [
+    { key: 'soporte', label: 'Soporte' },
     { key: 'export', label: 'Exportar datos' },
     { key: 'zona',   label: 'Zona peligrosa', danger: true },
   ]},
@@ -93,7 +89,7 @@ function Switch({ on, onChange }: { on: boolean; onChange?: () => void }) {
 
 function RowI({ label, desc, children, action }: { label: string; desc: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
+    <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
       <div>
         <div style={{ fontWeight: 500, fontSize: 13 }}>{label}</div>
         <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>{desc}</div>
@@ -265,7 +261,7 @@ export function Settings() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 32 }}>
+        <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 32 }}>
 
           {/* ── Side nav ── */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 76, alignSelf: 'start' }}>
@@ -404,10 +400,6 @@ export function Settings() {
               </div>
             </section>
 
-            {/* Dominios */}
-            <section style={sec} id="dominios">
-              <ComingSoon title="Dominios" desc="Dominio personalizado para el panel de tu agencia." />
-            </section>
 
             {/* Integraciones */}
             <section style={sec} id="integ">
@@ -458,14 +450,34 @@ export function Settings() {
               </div>
             </section>
 
-            {/* SSO */}
-            <section style={sec} id="sso">
-              <ComingSoon title="SSO y seguridad" desc="Autenticación única y políticas de seguridad para tu equipo." />
-            </section>
 
-            {/* API */}
-            <section style={sec} id="api">
-              <ComingSoon title="API y webhooks" desc="Conectá sistemas externos usando la API de MMA." />
+            {/* Soporte */}
+            <section style={sec} id="soporte">
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Soporte</h3>
+                <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Contactá al equipo de MMA directamente desde acá.</p>
+              </div>
+              <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 16 }}>
+                    <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Soporte técnico</div>
+                    <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 10 }}>Problemas con la plataforma, errores o consultas técnicas.</div>
+                    <a href="mailto:soporte@mma.app" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', textDecoration: 'none', cursor: 'pointer' }}>
+                      Enviar email
+                    </a>
+                  </div>
+                  <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 16 }}>
+                    <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Ventas y planes</div>
+                    <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 10 }}>Upgrades, planes personalizados o preguntas sobre facturación.</div>
+                    <a href="mailto:ventas@mma.app" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-3)', textDecoration: 'none', cursor: 'pointer' }}>
+                      Enviar email
+                    </a>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
+                  Tiempo de respuesta: menos de 24 h hábiles · Lun a Vie · ART (UTC−3)
+                </div>
+              </div>
             </section>
 
             {/* Exportar datos */}

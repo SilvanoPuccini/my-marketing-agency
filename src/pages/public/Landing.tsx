@@ -42,6 +42,15 @@ function NavBar() {
             <a
               key={label}
               href={href}
+              onClick={(e) => {
+                e.preventDefault()
+                const id = href.replace('#', '')
+                const el = document.getElementById(id)
+                if (el) {
+                  const y = el.getBoundingClientRect().top + window.scrollY - 70
+                  window.scrollTo({ top: y, behavior: 'smooth' })
+                }
+              }}
               style={{ padding: '6px 12px', fontSize: 13, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', transition: 'color 120ms, background 120ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)'; e.currentTarget.style.background = 'var(--bg-2)' }}
               onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-2)'; e.currentTarget.style.background = 'transparent' }}
@@ -91,7 +100,7 @@ function Hero() {
 
       <div style={{ display: 'flex', gap: 10, marginTop: 28, alignItems: 'center' }}>
         <Link to="/login" style={btnPrimaryLg}>Empezar gratis · 14 días</Link>
-        <a href="#producto" style={btnSecondaryLg}>Ver el producto →</a>
+        <a href="#producto" onClick={(e) => { e.preventDefault(); const el = document.getElementById('producto'); if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }) } }} style={btnSecondaryLg}>Ver el producto →</a>
       </div>
 
       <div style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -131,7 +140,7 @@ function ProductMock() {
   }
 
   return (
-    <section id="producto" style={{ maxWidth: 1200, margin: '24px auto 64px', padding: '0 32px' }}>
+    <section style={{ maxWidth: 1200, margin: '24px auto 64px', padding: '0 32px' }}>
       <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.08)', position: 'relative' }}>
         {/* Gradient overlay */}
         <div style={{ position: 'absolute', inset: -1, borderRadius: 14, background: 'linear-gradient(180deg, rgba(124,58,237,0.12), transparent 30%)', pointerEvents: 'none', zIndex: 1 }} />
@@ -232,7 +241,7 @@ function Features() {
   ]
 
   return (
-    <section style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
+    <section id="producto" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Producto</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
         Lo que tu equipo necesita, sin lo que no.
@@ -596,10 +605,10 @@ export function Landing() {
       <footer style={{ maxWidth: 1200, margin: '0 auto', padding: 32, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', gap: 32, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>
         <div>© 2026 MMA · Hecho en Buenos Aires</div>
         <div style={{ display: 'flex', gap: 16 }}>
-          {['Privacidad', 'Términos', 'Estado', 'Contacto'].map((l) => (
-            <a key={l} href="#" style={{ color: 'var(--fg-3)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)' }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-3)' }}>
-              {l}
-            </a>
+          {([['Privacidad', '/privacidad'], ['Términos', '/terminos'], ['Estado', '/estado'], ['Contacto', '/contacto']] as const).map(([label, to]) => (
+            <Link key={label} to={to} style={{ color: 'var(--fg-3)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)' }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-3)' }}>
+              {label}
+            </Link>
           ))}
         </div>
       </footer>

@@ -29,10 +29,12 @@ function getISOWeek(d: Date): number {
   return 1 + Math.round(((tmp.getTime() - w1.getTime()) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7)
 }
 
-export function useReports(agencyId: string | undefined) {
+export function useReports(agencyId: string | undefined, month?: number, year?: number) {
   const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const monthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  const m = month ?? now.getMonth()
+  const y = year ?? now.getFullYear()
+  const monthStart = new Date(y, m, 1).toISOString().split('T')[0]
+  const monthEnd   = new Date(y, m + 1, 0).toISOString().split('T')[0]
   const currentWeek = getISOWeek(now)
 
   return useQuery({
