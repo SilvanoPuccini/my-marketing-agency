@@ -242,3 +242,104 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Library responsive */
+@media (max-width: 1023px) {
+  .library-folders {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .library-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .library-folders {
+    grid-template-columns: 1fr !important;
+  }
+  .library-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Billing responsive */
+@media (max-width: 1023px) {
+  .billing-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .billing-invoices table {
+    font-size: 12px;
+  }
+  .billing-invoices .col-hide-tablet {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .billing-invoices {
+    overflow-x: auto;
+  }
+}
+
+/* Reports responsive */
+@media (max-width: 1023px) {
+  .reports-charts {
+    grid-template-columns: 1fr !important;
+  }
+  .reports-bottom {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Settings responsive */
+@media (max-width: 1023px) {
+  .settings-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .settings-layout > nav {
+    position: static !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line-1);
+    margin-bottom: 16px;
+  }
+  .settings-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+}
+
+/* Profile responsive */
+@media (max-width: 1023px) {
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+  }
+}
+
+/* Team responsive */
+@media (max-width: 640px) {
+  .team-table {
+    font-size: 12px;
+  }
+}
+
+/* Accounts responsive */
+@media (max-width: 1023px) {
+  .accounts-toolbar {
+    flex-wrap: wrap;
+  }
+}
+
+/* All page content padding on mobile */
+@media (max-width: 640px) {
+  .page-content {
+    padding: 12px 16px !important;
+  }
+}

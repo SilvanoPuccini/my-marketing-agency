@@ -6,6 +6,10 @@ import { useAuthStore } from '@/stores/auth.store'
 
 import { Landing } from '@/pages/public/Landing'
 import { Login } from '@/pages/public/Login'
+import { Privacy } from '@/pages/public/Privacy'
+import { Terms } from '@/pages/public/Terms'
+import { Status } from '@/pages/public/Status'
+import { Contact } from '@/pages/public/Contact'
 import { Dashboard } from '@/pages/dashboard/Dashboard'
 import { Accounts } from '@/pages/dashboard/Accounts'
 import { Calendar } from '@/pages/dashboard/Calendar'
@@ -30,6 +34,10 @@ export function AppRouter() {
         {/* Públicas */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/privacidad" element={<Privacy />} />
+        <Route path="/terminos" element={<Terms />} />
+        <Route path="/estado" element={<Status />} />
+        <Route path="/contacto" element={<Contact />} />
 
         {/* Backoffice — requiere auth */}
         <Route element={<ProtectedRoute allowedRoles={['admin_agency', 'team_member']} />}>

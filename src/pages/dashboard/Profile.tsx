@@ -118,9 +118,9 @@ export function Profile() {
         }
       />
 
-      <div style={{ padding: '24px 32px' }}>
+      <div className="page-content" style={{ padding: '24px 32px' }}>
         {/* Profile header */}
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', padding: '28px 0 24px', borderBottom: '1px solid var(--line-1)', marginBottom: 24 }}>
+        <div className="profile-header" style={{ display: 'flex', gap: 24, alignItems: 'flex-start', padding: '28px 0 24px', borderBottom: '1px solid var(--line-1)', marginBottom: 24 }}>
           <div style={{ width: 88, height: 88, borderRadius: 'var(--r-3)', background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 32, color: '#fff', flexShrink: 0, boxShadow: '0 0 0 1px var(--violet-400) inset' }}>
             {user.initials}
           </div>
@@ -161,7 +161,7 @@ export function Profile() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+        <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
           {/* Assigned accounts */}
           <section style={panel}>
             <div style={panelH}>
