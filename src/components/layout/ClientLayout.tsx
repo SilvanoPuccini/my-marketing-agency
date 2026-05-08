@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom'
+import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
 
 interface ClientLayoutProps {
   accountName?: string
@@ -13,6 +14,7 @@ export function ClientLayout({
   clientName = 'Rocío Paz',
   clientInitials = 'RP',
 }: ClientLayoutProps) {
+  usePiecesRealtime()
   return (
     <div style={{ background: 'var(--bg-0)', minHeight: '100vh' }}>
       {/* Client nav */}

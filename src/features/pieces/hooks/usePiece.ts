@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
+import { isValidTransition, getTransitionError } from '@/features/pieces/utils/pieceTransitions'
+import type { PieceStatus, UserRole } from '@/types/domain.types'
 
 export type PieceDetail = {
   id: string
@@ -49,16 +51,29 @@ export function usePiece(id: string | null) {
 
 export function useUpdatePieceStatus() {
   const qc = useQueryClient()
+  const { user } = useAuthStore()
   return useMutation({
     mutationFn: async ({
       id,
       status,
+      currentStatus,
       rejection_reason,
     }: {
       id: string
       status: string
+      currentStatus: string
       rejection_reason?: string
     }) => {
+      const role = user?.role as UserRole | undefined
+      if (!role) throw new Error('No autenticado')
+
+      const transitionError = getTransitionError(
+        currentStatus as PieceStatus,
+        status as PieceStatus,
+        role,
+      )
+      if (transitionError) throw new Error(transitionError)
+
       const { error } = await supabase
         .from('pieces')
         .update({ status, ...(rejection_reason !== undefined ? { rejection_reason } : {}) })
@@ -80,7 +95,7 @@ export function useUpdatePieceStatus() {
       qc.invalidateQueries({ queryKey: ['calendar'] })
       qc.invalidateQueries({ queryKey: ['client-pieces'] })
     },
-    onError: () => toast.error('No se pudo actualizar el estado'),
+    onError: (e: Error) => toast.error(e.message || 'No se pudo actualizar el estado'),
   })
 }
 
@@ -99,7 +114,7 @@ export function useAddComment() {
       toast.success('Comentario enviado')
       qc.invalidateQueries({ queryKey: ['piece', pieceId] })
     },
-    onError: () => toast.error('No se pudo enviar el comentario'),
+    onError: (e: Error) => toast.error(e.message || 'No se pudo enviar el comentario'),
   })
 }
 

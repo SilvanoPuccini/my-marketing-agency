@@ -63,13 +63,13 @@ export function ClientApproval() {
 
   function handleApprove() {
     if (!id) return
-    updateStatus.mutate({ id, status: 'approved' }, { onSuccess: () => setLocalStatus('approved') })
+    updateStatus.mutate({ id, status: 'approved', currentStatus: status }, { onSuccess: () => setLocalStatus('approved') })
   }
 
   function handleReject() {
     if (!id) return
     const reason = comment.trim() || undefined
-    updateStatus.mutate({ id, status: 'rejected', rejection_reason: reason }, { onSuccess: () => setLocalStatus('rejected') })
+    updateStatus.mutate({ id, status: 'rejected', currentStatus: status, rejection_reason: reason }, { onSuccess: () => setLocalStatus('rejected') })
   }
 
   function handleSendComment() {
