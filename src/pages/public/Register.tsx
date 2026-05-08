@@ -6,12 +6,19 @@ import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+const PLANS = [
+  { value: 'solo', label: 'Solo', price: '$36.000/mes', desc: '1 cuenta · 1 usuario' },
+  { value: 'estudio', label: 'Estudio', price: '$72.000/mes', desc: '5 cuentas · 5 usuarios' },
+  { value: 'casa', label: 'Casa', price: '$144.000/mes', desc: 'Ilimitado' },
+] as const
+
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   agencyName: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   email: z.string().min(1, 'El email es obligatorio').email('Email inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   confirmPassword: z.string().min(6, 'Mínimo 6 caracteres'),
+  plan: z.enum(['solo', 'estudio', 'casa']),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
@@ -26,10 +33,12 @@ export function Register() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', agencyName: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: { fullName: '', agencyName: '', email: '', password: '', confirmPassword: '', plan: 'solo' as const },
   })
 
   async function onSubmit(values: RegisterValues) {
@@ -42,6 +51,7 @@ export function Register() {
         data: {
           full_name: values.fullName,
           agency_name: values.agencyName,
+          plan: values.plan,
         },
       },
     })
@@ -146,7 +156,7 @@ export function Register() {
               marginBottom: 14,
             }}
           >
-            14 dias gratis · sin tarjeta
+            Elegí tu plan para arrancar
           </div>
           <h1
             style={{
@@ -198,7 +208,7 @@ export function Register() {
             Crea tu cuenta
           </h2>
           <p style={{ color: 'var(--fg-3)', fontSize: 13, margin: '0 0 32px' }}>
-            Completa tus datos para arrancar. Es gratis por 14 dias.
+            Completa tus datos y elegí tu plan.
           </p>
 
           {/* Full name */}
@@ -243,6 +253,41 @@ export function Register() {
             {errors.agencyName && (
               <p style={{ color: 'var(--status-rejected)', fontSize: 11, marginTop: 4 }}>{errors.agencyName.message}</p>
             )}
+          </div>
+
+          {/* Plan picker */}
+          <div style={{ marginBottom: 14 }}>
+            <label
+              style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}
+            >
+              Plan
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              {PLANS.map((p) => {
+                const selected = watch('plan') === p.value
+                return (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => setValue('plan', p.value)}
+                    style={{
+                      padding: '10px 8px',
+                      borderRadius: 'var(--r-2)',
+                      border: selected ? '1.5px solid var(--violet-500)' : '1px solid var(--line-2)',
+                      background: selected ? 'var(--violet-soft)' : 'var(--bg-2)',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 600, color: selected ? 'var(--violet-400)' : 'var(--fg-1)' }}>
+                      {p.label}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--fg-2)', marginTop: 2 }}>{p.price}</div>
+                    <div style={{ fontSize: 10, color: 'var(--fg-3)', marginTop: 2 }}>{p.desc}</div>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Email */}
@@ -322,7 +367,7 @@ export function Register() {
             disabled={isSubmitting}
             style={{ width: '100%', padding: 11, fontSize: 14, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}
           >
-            {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta gratis'}
+            {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
 
           <div

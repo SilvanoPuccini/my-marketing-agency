@@ -68,8 +68,8 @@ function NavBar() {
         <Link to="/login" style={{ padding: '6px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid transparent', background: 'transparent' }}>
           Ingresar
         </Link>
-        <Link to="/login" style={{ ...btnPrimary, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}>
-          Empezar gratis
+        <Link to="/registro" style={{ ...btnPrimary, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}>
+          Crear cuenta
         </Link>
       </div>
     </header>
@@ -99,12 +99,12 @@ function Hero() {
       </p>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 28, alignItems: 'center' }}>
-        <Link to="/login" style={btnPrimaryLg}>Empezar gratis · 14 días</Link>
+        <Link to="/registro" style={btnPrimaryLg}>Crear cuenta</Link>
         <a href="#producto" onClick={(e) => { e.preventDefault(); const el = document.getElementById('producto'); if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }) } }} style={btnSecondaryLg}>Ver el producto →</a>
       </div>
 
       <div style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        {['Sin tarjeta', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
+        {['Planes desde $36.000/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
           <span key={item}><span style={{ color: 'var(--violet-500)' }}>▸ </span>{item}</span>
         ))}
       </div>
@@ -322,9 +322,9 @@ function Flow() {
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing() {
   const plans = [
-    { name: 'Solo', price: '$0', period: '/ mes', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta', 'Calendario y aprobaciones', '1 cliente externo', 'Reportes básicos'], cta: 'Empezar', featured: false },
-    { name: 'Estudio', price: '$84.000', period: '/ mes + IVA', desc: 'Para agencias de 3 a 12 personas con cartera activa.', features: ['Hasta 25 cuentas', 'Equipo ilimitado', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Probar 14 días gratis', featured: true },
-    { name: 'Casa', price: 'A medida', period: '', desc: 'Para agencias grandes y holdings. SLA, SSO, infra dedicada.', features: ['Cuentas ilimitadas', 'SSO + auditoría', 'Onboarding dedicado', 'SLA 99.9%'], cta: 'Hablar con ventas', featured: false },
+    { name: 'Solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta', 'Calendario y aprobaciones', '1 usuario', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias de 3 a 12 personas con cartera activa.', features: ['Hasta 5 cuentas', '5 usuarios', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y holdings. Sin límites.', features: ['Cuentas ilimitadas', 'Usuarios ilimitados', 'Onboarding dedicado', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (
@@ -357,7 +357,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <Link to="/login" style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto' }}>
+            <Link to="/registro" style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto' }}>
               {plan.cta}
             </Link>
           </div>
@@ -578,11 +578,11 @@ function FooterCta() {
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 80% at 80% 50%, var(--violet-glow), transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative' }}>
         <h3 style={{ margin: 0, fontSize: 28, letterSpacing: '-0.02em', maxWidth: 520 }}>Probalo con una de tus cuentas esta semana.</h3>
-        <p style={{ color: 'var(--fg-2)', margin: '8px 0 0', maxWidth: 520 }}>Setup en 10 minutos. Sin tarjeta. Si no te convence, te ayudamos a exportar todo a una planilla y listo.</p>
+        <p style={{ color: 'var(--fg-2)', margin: '8px 0 0', maxWidth: 520 }}>Setup en 10 minutos. Si no te convence, te ayudamos a exportar todo a una planilla y listo.</p>
       </div>
       <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
-        <Link to="/login" style={btnSecondaryLg}>Ver demo</Link>
-        <Link to="/login" style={btnPrimaryLg}>Empezar gratis →</Link>
+        <Link to="/registro" style={btnSecondaryLg}>Ver demo</Link>
+        <Link to="/registro" style={btnPrimaryLg}>Crear cuenta →</Link>
       </div>
     </div>
   )
