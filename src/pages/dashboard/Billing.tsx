@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { TopBar } from '@/components/layout/TopBar'
 import { useBilling } from '@/features/billing/hooks/useBilling'
 import { useInvoices } from '@/features/billing/hooks/useInvoices'
+import { generateInvoicePdf } from '@/features/billing/utils/generateInvoicePdf'
 
 const panel: React.CSSProperties = {
   background:   'var(--bg-1)',
@@ -424,7 +425,14 @@ export function Billing() {
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)' }}>{formatAmount(inv.iva)}</td>
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{formatAmount(inv.total)}</td>
                     <td style={tdStyle}><span className={`pill ${cls}`}><span className="dot" />{label}</span></td>
-                    <td style={{ ...tdStyle, color: 'var(--fg-3)' }}>↓</td>
+                    <td style={tdStyle}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); generateInvoicePdf(inv, agencyName) }}
+                        style={{ padding: '4px 8px', fontSize: 11, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+                      >
+                        PDF
+                      </button>
+                    </td>
                   </tr>
                 )
               })}

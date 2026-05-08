@@ -5,8 +5,10 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { PageTransition } from '@/components/layout/PageTransition'
 import { useUiStore } from '@/stores/ui.store'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
 
 export function AppLayout() {
+  usePiecesRealtime()
   const isMobile = useIsMobile()
   const { sidebarOpen, setSidebarOpen } = useUiStore()
   const location = useLocation()

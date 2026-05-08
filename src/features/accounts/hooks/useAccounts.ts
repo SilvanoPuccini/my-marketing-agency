@@ -24,6 +24,10 @@ function deriveLabel(status: string): string {
   return 'Al día'
 }
 
+function mkInitials(name: string): string {
+  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
+}
+
 export type AccountRow = {
   id: string
   name: string
@@ -49,7 +53,8 @@ export function useAccounts() {
         .from('accounts')
         .select(`
           id, name, handle, industry, monthly_budget, is_active,
-          pieces(status, scheduled_date)
+          pieces(status, scheduled_date),
+          account_members(users(full_name))
         `)
         .order('name')
       if (error) throw error
@@ -57,8 +62,10 @@ export function useAccounts() {
       const { start, end, today } = monthRange()
 
       return (data ?? []).map((acc): AccountRow => {
-        const managerName = '—'
-        const managerInitials = '—'
+        const members = acc.account_members as { users: { full_name: string } | null }[] | null
+        const firstMember = members?.[0]?.users?.full_name ?? null
+        const managerName = firstMember ?? '—'
+        const managerInitials = firstMember ? mkInitials(firstMember) : '—'
 
         const pieces = acc.pieces as { status: string; scheduled_date: string }[]
 

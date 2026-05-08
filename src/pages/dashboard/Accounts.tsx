@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAccounts, type AccountRow } from '@/features/accounts/hooks/useAccounts'
 import { CreateAccountModal } from '@/features/accounts/components/CreateAccountModal'
+import { TableSkeleton } from '@/components/ui/page-skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
@@ -61,6 +64,7 @@ export function Accounts() {
   const [filter, setFilter] = useState('all')
   const [view, setView] = useState<'list' | 'cards'>('list')
   const [showCreate, setShowCreate] = useState(false)
+  const navigate = useNavigate()
   const { data, isLoading, error } = useAccounts()
 
   const accounts = data ?? []
@@ -191,21 +195,26 @@ export function Accounts() {
               <tbody>
                 {isLoading && (
                   <tr>
-                    <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: 'var(--fg-3)' }}>
-                      Cargando cuentas...
+                    <td colSpan={7} style={{ padding: 0 }}>
+                      <TableSkeleton rows={4} />
                     </td>
                   </tr>
                 )}
                 {!isLoading && filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: 'var(--fg-3)' }}>
-                      No hay cuentas que coincidan.
+                    <td colSpan={7} style={{ padding: 0 }}>
+                      <EmptyState
+                        icon="🔍"
+                        title="Sin resultados"
+                        description="No hay cuentas que coincidan con tu busqueda."
+                      />
                     </td>
                   </tr>
                 )}
                 {filtered.map((a) => (
                   <tr
                     key={a.id}
+                    onClick={() => navigate(`/accounts/${a.id}`)}
                     style={{ opacity: a.is_active ? 1 : 0.55, cursor: 'pointer' }}
                     onMouseEnter={(e) => { e.currentTarget.querySelectorAll('td').forEach((td) => { td.style.background = 'var(--bg-3)' }) }}
                     onMouseLeave={(e) => { e.currentTarget.querySelectorAll('td').forEach((td) => { td.style.background = 'transparent' }) }}
@@ -258,12 +267,13 @@ export function Accounts() {
         {/* Cards view */}
         {view === 'cards' && (
           <div>
-            {isLoading && <div style={{ textAlign: 'center', color: 'var(--fg-3)', padding: 32, fontSize: 13 }}>Cargando cuentas...</div>}
+            {isLoading && <div style={{ padding: 16 }}><TableSkeleton rows={3} /></div>}
             {!isLoading && filtered.length === 0 && <div style={{ textAlign: 'center', color: 'var(--fg-3)', padding: 32, fontSize: 13 }}>No hay cuentas que coincidan.</div>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
               {filtered.map((a) => (
                 <div
                   key={a.id}
+                  onClick={() => navigate(`/accounts/${a.id}`)}
                   style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 18, opacity: a.is_active ? 1 : 0.55, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 14 }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-1)' }}

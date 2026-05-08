@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { usePiece, useUpdatePieceStatus, useAddComment } from '@/features/pieces/hooks/usePiece'
+import { useCommentsRealtime } from '@/features/pieces/hooks/useCommentsRealtime'
 import { useAuthStore } from '@/stores/auth.store'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -82,6 +83,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   const { data: piece, isLoading } = usePiece(pieceId)
   const updateStatus = useUpdatePieceStatus()
   const addComment = useAddComment()
+  useCommentsRealtime(pieceId)
   const [commentText, setCommentText] = useState('')
 
   useEffect(() => {
@@ -101,11 +103,11 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   }
 
   function handleResend() {
-    updateStatus.mutate({ id: pieceId, status: 'sent_client' })
+    updateStatus.mutate({ id: pieceId, status: 'sent_client', currentStatus: status })
   }
 
   function handleMarkPublished() {
-    updateStatus.mutate({ id: pieceId, status: 'published' })
+    updateStatus.mutate({ id: pieceId, status: 'published', currentStatus: status })
   }
 
   const sectionStyle: React.CSSProperties = {
