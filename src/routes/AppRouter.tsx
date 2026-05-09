@@ -28,6 +28,7 @@ const Team = lazy(() => import('@/pages/dashboard/Team').then(m => ({ default: m
 const Billing = lazy(() => import('@/pages/dashboard/Billing').then(m => ({ default: m.Billing })))
 const Settings = lazy(() => import('@/pages/dashboard/Settings').then(m => ({ default: m.Settings })))
 const Profile = lazy(() => import('@/pages/dashboard/Profile').then(m => ({ default: m.Profile })))
+const Onboarding = lazy(() => import('@/pages/dashboard/Onboarding').then(m => ({ default: m.Onboarding })))
 
 // Client portal — lazy
 const ClientPortal = lazy(() => import('@/pages/client-portal/ClientPortal').then(m => ({ default: m.ClientPortal })))
@@ -60,6 +61,11 @@ export function AppRouter() {
           <Route path="/terminos" element={<Terms />} />
           <Route path="/estado" element={<Status />} />
           <Route path="/contacto" element={<Contact />} />
+
+          {/* Onboarding — requiere auth, sin layout */}
+          <Route element={<ProtectedRoute allowedRoles={['admin_agency']} />}>
+            <Route path="/onboarding" element={<Onboarding />} />
+          </Route>
 
           {/* Backoffice — requiere auth */}
           <Route element={<ProtectedRoute allowedRoles={['admin_agency', 'team_member']} />}>

@@ -4,6 +4,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { useBilling } from '@/features/billing/hooks/useBilling'
 import { useInvoices } from '@/features/billing/hooks/useInvoices'
 import { generateInvoicePdf } from '@/features/billing/utils/generateInvoicePdf'
+import { useCheckout } from '@/features/billing/hooks/useCheckout'
 
 const panel: React.CSSProperties = {
   background:   'var(--bg-1)',
@@ -66,12 +67,13 @@ function formatStorage(used: number, limit: number): string {
 }
 
 const PLANS = [
-  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 8,   seats: 3,  storage: 20,  desc: 'Para freelancers y estudios de 1-3 personas.' },
-  { key: 'estudio', name: 'Estudio', price: 84000,  accounts: 25,  seats: 15, storage: 100, desc: 'Para agencias medianas con varios clientes.' },
-  { key: 'casa',    name: 'Casa',    price: 210000, accounts: 999, seats: 50, storage: 500, desc: 'Para agencias grandes. Sin limites.' },
+  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 1,   seats: 1,  storage: 20,  desc: 'Para freelancers que arman su primer flujo.' },
+  { key: 'estudio', name: 'Estudio', price: 72000,  accounts: 5,   seats: 5,  storage: 100, desc: 'Para agencias de 3 a 12 personas.' },
+  { key: 'casa',    name: 'Casa',    price: 144000, accounts: 999, seats: 999, storage: 500, desc: 'Para agencias grandes. Sin límites.' },
 ]
 
 function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () => void }) {
+  const checkout = useCheckout()
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(5,5,9,0.72)', zIndex: 40 }} />
@@ -100,11 +102,15 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
                     <div>{p.storage} GB almacenamiento</div>
                   </div>
                   <button
-                    onClick={() => { if (!isCurrent) toast.success(`Solicitud de cambio al plan ${p.name} registrada. Te contactaremos para confirmar.`); onClose() }}
-                    disabled={isCurrent}
-                    style={{ padding: '8px 14px', fontSize: 12, fontWeight: 500, color: isCurrent ? 'var(--fg-3)' : '#fff', borderRadius: 'var(--r-2)', border: isCurrent ? '1px solid var(--line-2)' : '1px solid var(--violet-400)', background: isCurrent ? 'var(--bg-3)' : 'var(--violet-500)', cursor: isCurrent ? 'default' : 'pointer', marginTop: 'auto' }}
+                    onClick={() => {
+                      if (!isCurrent) {
+                        checkout.mutate(p.key as 'solo' | 'estudio' | 'casa')
+                      }
+                    }}
+                    disabled={isCurrent || checkout.isPending}
+                    style={{ padding: '8px 14px', fontSize: 12, fontWeight: 500, color: isCurrent ? 'var(--fg-3)' : '#fff', borderRadius: 'var(--r-2)', border: isCurrent ? '1px solid var(--line-2)' : '1px solid var(--violet-400)', background: isCurrent ? 'var(--bg-3)' : 'var(--violet-500)', cursor: isCurrent ? 'default' : 'pointer', marginTop: 'auto', opacity: checkout.isPending ? 0.7 : 1 }}
                   >
-                    {isCurrent ? 'Plan actual' : 'Solicitar cambio'}
+                    {isCurrent ? 'Plan actual' : checkout.isPending ? 'Redirigiendo...' : 'Cambiar plan'}
                   </button>
                 </div>
               )
