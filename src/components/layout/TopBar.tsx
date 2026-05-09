@@ -100,15 +100,17 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
           }}
         />
         <span
-          className="kbd"
           style={{
             position: 'absolute',
-            right: 8,
+            right: 10,
             top: '50%',
             transform: 'translateY(-50%)',
+            color: 'var(--fg-3)',
+            display: 'grid',
+            placeItems: 'center',
           }}
         >
-          ⌘K
+          <Search size={14} />
         </span>
       </div>
 
