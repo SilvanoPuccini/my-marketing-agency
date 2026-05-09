@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAccounts, type AccountRow } from '@/features/accounts/hooks/useAccounts'
+import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
 import { CreateAccountModal } from '@/features/accounts/components/CreateAccountModal'
 import { TableSkeleton } from '@/components/ui/page-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -66,6 +67,8 @@ export function Accounts() {
   const [showCreate, setShowCreate] = useState(false)
   const navigate = useNavigate()
   const { data, isLoading, error } = useAccounts()
+  const usage = useAgencyUsage()
+  const canCreate = usage.data?.canCreateAccount ?? true
 
   const accounts = data ?? []
 
@@ -112,10 +115,12 @@ export function Accounts() {
               Exportar
             </button>
             <button
-              onClick={() => setShowCreate(true)}
-              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
+              onClick={() => canCreate && setShowCreate(true)}
+              disabled={!canCreate}
+              title={canCreate ? undefined : `Límite de cuentas alcanzado (plan ${usage.data?.plan})`}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: canCreate ? 'var(--violet-500)' : 'var(--violet-600)', cursor: canCreate ? 'pointer' : 'not-allowed', opacity: canCreate ? 1 : 0.5 }}
             >
-              + Nueva cuenta
+              + Nueva cuenta {usage.data ? `(${usage.data.accounts.used}/${usage.data.accounts.limit})` : ''}
             </button>
           </div>
         }

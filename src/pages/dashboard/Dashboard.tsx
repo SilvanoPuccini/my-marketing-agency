@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAuthStore } from '@/stores/auth.store'
+import { useNeedsOnboarding } from '@/features/onboarding/hooks/useOnboarding'
 import {
   useDashboardStats,
   useAttentionPieces,
@@ -166,9 +168,15 @@ function EmptyRow({ message }: { message: string }) {
 export function Dashboard() {
   const { user } = useAuthStore()
   const agencyId = user?.agency_id
+  const onboarding = useNeedsOnboarding()
   const [showCreate, setShowCreate] = useState(false)
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('week')
+
+  // Redirigir a onboarding si no tiene cuentas
+  if (onboarding.data?.needsOnboarding) {
+    return <Navigate to="/onboarding" replace />
+  }
 
   const stats = useDashboardStats(agencyId, period)
   const attention = useAttentionPieces(agencyId)
