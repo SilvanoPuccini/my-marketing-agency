@@ -10,12 +10,7 @@ import { useUiStore } from '@/stores/ui.store'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
 import { supabase } from '@/lib/supabase'
-
-const PLAN_LIMITS: Record<string, { accounts: number }> = {
-  solo:    { accounts: 8   },
-  estudio: { accounts: 25  },
-  casa:    { accounts: 999 },
-}
+import { PLAN_LIMITS, type PlanId } from '@/lib/planLimits'
 
 interface NavItem {
   to:       string
@@ -61,7 +56,7 @@ function SidebarContent() {
 
   const agencyName  = agency?.name ?? 'Mi agencia'
   const plan        = agency?.plan ?? 'estudio'
-  const planLimits  = PLAN_LIMITS[plan] ?? PLAN_LIMITS.estudio
+  const planLimits  = PLAN_LIMITS[plan as PlanId] ?? PLAN_LIMITS.solo
   const brandLetter = agencyName.charAt(0).toUpperCase()
 
   const NAV_ITEMS: NavItem[] = [

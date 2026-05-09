@@ -6,6 +6,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { TableSkeleton } from '@/components/ui/page-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PieceDetailModal } from '@/features/pieces/components/PieceDetailModal'
+import { InviteClientModal } from '@/features/accounts/components/InviteClientModal'
 
 type AccountInfo = {
   id: string
@@ -91,6 +92,7 @@ export function AccountDetail() {
   const { data: account, isLoading } = useAccountDetail(id)
   const { data: pieces = [], isLoading: piecesLoading } = useAccountPieces(id)
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
+  const [showInviteClient, setShowInviteClient] = useState(false)
 
   const thStyle: React.CSSProperties = {
     textAlign: 'left', fontWeight: 500, fontSize: 11,
@@ -112,12 +114,20 @@ export function AccountDetail() {
       <TopBar
         breadcrumb={['Mi agencia', 'Cuentas', account?.name ?? 'Cargando…']}
         actions={
-          <button
-            onClick={() => navigate('/accounts')}
-            style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
-          >
-            Volver
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setShowInviteClient(true)}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
+            >
+              + Invitar cliente
+            </button>
+            <button
+              onClick={() => navigate('/accounts')}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+            >
+              Volver
+            </button>
+          </div>
         }
       />
 
@@ -237,6 +247,14 @@ export function AccountDetail() {
         <PieceDetailModal
           pieceId={selectedPiece}
           onClose={() => setSelectedPiece(null)}
+        />
+      )}
+
+      {showInviteClient && account && (
+        <InviteClientModal
+          accountId={account.id}
+          accountName={account.name}
+          onClose={() => setShowInviteClient(false)}
         />
       )}
     </div>

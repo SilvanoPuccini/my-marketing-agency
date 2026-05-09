@@ -13,6 +13,7 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
 
   return (
     <div
+      className="topbar"
       style={{
         display: 'flex',
         alignItems: 'center',

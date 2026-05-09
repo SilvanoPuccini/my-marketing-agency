@@ -48,6 +48,7 @@ export function Register() {
       email: values.email,
       password: values.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           full_name: values.fullName,
           agency_name: values.agencyName,
@@ -78,6 +79,7 @@ export function Register() {
 
   return (
     <div
+      className="auth-layout"
       style={{
         minHeight: '100vh',
         display: 'grid',
@@ -87,6 +89,7 @@ export function Register() {
     >
       {/* Left side — brand */}
       <aside
+        className="auth-brand-panel"
         style={{
           background: 'var(--bg-1)',
           borderRight: '1px solid var(--line-1)',

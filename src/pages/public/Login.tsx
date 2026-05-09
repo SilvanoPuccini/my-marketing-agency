@@ -50,6 +50,7 @@ export function Login() {
 
   return (
     <div
+      className="auth-layout"
       style={{
         minHeight: '100vh',
         display: 'grid',
@@ -59,6 +60,7 @@ export function Login() {
     >
       {/* Left side — brand */}
       <aside
+        className="auth-brand-panel"
         style={{
           background: 'var(--bg-1)',
           borderRight: '1px solid var(--line-1)',
