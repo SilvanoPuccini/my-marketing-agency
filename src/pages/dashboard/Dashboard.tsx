@@ -173,16 +173,16 @@ export function Dashboard() {
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('week')
 
-  // Redirigir a onboarding si no tiene cuentas
-  if (onboarding.data?.needsOnboarding) {
-    return <Navigate to="/onboarding" replace />
-  }
-
   const stats = useDashboardStats(agencyId, period)
   const attention = useAttentionPieces(agencyId)
   const teamLoad = useTeamLoad(agencyId)
   const pauta = useAccountsWithPauta(agencyId)
   const activity = useRecentActivity(agencyId)
+
+  // Redirigir a onboarding si no tiene cuentas (DESPUÉS de todos los hooks)
+  if (onboarding.data?.needsOnboarding) {
+    return <Navigate to="/onboarding" replace />
+  }
 
   const weekNumber = getISOWeek(new Date())
 

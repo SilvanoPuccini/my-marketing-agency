@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { X } from 'lucide-react'
+import { X, Upload, Trash2 } from 'lucide-react'
 import { useCreatePiece } from '@/features/pieces/hooks/usePiece'
+import { useUploadFiles } from '@/features/library/hooks/useLibrary'
 import { useAccounts } from '@/features/accounts/hooks/useAccounts'
 
 const schema = z.object({
@@ -68,9 +69,82 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   )
 }
 
+function isImageType(type: string) {
+  return type.startsWith('image/')
+}
+
+function isVideoType(type: string) {
+  return type.startsWith('video/')
+}
+
+function FilePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+  const [preview, setPreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isImageType(file.type) || isVideoType(file.type)) {
+      const url = URL.createObjectURL(file)
+      setPreview(url)
+      return () => URL.revokeObjectURL(url)
+    }
+  }, [file])
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '10px 12px', background: 'var(--bg-2)',
+      border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)',
+    }}>
+      {/* Thumbnail */}
+      <div style={{
+        width: 48, height: 48, borderRadius: 6, overflow: 'hidden',
+        background: 'var(--bg-3)', flexShrink: 0, display: 'grid', placeItems: 'center',
+      }}>
+        {preview && isImageType(file.type) && (
+          <img src={preview} alt={file.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        )}
+        {preview && isVideoType(file.type) && (
+          <video src={preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+        )}
+        {!preview && (
+          <span className="mono" style={{ fontSize: 9, color: 'var(--fg-3)', textTransform: 'uppercase' }}>
+            {file.name.split('.').pop()}
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {file.name}
+        </div>
+        <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', marginTop: 2 }}>
+          {(file.size / 1024).toFixed(0)} KB · {file.type || 'desconocido'}
+        </div>
+      </div>
+
+      {/* Remove */}
+      <button
+        type="button"
+        onClick={onRemove}
+        style={{
+          width: 28, height: 28, borderRadius: 6, border: '1px solid var(--line-2)',
+          background: 'var(--bg-1)', color: 'var(--fg-3)', display: 'grid', placeItems: 'center',
+          cursor: 'pointer', flexShrink: 0,
+        }}
+      >
+        <Trash2 size={12} />
+      </button>
+    </div>
+  )
+}
+
 export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModalProps) {
   const { data: accounts = [] } = useAccounts()
   const createPiece = useCreatePiece()
+  const uploadFiles = useUploadFiles()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [isUploading, setIsUploading] = useState(false)
 
   const {
     register,
@@ -96,10 +170,36 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (files.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...files])
+    }
+    e.target.value = ''
+  }
+
+  function removeFile(index: number) {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
   async function onSubmit(values: FormValues) {
-    await createPiece.mutateAsync(values)
+    // 1. Crear la pieza
+    const pieceId = await createPiece.mutateAsync(values)
+
+    // 2. Si hay archivos, subirlos
+    if (selectedFiles.length > 0 && pieceId) {
+      setIsUploading(true)
+      try {
+        await uploadFiles.mutateAsync({ files: selectedFiles, pieceId })
+      } finally {
+        setIsUploading(false)
+      }
+    }
+
     onClose()
   }
+
+  const isBusy = isSubmitting || createPiece.isPending || isUploading
 
   return (
     <>
@@ -205,10 +305,49 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
               <textarea
                 {...register('copy')}
                 placeholder="Texto que acompaña la pieza, hashtags, etc."
-                rows={4}
+                rows={3}
                 style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, fontFamily: 'inherit' }}
               />
             </Field>
+
+            {/* Archivo adjunto */}
+            <div>
+              <label style={labelStyle}>Archivo adjunto</label>
+
+              {selectedFiles.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                  {selectedFiles.map((file, i) => (
+                    <FilePreview key={`${file.name}-${i}`} file={file} onRemove={() => removeFile(i)} />
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '100%', padding: '14px 12px', fontSize: 12, fontWeight: 500,
+                  color: 'var(--fg-3)', borderRadius: 'var(--r-2)',
+                  border: '2px dashed var(--line-2)', background: 'transparent',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: 8,
+                  transition: 'border-color 0.15s, color 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--violet-400)'; e.currentTarget.style.color = 'var(--violet-400)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.color = 'var(--fg-3)' }}
+              >
+                <Upload size={14} />
+                {selectedFiles.length > 0 ? 'Agregar más archivos' : 'Seleccionar archivo (imagen, video, audio)'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*,video/*,audio/*"
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+              />
+            </div>
 
             {/* Pauta */}
             <div>
@@ -247,10 +386,10 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || createPiece.isPending}
-              style={{ padding: '8px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: isSubmitting || createPiece.isPending ? 'var(--violet-600)' : 'var(--violet-500)', cursor: isSubmitting || createPiece.isPending ? 'not-allowed' : 'pointer' }}
+              disabled={isBusy}
+              style={{ padding: '8px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: isBusy ? 'var(--violet-600)' : 'var(--violet-500)', cursor: isBusy ? 'not-allowed' : 'pointer' }}
             >
-              {isSubmitting || createPiece.isPending ? 'Guardando…' : 'Crear pieza'}
+              {isUploading ? 'Subiendo archivo…' : isBusy ? 'Guardando…' : 'Crear pieza'}
             </button>
           </div>
         </form>

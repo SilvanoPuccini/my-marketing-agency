@@ -134,9 +134,9 @@ export function useCreatePiece() {
   const qc = useQueryClient()
   const { user } = useAuthStore()
   return useMutation({
-    mutationFn: async (input: CreatePieceInput) => {
+    mutationFn: async (input: CreatePieceInput): Promise<string> => {
       if (!user) throw new Error('No autenticado')
-      const { error } = await supabase.from('pieces').insert({
+      const { data, error } = await supabase.from('pieces').insert({
         account_id:     input.account_id,
         author_id:      user.id,
         title:          input.title,
@@ -148,8 +148,9 @@ export function useCreatePiece() {
         has_pauta:      input.has_pauta,
         pauta_amount:   input.has_pauta ? (input.pauta_amount ?? null) : null,
         status:         'draft',
-      })
+      }).select('id').single()
       if (error) throw error
+      return data.id
     },
     onSuccess: () => {
       toast.success('Pieza creada')
