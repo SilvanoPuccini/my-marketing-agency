@@ -61,6 +61,7 @@ export async function initAuth() {
 
     return {
       ...data,
+      role: data.role as User['role'],
       initials: getInitials(data.full_name),
       position: data.position ?? undefined,
       avatar_url: data.avatar_url ?? undefined,

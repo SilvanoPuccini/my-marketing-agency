@@ -1,258 +1,560 @@
-// Tipos generados manualmente que coinciden con el schema de Supabase.
-// Cuando tengas el CLI instalado podés reemplazar con:
-//   supabase gen types typescript --project-id <id> > src/types/database.types.ts
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
-      agencies: {
+      account_clients: {
         Row: {
-          id: string
-          name: string
-          plan: 'solo' | 'estudio' | 'casa'
-          created_at: string
+          account_id: string
+          linked_at: string
+          user_id: string
         }
         Insert: {
-          id?: string
-          name: string
-          plan?: 'solo' | 'estudio' | 'casa'
-          created_at?: string
+          account_id: string
+          linked_at?: string
+          user_id: string
         }
         Update: {
-          id?: string
-          name?: string
-          plan?: 'solo' | 'estudio' | 'casa'
-          created_at?: string
+          account_id?: string
+          linked_at?: string
+          user_id?: string
         }
-      }
-      users: {
-        Row: {
-          id: string
-          agency_id: string
-          email: string
-          full_name: string
-          position: string | null
-          role: 'admin_agency' | 'team_member' | 'client'
-          avatar_url: string | null
-          is_active: boolean
-          created_at: string
-        }
-        Insert: {
-          id: string
-          agency_id: string
-          email: string
-          full_name: string
-          position?: string | null
-          role: 'admin_agency' | 'team_member' | 'client'
-          avatar_url?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          agency_id?: string
-          email?: string
-          full_name?: string
-          position?: string | null
-          role?: 'admin_agency' | 'team_member' | 'client'
-          avatar_url?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-      }
-      accounts: {
-        Row: {
-          id: string
-          agency_id: string
-          name: string
-          handle: string | null
-          industry: string | null
-          contact_name: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          plan: string | null
-          monthly_budget: number | null
-          is_active: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          agency_id: string
-          name: string
-          handle?: string | null
-          industry?: string | null
-          contact_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          plan?: string | null
-          monthly_budget?: number | null
-          is_active?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          agency_id?: string
-          name?: string
-          handle?: string | null
-          industry?: string | null
-          contact_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          plan?: string | null
-          monthly_budget?: number | null
-          is_active?: boolean
-          created_at?: string
-        }
+        Relationships: [
+          {
+            foreignKeyName: "account_clients_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_clients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       account_members: {
         Row: {
           account_id: string
-          user_id: string
           assigned_at: string
+          user_id: string
         }
         Insert: {
           account_id: string
-          user_id: string
           assigned_at?: string
+          user_id: string
         }
         Update: {
           account_id?: string
-          user_id?: string
           assigned_at?: string
-        }
-      }
-      account_clients: {
-        Row: {
-          account_id: string
-          user_id: string
-          linked_at: string
-        }
-        Insert: {
-          account_id: string
-          user_id: string
-          linked_at?: string
-        }
-        Update: {
-          account_id?: string
           user_id?: string
-          linked_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "account_members_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      pieces: {
+      accounts: {
         Row: {
-          id: string
-          account_id: string
-          author_id: string
-          title: string
-          type: 'post' | 'reel' | 'story' | 'ad' | 'blog' | 'carrusel'
-          copy: string | null
-          platform: string | null
-          scheduled_date: string
-          scheduled_time: string | null
-          status: 'draft' | 'sent_client' | 'approved' | 'rejected' | 'published'
-          rejection_reason: string | null
-          has_pauta: boolean
-          pauta_amount: number | null
+          agency_id: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          account_id: string
-          author_id: string
-          title: string
-          type: 'post' | 'reel' | 'story' | 'ad' | 'blog' | 'carrusel'
-          copy?: string | null
-          platform?: string | null
-          scheduled_date: string
-          scheduled_time?: string | null
-          status?: 'draft' | 'sent_client' | 'approved' | 'rejected' | 'published'
-          rejection_reason?: string | null
-          has_pauta?: boolean
-          pauta_amount?: number | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          account_id?: string
-          author_id?: string
-          title?: string
-          type?: 'post' | 'reel' | 'story' | 'ad' | 'blog' | 'carrusel'
-          copy?: string | null
-          platform?: string | null
-          scheduled_date?: string
-          scheduled_time?: string | null
-          status?: 'draft' | 'sent_client' | 'approved' | 'rejected' | 'published'
-          rejection_reason?: string | null
-          has_pauta?: boolean
-          pauta_amount?: number | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      piece_files: {
-        Row: {
+          handle: string | null
           id: string
-          piece_id: string
-          file_url: string
-          file_name: string
-          file_type: string
-          file_size_kb: number
-          uploaded_at: string
+          industry: string | null
+          is_active: boolean
+          monthly_budget: number | null
+          name: string
+          plan: string | null
         }
         Insert: {
+          agency_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          handle?: string | null
           id?: string
-          piece_id: string
-          file_url: string
-          file_name: string
-          file_type: string
-          file_size_kb: number
-          uploaded_at?: string
+          industry?: string | null
+          is_active?: boolean
+          monthly_budget?: number | null
+          name: string
+          plan?: string | null
         }
         Update: {
+          agency_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          handle?: string | null
           id?: string
-          piece_id?: string
-          file_url?: string
-          file_name?: string
-          file_type?: string
-          file_size_kb?: number
-          uploaded_at?: string
+          industry?: string | null
+          is_active?: boolean
+          monthly_budget?: number | null
+          name?: string
+          plan?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agencies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          settings: Json
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          plan?: string
+          settings?: Json
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          plan?: string
+          settings?: Json
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Relationships: []
       }
       comments: {
         Row: {
-          id: string
-          piece_id: string
           author_id: string
           content: string
           created_at: string
+          id: string
+          piece_id: string
         }
         Insert: {
-          id?: string
-          piece_id: string
           author_id: string
           content: string
           created_at?: string
+          id?: string
+          piece_id: string
         }
         Update: {
-          id?: string
-          piece_id?: string
           author_id?: string
           content?: string
           created_at?: string
+          id?: string
+          piece_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_piece_id_fkey"
+            columns: ["piece_id"]
+            isOneToOne: false
+            referencedRelation: "pieces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          agency_id: string
+          concept: string
+          created_at: string
+          emision_date: string
+          id: string
+          iva: number
+          number: string
+          period: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          agency_id: string
+          concept: string
+          created_at?: string
+          emision_date: string
+          id?: string
+          iva: number
+          number: string
+          period: string
+          status?: string
+          subtotal: number
+          total: number
+        }
+        Update: {
+          agency_id?: string
+          concept?: string
+          created_at?: string
+          emision_date?: string
+          id?: string
+          iva?: number
+          number?: string
+          period?: string
+          status?: string
+          subtotal?: number
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      piece_files: {
+        Row: {
+          file_name: string
+          file_size_kb: number
+          file_type: string
+          file_url: string
+          id: string
+          piece_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          file_name: string
+          file_size_kb: number
+          file_type: string
+          file_url: string
+          id?: string
+          piece_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          file_name?: string
+          file_size_kb?: number
+          file_type?: string
+          file_url?: string
+          id?: string
+          piece_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "piece_files_piece_id_fkey"
+            columns: ["piece_id"]
+            isOneToOne: false
+            referencedRelation: "pieces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pieces: {
+        Row: {
+          account_id: string
+          author_id: string
+          copy: string | null
+          created_at: string
+          has_pauta: boolean
+          id: string
+          pauta_amount: number | null
+          platform: string | null
+          rejection_reason: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          author_id: string
+          copy?: string | null
+          created_at?: string
+          has_pauta?: boolean
+          id?: string
+          pauta_amount?: number | null
+          platform?: string | null
+          rejection_reason?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          author_id?: string
+          copy?: string | null
+          created_at?: string
+          has_pauta?: boolean
+          id?: string
+          pauta_amount?: number | null
+          platform?: string | null
+          rejection_reason?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pieces_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pieces_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          agency_id: string
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          position: string | null
+          role: string
+        }
+        Insert: {
+          agency_id: string
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          is_active?: boolean
+          position?: string | null
+          role: string
+        }
+        Update: {
+          agency_id?: string
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          position?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
+      auth_account_ids: { Args: never; Returns: string[] }
+      auth_agency_id: { Args: never; Returns: string }
+      auth_role: { Args: never; Returns: string }
+      get_user_agency_id: { Args: never; Returns: string }
       pieces_by_status_count: {
         Args: { p_agency_id: string }
-        Returns: { status: string; total: number }[]
+        Returns: {
+          status: string
+          total: number
+        }[]
       }
       published_pieces_by_month: {
         Args: { p_agency_id: string; p_months?: number }
-        Returns: { month: string; total: number }[]
+        Returns: {
+          month: string
+          total: number
+        }[]
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

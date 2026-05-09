@@ -11,7 +11,7 @@ const schema = z.object({
   account_id:     z.string().min(1, 'Seleccioná una cuenta'),
   title:          z.string().min(3, 'Mínimo 3 caracteres').max(150, 'Máximo 150 caracteres'),
   type:           z.enum(['post', 'reel', 'story', 'ad', 'blog', 'carrusel'], {
-    errorMap: () => ({ message: 'Seleccioná un tipo' }),
+    error: 'Seleccioná un tipo',
   }),
   scheduled_date: z.string().min(1, 'La fecha es obligatoria'),
   scheduled_time: z.string().optional(),
@@ -77,8 +77,8 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  } = useForm<FormValues, unknown, FormValues>({
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       account_id:     defaultAccountId ?? '',
       has_pauta:      false,

@@ -59,8 +59,8 @@ export function CreateAccountModal({ onClose }: CreateAccountModalProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  } = useForm<FormValues, unknown, FormValues>({
+    resolver: zodResolver(schema) as any,
     defaultValues: { name: '', industry: '', handle: '', contact_name: '', contact_email: '' },
   })
 

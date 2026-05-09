@@ -136,7 +136,7 @@ function UploadModal({ files, onClose }: UploadModalProps) {
           account_id: newAccountId,
           scheduled_date: newDate,
           status: 'draft',
-          author_id: user?.id,
+          author_id: user!.id,
         })
         .select('id')
         .single()

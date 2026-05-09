@@ -100,7 +100,7 @@ function RowI({ label, desc, children, action }: { label: string; desc: string; 
   )
 }
 
-function ComingSoon({ title, desc }: { title: string; desc: string }) {
+export function ComingSoon({ title, desc }: { title: string; desc: string }) {
   return (
     <>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>

@@ -23,6 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
+# Supabase local
+supabase/.temp/
+
+# TS build cache
+*.tsbuildinfo
+
 # AI agent skills and config
 .agents/
 .claude/

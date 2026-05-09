@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
-import { isValidTransition, getTransitionError } from '@/features/pieces/utils/pieceTransitions'
+import { getTransitionError } from '@/features/pieces/utils/pieceTransitions'
 import type { PieceStatus, UserRole } from '@/types/domain.types'
 
 export type PieceDetail = {

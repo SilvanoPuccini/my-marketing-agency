@@ -1,9 +1,8 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ClientLayout } from '@/components/layout/ClientLayout'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
-import { useAuthStore } from '@/stores/auth.store'
 
 // Public — static imports (small, always needed)
 import { Landing } from '@/pages/public/Landing'
@@ -44,10 +43,6 @@ function PageLoader() {
   )
 }
 
-function RootRedirect() {
-  const { user } = useAuthStore()
-  return <Navigate to={user?.role === 'client' ? '/portal' : '/dashboard'} replace />
-}
 
 export function AppRouter() {
   return (
