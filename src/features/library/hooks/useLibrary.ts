@@ -143,6 +143,28 @@ export function useDeleteFile() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (fileId: string) => {
+      // 1. Obtener el path del archivo en Storage
+      const { data: fileRecord, error: fetchError } = await supabase
+        .from('piece_files')
+        .select('file_url')
+        .eq('id', fileId)
+        .single()
+      if (fetchError) throw fetchError
+
+      // 2. Extraer el path (sacar el dominio de la URL pública si existe)
+      const fileUrl = fileRecord?.file_url ?? ''
+      const pathMatch = fileUrl.match(/\/pieces-files\/(.+)/)
+      const storagePath = pathMatch ? pathMatch[1] : null
+
+      // 3. Borrar de Storage (si hay path válido)
+      if (storagePath) {
+        const { error: storageError } = await supabase.storage
+          .from('piece-files')
+          .remove([storagePath])
+        if (storageError) console.warn('Storage delete failed:', storageError.message)
+      }
+
+      // 4. Borrar el registro de la DB
       const { error } = await supabase
         .from('piece_files')
         .delete()

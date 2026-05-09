@@ -5,11 +5,12 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
-import { Download, X } from 'lucide-react'
+import { Download, Trash2, X } from 'lucide-react'
 import {
   useLibraryFiles,
   useLibraryFolders,
   useUploadFiles,
+  useDeleteFile,
   usePiecesForUpload,
   type LibraryFile,
 } from '@/features/library/hooks/useLibrary'
@@ -80,6 +81,8 @@ function FileViewerModal({ file, onClose }: { file: LibraryFile; onClose: () => 
   const isVid = isVideo(file)
   const isImg = isImage(file)
   const isAud = isAudio(file)
+  const deleteFile = useDeleteFile()
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   function handleDownload() {
     const a = document.createElement('a')
@@ -89,6 +92,14 @@ function FileViewerModal({ file, onClose }: { file: LibraryFile; onClose: () => 
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
+  }
+
+  function handleDelete() {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    deleteFile.mutate(file.id, { onSuccess: onClose })
   }
 
   return (
@@ -117,6 +128,22 @@ function FileViewerModal({ file, onClose }: { file: LibraryFile; onClose: () => 
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={handleDelete}
+              disabled={deleteFile.isPending}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 10px', fontSize: 12, fontWeight: 500,
+                color: confirmDelete ? '#fff' : 'var(--status-rejected)',
+                borderRadius: 'var(--r-2)',
+                border: `1px solid ${confirmDelete ? 'var(--status-rejected)' : 'var(--line-2)'}`,
+                background: confirmDelete ? 'var(--status-rejected)' : 'var(--bg-2)',
+                cursor: deleteFile.isPending ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <Trash2 size={12} />
+              {deleteFile.isPending ? 'Eliminando...' : confirmDelete ? 'Confirmar' : 'Eliminar'}
+            </button>
             <button
               onClick={handleDownload}
               style={{
