@@ -342,4 +342,51 @@
   .page-content {
     padding: 12px 16px !important;
   }
+
+  /* TopBar compact on mobile */
+  .topbar {
+    padding: 10px 16px !important;
+    gap: 10px !important;
+  }
+}
+
+/* ===== Landing responsive ===== */
+@media (max-width: 1023px) {
+  .landing-nav-links { display: none !important; }
+  .landing-hero h1 { font-size: 40px !important; }
+  .landing-hero-stats { flex-wrap: wrap; gap: 12px !important; }
+  .landing-product-grid { grid-template-columns: 1fr !important; }
+  .landing-product-grid aside { display: none !important; }
+  .landing-logos-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .landing-features-grid { grid-template-columns: 1fr !important; }
+  .landing-flow-section { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .landing-pricing-grid { grid-template-columns: 1fr !important; }
+  .landing-casos-grid { grid-template-columns: 1fr !important; }
+  .landing-casos-grid > *:nth-child(1) { grid-row: auto !important; }
+  .landing-cambios-layout { grid-template-columns: 1fr !important; }
+  .landing-cambios-layout > aside { position: static !important; }
+  .landing-footer-cta { flex-direction: column !important; text-align: center; padding: 32px 24px !important; }
+  .landing-footer { flex-direction: column !important; align-items: center !important; gap: 12px !important; }
+}
+
+@media (max-width: 640px) {
+  .landing-navbar-inner { padding: 12px 16px !important; }
+  .landing-hero { padding: 48px 16px 32px !important; }
+  .landing-hero h1 { font-size: 28px !important; }
+  .landing-hero p { font-size: 15px !important; }
+  .landing-logos-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .landing-section { padding-left: 16px !important; padding-right: 16px !important; }
+  .landing-product-mock { padding: 0 16px !important; }
+}
+
+/* Auth pages (Login / Register) responsive */
+@media (max-width: 768px) {
+  .auth-layout { grid-template-columns: 1fr !important; }
+  .auth-brand-panel { display: none !important; }
+}
+
+/* Skeleton pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

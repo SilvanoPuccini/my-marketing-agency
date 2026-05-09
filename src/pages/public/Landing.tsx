@@ -22,7 +22,7 @@ const btnSecondaryLg: React.CSSProperties = { ...btnSecondary, padding: '11px 18
 function NavBar() {
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)', background: 'rgba(10,10,15,0.72)', borderBottom: '1px solid var(--line-1)' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 32, padding: '14px 32px' }}>
+      <div className="landing-navbar-inner" style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 32, padding: '14px 32px' }}>
 
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{ width: 26, height: 26, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset' }}>
@@ -31,7 +31,7 @@ function NavBar() {
           <span style={{ fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--fg-1)' }}>My Marketing Agency</span>
         </Link>
 
-        <nav style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
+        <nav className="landing-nav-links" style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
           {[
             { label: 'Producto', href: '#producto' },
             { label: 'Flujo',    href: '#flujo' },
@@ -79,7 +79,7 @@ function NavBar() {
 // ── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 32px 48px' }}>
+    <section className="landing-hero landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 32px 48px' }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--violet-400)', background: 'var(--violet-soft)', border: '1px solid var(--violet-soft)', padding: '4px 10px', borderRadius: 999 }}>
         <span style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--violet-400)', boxShadow: '0 0 8px var(--violet-400)' }} />
         v2.4 · ahora con flujo de aprobación de cliente
@@ -103,7 +103,7 @@ function Hero() {
         <a href="#producto" onClick={(e) => { e.preventDefault(); const el = document.getElementById('producto'); if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }) } }} style={btnSecondaryLg}>Ver el producto →</a>
       </div>
 
-      <div style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <div className="landing-hero-stats" style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
         {['Planes desde $36.000/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
           <span key={item}><span style={{ color: 'var(--violet-500)' }}>▸ </span>{item}</span>
         ))}
@@ -140,7 +140,7 @@ function ProductMock() {
   }
 
   return (
-    <section style={{ maxWidth: 1200, margin: '24px auto 64px', padding: '0 32px' }}>
+    <section className="landing-product-mock" style={{ maxWidth: 1200, margin: '24px auto 64px', padding: '0 32px' }}>
       <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.08)', position: 'relative' }}>
         {/* Gradient overlay */}
         <div style={{ position: 'absolute', inset: -1, borderRadius: 14, background: 'linear-gradient(180deg, rgba(124,58,237,0.12), transparent 30%)', pointerEvents: 'none', zIndex: 1 }} />
@@ -157,7 +157,7 @@ function ProductMock() {
         </div>
 
         {/* App chrome */}
-        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', minHeight: 460, background: 'var(--bg-0)' }}>
+        <div className="landing-product-grid" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', minHeight: 460, background: 'var(--bg-0)' }}>
           {/* Sidebar */}
           <aside style={{ background: 'var(--bg-1)', borderRight: '1px solid var(--line-1)', padding: '14px 10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 6px 12px', borderBottom: '1px solid var(--line-1)', marginBottom: 8 }}>
@@ -214,11 +214,11 @@ function ProductMock() {
 function Logos() {
   const agencies = ['Estudio Pampas', 'Plata Comunicación', 'Casa Mate', 'Ñandú Studio', 'Talampaya', 'Buenos Aires Co.']
   return (
-    <section style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 32px 64px' }}>
+    <section className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 32px 64px' }}>
       <div className="mono" style={{ textAlign: 'center', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--fg-3)', marginBottom: 24 }}>
         Más de 240 agencias en Argentina ya operan con MMA
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 24, alignItems: 'center' }}>
+      <div className="landing-logos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 24, alignItems: 'center' }}>
         {agencies.map((name) => (
           <span key={name} style={{ textAlign: 'center', fontWeight: 600, fontSize: 14, letterSpacing: '-0.015em', color: 'var(--fg-3)', opacity: 0.8 }}>
             {name}
@@ -241,7 +241,7 @@ function Features() {
   ]
 
   return (
-    <section id="producto" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
+    <section id="producto" className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Producto</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
         Lo que tu equipo necesita, sin lo que no.
@@ -250,7 +250,7 @@ function Features() {
         Cinco años escuchando agencias argentinas. Lo construimos para resolver lo que se rompe — no para impresionar a un VC.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', marginTop: 56 }}>
+      <div className="landing-features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', marginTop: 56 }}>
         {features.map((f) => (
           <div key={f.num} style={{ background: 'var(--bg-0)', padding: 28, minHeight: 220, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', letterSpacing: '0.06em', marginBottom: 16 }}>{f.num}</div>
@@ -273,7 +273,7 @@ function Flow() {
   ]
 
   return (
-    <section id="flujo" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 64, alignItems: 'start' }}>
+    <section id="flujo" className="landing-flow-section landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 64, alignItems: 'start' }}>
       <div>
         <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Flujo</div>
         <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
@@ -328,7 +328,7 @@ function Pricing() {
   ]
 
   return (
-    <section id="precios" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
+    <section id="precios" className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Precios</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
         Transparente. En pesos.
@@ -337,7 +337,7 @@ function Pricing() {
         Sin pricing en dólares "porque queda lindo". Sin escalones que esconden funciones que necesitás. Cancelás cuando quieras.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 48 }}>
+      <div className="landing-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 48 }}>
         {plans.map((plan) => (
           <div key={plan.name} style={{ background: plan.featured ? 'linear-gradient(180deg, rgba(124,58,237,0.08), transparent 50%), var(--bg-1)' : 'var(--bg-1)', border: `1px solid ${plan.featured ? 'var(--violet-500)' : 'var(--line-1)'}`, borderRadius: 'var(--r-3)', padding: 28, display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: plan.featured ? '0 0 0 1px var(--violet-500), 0 24px 40px -16px var(--violet-glow)' : 'none' }}>
             {plan.featured && (
@@ -370,7 +370,7 @@ function Pricing() {
 // ── Casos ─────────────────────────────────────────────────────────────────────
 function Casos() {
   return (
-    <section id="casos" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
+    <section id="casos" className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Casos</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
         Agencias que dejaron las planillas.
@@ -379,7 +379,7 @@ function Casos() {
         Historias reales de equipos que pasaron a operar con MMA — y cómo se notó en las horas y en la facturación.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', marginTop: 56 }}>
+      <div className="landing-casos-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 1, background: 'var(--line-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden', marginTop: 56 }}>
 
         {/* Featured case */}
         <div style={{ background: 'radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%), var(--bg-1)', padding: 36, display: 'flex', flexDirection: 'column', gridRow: 'span 2' }}>
@@ -505,7 +505,7 @@ function Cambios() {
   ]
 
   return (
-    <section id="cambios" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
+    <section id="cambios" className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Cambios</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
         Cambios recientes.
@@ -514,7 +514,7 @@ function Cambios() {
         Lo que entró, lo que mejoramos y lo que rompimos a propósito. Publicamos cada release acá — sin marketing‑speak.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 64, marginTop: 56, alignItems: 'flex-start' }}>
+      <div className="landing-cambios-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 64, marginTop: 56, alignItems: 'flex-start' }}>
         {/* Sidebar */}
         <aside style={{ position: 'sticky', top: 96, display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
@@ -574,7 +574,7 @@ function Cambios() {
 // ── Footer CTA ────────────────────────────────────────────────────────────────
 function FooterCta() {
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto 64px', padding: '64px 48px', background: 'linear-gradient(135deg, var(--bg-1), var(--bg-2))', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, position: 'relative', overflow: 'hidden' }}>
+    <div className="landing-footer-cta landing-section" style={{ maxWidth: 1200, margin: '0 auto 64px', padding: '64px 48px', background: 'linear-gradient(135deg, var(--bg-1), var(--bg-2))', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 80% at 80% 50%, var(--violet-glow), transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative' }}>
         <h3 style={{ margin: 0, fontSize: 28, letterSpacing: '-0.02em', maxWidth: 520 }}>Probalo con una de tus cuentas esta semana.</h3>
@@ -602,7 +602,7 @@ export function Landing() {
       <Casos />
       <Cambios />
       <FooterCta />
-      <footer style={{ maxWidth: 1200, margin: '0 auto', padding: 32, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', gap: 32, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+      <footer className="landing-footer" style={{ maxWidth: 1200, margin: '0 auto', padding: 32, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', gap: 32, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>
         <div>© 2026 MMA · Hecho en Buenos Aires</div>
         <div style={{ display: 'flex', gap: 16 }}>
           {([['Privacidad', '/privacidad'], ['Términos', '/terminos'], ['Estado', '/estado'], ['Contacto', '/contacto']] as const).map(([label, to]) => (

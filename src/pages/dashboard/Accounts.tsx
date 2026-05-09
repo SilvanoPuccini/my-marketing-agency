@@ -6,6 +6,7 @@ import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
 import { CreateAccountModal } from '@/features/accounts/components/CreateAccountModal'
 import { TableSkeleton } from '@/components/ui/page-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
+import { PlanLimitBanner } from '@/components/ui/plan-limit-banner'
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
@@ -127,6 +128,7 @@ export function Accounts() {
       />
 
       <div className="page-content" style={{ padding: '24px 32px' }}>
+        <PlanLimitBanner type="accounts" />
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Cuentas</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>

@@ -292,7 +292,7 @@ export function Dashboard() {
                 {attention.isLoading ? '—' : `${attention.data?.length ?? 0} PIEZAS`} · ORDENADAS POR URGENCIA
               </span>
             </div>
-            {attention.isLoading && <EmptyRow message="Cargando..." />}
+            {attention.isLoading && <div style={{ padding: '12px 18px' }}>{[1,2,3].map(i => <div key={i} style={{ height: 48, background: 'var(--bg-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>}
             {!attention.isLoading && (attention.data?.length ?? 0) === 0 && (
               <EmptyRow message="No hay piezas pendientes. ¡Todo en orden!" />
             )}
@@ -336,7 +336,7 @@ export function Dashboard() {
               </span>
             </div>
             <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {teamLoad.isLoading && <EmptyRow message="Cargando..." />}
+              {teamLoad.isLoading && <div style={{ padding: 18 }}>{[1,2,3].map(i => <div key={i} style={{ height: 32, background: 'var(--bg-2)', borderRadius: 6, marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>}
               {!teamLoad.isLoading && (teamLoad.data?.length ?? 0) === 0 && (
                 <EmptyRow message="Sin piezas programadas esta semana." />
               )}
@@ -377,7 +377,7 @@ export function Dashboard() {
               <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ÚLTIMAS ACTUALIZACIONES</span>
             </div>
             <div style={{ padding: '6px 0' }}>
-              {activity.isLoading && <EmptyRow message="Cargando..." />}
+              {activity.isLoading && <div style={{ padding: '6px 18px' }}>{[1,2,3].map(i => <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'center' }}><div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--bg-3)', animation: 'pulse 1.5s ease-in-out infinite' }} /><div style={{ flex: 1, height: 16, background: 'var(--bg-2)', borderRadius: 4, animation: 'pulse 1.5s ease-in-out infinite' }} /></div>)}</div>}
               {!activity.isLoading && (activity.data?.length ?? 0) === 0 && (
                 <EmptyRow message="Sin actividad reciente." />
               )}
@@ -412,7 +412,7 @@ export function Dashboard() {
                 {pauta.isLoading ? '—' : `${pauta.data?.length ?? 0} ACTIVAS`}
               </span>
             </div>
-            {pauta.isLoading && <EmptyRow message="Cargando..." />}
+            {pauta.isLoading && <div style={{ padding: '12px 18px' }}>{[1,2].map(i => <div key={i} style={{ height: 44, background: 'var(--bg-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>}
             {!pauta.isLoading && (pauta.data?.length ?? 0) === 0 && (
               <EmptyRow message="Sin cuentas con pauta este mes." />
             )}
