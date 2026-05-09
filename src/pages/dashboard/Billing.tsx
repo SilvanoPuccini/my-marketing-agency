@@ -198,7 +198,7 @@ export function Billing() {
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [editingFiscal, setEditingFiscal] = useState(false)
-  const [fiscal, setFiscal] = useState({ razon: '', cuit: '30-71234567-8', iva: 'Resp. Inscripto', domicilio: 'Honduras 4900, CABA' })
+  const [fiscal, setFiscal] = useState({ razon: '', cuit: '', iva: '', domicilio: '' })
 
   useEffect(() => { if (agencyName) setFiscal(f => ({ ...f, razon: agencyName })) }, [agencyName])
 
@@ -242,7 +242,7 @@ export function Billing() {
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Facturación</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>
-            {agencyName} · CUIT 30-71234567-8 · Plan {planLabel} mensual.
+            {agencyName} · Plan {planLabel} mensual.
           </p>
         </div>
 
@@ -304,25 +304,9 @@ export function Billing() {
                 </span>
               </div>
 
-              {[
-                { brand: 'VISA', num: '•••• •••• •••• 4288', exp: 'VENCE 09/28 · L. FERNÁNDEZ',         primary: true  },
-                { brand: 'MAS',  num: '•••• •••• •••• 1102', exp: 'VENCE 03/27 · ESTUDIO PAMPAS SRL',   primary: false },
-              ].map((card) => (
-                <div key={card.num} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderBottom: '1px solid var(--line-1)' }}>
-                  <div style={{ width: 44, height: 30, borderRadius: 4, background: 'linear-gradient(135deg, #1a1a26, #2c2c3a)', border: '1px solid var(--line-2)', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-2)' }}>
-                    {card.brand}
-                  </div>
-                  <div>
-                    <div className="mono" style={{ fontSize: 13 }}>{card.num}</div>
-                    <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{card.exp}</div>
-                  </div>
-                  {card.primary && (
-                    <div style={{ marginLeft: 'auto' }}>
-                      <span className="pill pill-violet"><span className="dot" />Principal</span>
-                    </div>
-                  )}
+              <div style={{ padding: '20px 18px', color: 'var(--fg-3)', fontSize: 13, textAlign: 'center' }}>
+                  Sin métodos de pago configurados.
                 </div>
-              ))}
 
               <div id="fiscal-data" style={{ ...panelH, borderTop: '1px solid var(--line-1)', borderBottom: 0 }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Datos fiscales</h3>

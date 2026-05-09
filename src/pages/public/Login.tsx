@@ -337,7 +337,7 @@ export function Login() {
           >
             ¿Sos nueva por acá?{' '}
             <Link to="/registro" style={{ color: 'var(--violet-400)' }}>
-              Probá 14 días gratis
+              Creá tu cuenta
             </Link>
           </div>
         </form>
