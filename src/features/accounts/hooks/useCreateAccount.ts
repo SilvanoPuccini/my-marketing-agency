@@ -13,6 +13,36 @@ export type CreateAccountInput = {
   monthly_budget?: number
 }
 
+async function autoInviteClientIfNeeded(
+  accountId: string,
+  contactEmail: string,
+  contactName: string,
+): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+
+  const res = await fetch(
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invite`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        email: contactEmail,
+        full_name: contactName || contactEmail.split('@')[0],
+        role: 'client',
+        account_id: accountId,
+      }),
+    },
+  )
+  const data = await res.json()
+  if (!res.ok) {
+    console.warn('Auto-invite failed:', data.error)
+  }
+}
+
 export function useCreateAccount() {
   const qc = useQueryClient()
   const { user } = useAuthStore()
@@ -31,7 +61,7 @@ export function useCreateAccount() {
         throw new Error(`Tu plan "${plan}" permite hasta ${limits.accounts} cuenta${limits.accounts > 1 ? 's' : ''}. Actualizá tu plan para agregar más.`)
       }
 
-      const { error } = await supabase.from('accounts').insert({
+      const { data: accountData, error } = await supabase.from('accounts').insert({
         agency_id:      user.agency_id,
         name:           input.name,
         industry:       input.industry || null,
@@ -40,8 +70,21 @@ export function useCreateAccount() {
         contact_email:  input.contact_email || null,
         monthly_budget: input.monthly_budget ?? null,
         is_active:      true,
-      })
+      }).select('id').single()
+
       if (error) throw error
+      if (!accountData) throw new Error('No se pudo crear la cuenta')
+
+      // Auto-invite: si tiene email de contacto, enviar invitación al cliente
+      if (input.contact_email) {
+        await autoInviteClientIfNeeded(
+          accountData.id,
+          input.contact_email,
+          input.contact_name ?? '',
+        )
+      }
+
+      return accountData
     },
     onSuccess: () => {
       toast.success('Cuenta creada')
