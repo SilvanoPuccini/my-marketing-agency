@@ -70,7 +70,7 @@ serve(async (req) => {
       email,
       {
         data: { full_name, role },
-        redirectTo: `${siteUrl}/login`,
+        redirectTo: `${siteUrl}/complete-invitation`,
       },
     )
 

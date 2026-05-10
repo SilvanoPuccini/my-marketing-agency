@@ -11,6 +11,7 @@ import { Login } from '@/pages/public/Login'
 // Public — lazy (rarely visited)
 const Register = lazy(() => import('@/pages/public/Register').then(m => ({ default: m.Register })))
 const AuthCallback = lazy(() => import('@/pages/public/AuthCallback').then(m => ({ default: m.AuthCallback })))
+const CompleteInvitation = lazy(() => import('@/pages/public/CompleteInvitation').then(m => ({ default: m.CompleteInvitation })))
 const ForgotPassword = lazy(() => import('@/pages/public/ForgotPassword').then(m => ({ default: m.ForgotPassword })))
 const Privacy = lazy(() => import('@/pages/public/Privacy').then(m => ({ default: m.Privacy })))
 const Terms = lazy(() => import('@/pages/public/Terms').then(m => ({ default: m.Terms })))
@@ -54,6 +55,7 @@ export function AppRouter() {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/complete-invitation" element={<CompleteInvitation />} />
           <Route path="/recuperar-password" element={<ForgotPassword />} />
           <Route path="/privacidad" element={<Privacy />} />
           <Route path="/terminos" element={<Terms />} />
