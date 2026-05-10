@@ -82,15 +82,52 @@ serve(async (req) => {
     }
 
     // Crear perfil en public.users
+    // NOTA: inviteUserByEmail dispara el trigger handle_new_user que ya crea
+    // una fila en public.users (con role='admin_agency' y una agency nueva).
+    // Por eso usamos upsert en vez de insert puro — si el trigger ya creó
+    // el perfil, lo actualizamos con el agency_id y role correctos.
     if (invited.user) {
-      await supabaseAdmin.from('users').insert({
-        id: invited.user.id,
-        agency_id: inviterProfile.agency_id,
-        email,
-        full_name,
-        role,
-        is_active: true,
-      })
+      const { data: existingProfile } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('id', invited.user.id)
+        .single()
+
+      if (existingProfile) {
+        // Trigger already created profile — update with correct agency and role
+        const { error: updateError } = await supabaseAdmin
+          .from('users')
+          .update({
+            agency_id: inviterProfile.agency_id,
+            email,
+            full_name,
+            role,
+            is_active: true,
+          })
+          .eq('id', invited.user.id)
+        if (updateError) {
+          return new Response(
+            JSON.stringify({ error: `Error al actualizar perfil: ${updateError.message}` }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          )
+        }
+      } else {
+        // Fallback: trigger didn't run, insert from scratch
+        const { error: insertError } = await supabaseAdmin.from('users').insert({
+          id: invited.user.id,
+          agency_id: inviterProfile.agency_id,
+          email,
+          full_name,
+          role,
+          is_active: true,
+        })
+        if (insertError) {
+          return new Response(
+            JSON.stringify({ error: `Error al crear perfil: ${insertError.message}` }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          )
+        }
+      }
 
       // Si es cliente y tiene account_id, vincularlo
       if (role === 'client' && account_id) {
