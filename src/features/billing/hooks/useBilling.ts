@@ -28,12 +28,10 @@ export function useBilling() {
           .select('id', { count: 'exact', head: true })
           .in('role', ['admin_agency', 'team_member'])
           .eq('is_active', true),
-        supabase
-          .from('accounts')
-          .select('storage_used_kb'),
+        supabase.from('piece_files').select('file_size_kb'),
       ])
       const totalStorageKB = (storageRes.data ?? []).reduce(
-        (sum, a) => sum + ((a as { storage_used_kb: number }).storage_used_kb ?? 0),
+        (sum, f) => sum + (f.file_size_kb ?? 0),
         0,
       )
       return {
