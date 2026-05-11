@@ -49,6 +49,7 @@ export function useDashboardStats(agencyId: string | undefined, period: Period =
       const { data, error } = await supabase
         .from('pieces')
         .select('status')
+        .is('archived_at', null)
         .gte('scheduled_date', start)
         .lte('scheduled_date', end)
       if (error) throw error
@@ -82,6 +83,7 @@ export function useAttentionPieces(agencyId: string | undefined) {
       const { data, error } = await supabase
         .from('pieces')
         .select('id, title, type, status, updated_at, scheduled_date, scheduled_time, accounts(name)')
+        .is('archived_at', null)
         .in('status', ['draft', 'sent_client', 'rejected'])
         .order('updated_at', { ascending: false })
         .limit(8)
@@ -110,6 +112,7 @@ export function useTeamLoad(agencyId: string | undefined) {
       const { data, error } = await supabase
         .from('pieces')
         .select('author_id, status, users!author_id(full_name, position)')
+        .is('archived_at', null)
         .gte('scheduled_date', start)
         .lte('scheduled_date', end)
       if (error) throw error
@@ -176,6 +179,7 @@ export function useRecentActivity(agencyId: string | undefined) {
       const { data, error } = await supabase
         .from('pieces')
         .select('id, title, status, updated_at, accounts(name), users!author_id(full_name)')
+        .is('archived_at', null)
         .order('updated_at', { ascending: false })
         .limit(5)
       if (error) throw error

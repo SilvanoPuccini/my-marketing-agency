@@ -44,6 +44,7 @@ export function useClientPieces(userId: string | undefined) {
       const { data: pieces, error: piecesError } = await supabase
         .from('pieces')
         .select('id, title, type, status, copy, platform, scheduled_date, scheduled_time')
+        .is('archived_at', null)
         .eq('account_id', accountId)
         .in('status', ['sent_client', 'approved', 'rejected', 'published'])
         .order('scheduled_date', { ascending: true })

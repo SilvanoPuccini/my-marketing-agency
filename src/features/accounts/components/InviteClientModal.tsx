@@ -4,11 +4,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { X, Copy, Check } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { toast } from 'sonner'
+import { getPlanLimit, type PlanId } from '@/lib/planLimits'
 
 // Cliente sin persistencia de sesión — para crear usuarios sin desloguear al admin
 const supabaseSignup = createClient(
@@ -110,6 +111,30 @@ export function InviteClientModal({ accountId, accountName, onClose }: InviteCli
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const [result, setResult] = useState<InviteResult | null>(null)
+
+  // Check portal client limit for this account
+  const { data: clientLimitInfo } = useQuery({
+    queryKey: ['portal-client-limit', accountId],
+    enabled: !!accountId && !!user?.agency_id,
+    queryFn: async () => {
+      const [agencyRes, clientsRes] = await Promise.all([
+        supabase.from('agencies').select('plan').eq('id', user!.agency_id).single(),
+        supabase
+          .from('account_clients')
+          .select('id', { count: 'exact', head: true })
+          .eq('account_id', accountId),
+      ])
+      const plan = (agencyRes.data?.plan ?? 'solo') as PlanId
+      const limits = getPlanLimit(plan)
+      const used = clientsRes.count ?? 0
+      return {
+        used,
+        limit: limits.portalClientsPerAccount,
+        atLimit: used >= limits.portalClientsPerAccount,
+      }
+    },
+  })
+  const atClientLimit = clientLimitInfo?.atLimit ?? false
 
   const inviteClient = useMutation({
     mutationFn: async (input: FormValues): Promise<InviteResult> => {
@@ -240,9 +265,16 @@ export function InviteClientModal({ accountId, accountName, onClose }: InviteCli
                   )}
                 </div>
 
-                <div style={{ padding: '10px 12px', background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.5 }}>
-                  Se generará una contraseña temporal. Vas a poder copiarla para compartirla con el cliente.
-                </div>
+                {atClientLimit ? (
+                  <div style={{ padding: '10px 12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 'var(--r-2)', fontSize: 12, color: '#EF4444', lineHeight: 1.5 }}>
+                    Limite de clientes portal alcanzado para esta cuenta ({clientLimitInfo?.used}/{clientLimitInfo?.limit}).
+                    Actualiza tu plan para agregar mas clientes.
+                  </div>
+                ) : (
+                  <div style={{ padding: '10px 12px', background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.5 }}>
+                    Se generara una contrasena temporal. Vas a poder copiarla para compartirla con el cliente.
+                  </div>
+                )}
               </div>
 
               {inviteClient.isError && (
@@ -261,10 +293,10 @@ export function InviteClientModal({ accountId, accountName, onClose }: InviteCli
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || inviteClient.isPending}
-                  style={{ padding: '8px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: isSubmitting || inviteClient.isPending ? 'var(--violet-600)' : 'var(--violet-500)', cursor: isSubmitting || inviteClient.isPending ? 'not-allowed' : 'pointer' }}
+                  disabled={isSubmitting || inviteClient.isPending || atClientLimit}
+                  style={{ padding: '8px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: isSubmitting || inviteClient.isPending || atClientLimit ? 'var(--violet-600)' : 'var(--violet-500)', cursor: isSubmitting || inviteClient.isPending || atClientLimit ? 'not-allowed' : 'pointer', opacity: atClientLimit ? 0.5 : 1 }}
                 >
-                  {isSubmitting || inviteClient.isPending ? 'Creando…' : 'Invitar cliente'}
+                  {atClientLimit ? 'Limite alcanzado' : isSubmitting || inviteClient.isPending ? 'Creando…' : 'Invitar cliente'}
                 </button>
               </div>
             </form>

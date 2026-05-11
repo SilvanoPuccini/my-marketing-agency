@@ -1,12 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
-
-const PLAN_LIMITS = {
-  solo:    { accounts: 8,  seats: 3,  storageGB: 20 },
-  estudio: { accounts: 25, seats: 15, storageGB: 100 },
-  casa:    { accounts: 999, seats: 50, storageGB: 500 },
-} as const
+import { getPlanLimit, type PlanId } from '@/lib/planLimits'
 
 const PLAN_LABELS: Record<string, string> = {
   solo:    'Solo',
@@ -16,8 +11,8 @@ const PLAN_LABELS: Record<string, string> = {
 
 const PLAN_PRICES: Record<string, number> = {
   solo:    36000,
-  estudio: 84000,
-  casa:    210000,
+  estudio: 72000,
+  casa:    144000,
 }
 
 export function useBilling() {
@@ -33,29 +28,37 @@ export function useBilling() {
           .select('id', { count: 'exact', head: true })
           .in('role', ['admin_agency', 'team_member'])
           .eq('is_active', true),
-        supabase.from('piece_files').select('file_size_kb'),
+        supabase
+          .from('accounts')
+          .select('storage_used_kb'),
       ])
-      const storageKB = (storageRes.data ?? []).reduce(
-        (sum, f) => sum + (f.file_size_kb ?? 0),
+      const totalStorageKB = (storageRes.data ?? []).reduce(
+        (sum, a) => sum + ((a as { storage_used_kb: number }).storage_used_kb ?? 0),
         0,
       )
       return {
         accountsUsed: accountsRes.count ?? 0,
         seatsUsed:    seatsRes.count ?? 0,
-        storageUsedGB: Math.round((storageKB / 1024 / 1024) * 10) / 10,
+        storageUsedGB: Math.round((totalStorageKB / 1024 / 1024) * 10) / 10,
       }
     },
   })
 
-  const plan = (agency?.plan ?? 'estudio') as keyof typeof PLAN_LIMITS
-  const limits = PLAN_LIMITS[plan] ?? PLAN_LIMITS.estudio
+  const plan = (agency?.plan ?? 'solo') as PlanId
+  const limits = getPlanLimit(plan)
 
   return {
     agency,
     accountsUsed:  usage?.accountsUsed  ?? 0,
     seatsUsed:     usage?.seatsUsed     ?? 0,
     storageUsedGB: usage?.storageUsedGB ?? 0,
-    limits,
+    limits: {
+      accounts:              limits.accounts,
+      seats:                 limits.teamSeats,
+      storageGB:             limits.storageGB,
+      portalClientsPerAccount: limits.portalClientsPerAccount,
+      piecesPerClient:       limits.piecesPerClient,
+    },
     planLabel: PLAN_LABELS[plan] ?? plan,
     planPrice: PLAN_PRICES[plan] ?? 0,
     isLoading: agencyLoading || usageLoading,

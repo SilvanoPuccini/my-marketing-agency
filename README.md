@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# My Marketing Agency
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma SaaS para agencias de marketing digital. Gestiona cuentas-cliente, calendario editorial, flujo de aprobacion de piezas, portal del cliente y facturacion.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** React + TypeScript + Vite
+- **Backend:** Supabase (Auth, Database, Storage, Edge Functions)
+- **Pagos:** Stripe Checkout
+- **Deploy:** Vercel
 
-## React Compiler
+## Planes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Plan | Precio | Cuentas | Asientos | Clientes portal/cuenta | Piezas/mes/cliente | Storage/cuenta |
+|------|--------|---------|----------|------------------------|--------------------|----------------|
+| Solo | $36.000/mes | 1 | 2 | 2 | 60 | 1 GB |
+| Estudio | $72.000/mes | 5 | 5 | 5 | 80 | 1.6 GB |
+| Casa | $144.000/mes | 15 | 15 | 15 | 160 | 3 GB |
 
-## Expanding the ESLint configuration
+**Notas:**
+- Asientos = admin + miembros del equipo. Los clientes portal NO consumen asiento.
+- Storage es por cuenta-cliente, no compartido.
+- Piezas/mes es por cliente portal individual, se renueva automaticamente.
+- Archivos: imagenes max 10 MB, videos max 50 MB.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Desarrollo
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Deploy
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+# Deploy automatico en Vercel al pushear a main
 ```
+
+## Migraciones SQL
+
+Los archivos de migracion estan en `supabase/migrations/` con formato `YYYYMMDD_descripcion.sql`. Ejecutar en orden en el SQL Editor de Supabase.

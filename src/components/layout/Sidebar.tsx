@@ -38,6 +38,7 @@ function SidebarContent() {
         supabase
           .from('pieces')
           .select('id', { count: 'exact', head: true })
+          .is('archived_at', null)
           .gte('scheduled_date', firstDay)
           .lte('scheduled_date', lastDay),
         supabase

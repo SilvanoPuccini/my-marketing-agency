@@ -61,6 +61,7 @@ function useAccountPieces(accountId: string | undefined) {
       const { data, error } = await supabase
         .from('pieces')
         .select('id, title, type, status, scheduled_date, scheduled_time, platform')
+        .is('archived_at', null)
         .eq('account_id', accountId!)
         .order('scheduled_date', { ascending: false })
       if (error) throw error

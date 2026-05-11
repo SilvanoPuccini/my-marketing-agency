@@ -21,6 +21,7 @@ export function useCalendarPieces(year: number, month: number) {
       const { data, error } = await supabase
         .from('pieces')
         .select('id, title, type, status, scheduled_date, scheduled_time, accounts(name)')
+        .is('archived_at', null)
         .gte('scheduled_date', start)
         .lte('scheduled_date', end)
         .order('scheduled_time', { ascending: true })

@@ -98,10 +98,29 @@ export function usePiecesForUpload() {
   })
 }
 
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024  // 10 MB
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024  // 50 MB
+
+function validateFileSize(file: File): string | null {
+  const isImage = file.type.startsWith('image/')
+  const isVideo = file.type.startsWith('video/')
+  if (isImage && file.size > MAX_IMAGE_BYTES)
+    return `"${file.name}" excede el limite de 10 MB para imagenes`
+  if (isVideo && file.size > MAX_VIDEO_BYTES)
+    return `"${file.name}" excede el limite de 50 MB para videos`
+  return null
+}
+
 export function useUploadFiles() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ files, pieceId }: { files: File[]; pieceId: string }) => {
+      // Validate all files before uploading any
+      for (const file of files) {
+        const error = validateFileSize(file)
+        if (error) throw new Error(error)
+      }
+
       const results = []
       for (const file of files) {
         const ext = file.name.split('.').pop() ?? 'bin'
