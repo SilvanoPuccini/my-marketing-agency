@@ -94,6 +94,7 @@ export type Database = {
           monthly_budget: number | null
           name: string
           plan: string | null
+          storage_used_kb: number
         }
         Insert: {
           agency_id: string
@@ -108,6 +109,7 @@ export type Database = {
           monthly_budget?: number | null
           name: string
           plan?: string | null
+          storage_used_kb?: number
         }
         Update: {
           agency_id?: string
@@ -122,6 +124,7 @@ export type Database = {
           monthly_budget?: number | null
           name?: string
           plan?: string | null
+          storage_used_kb?: number
         }
         Relationships: [
           {
@@ -162,6 +165,35 @@ export type Database = {
           stripe_subscription_id?: string | null
         }
         Relationships: []
+      }
+      client_piece_quota: {
+        Row: {
+          pieces_created: number
+          pieces_limit: number
+          user_id: string
+          year_month: string
+        }
+        Insert: {
+          pieces_created?: number
+          pieces_limit: number
+          user_id: string
+          year_month: string
+        }
+        Update: {
+          pieces_created?: number
+          pieces_limit?: number
+          user_id?: string
+          year_month?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_piece_quota_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comments: {
         Row: {
@@ -293,6 +325,7 @@ export type Database = {
       pieces: {
         Row: {
           account_id: string
+          archived_at: string | null
           author_id: string
           copy: string | null
           created_at: string
@@ -310,6 +343,7 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          archived_at?: string | null
           author_id: string
           copy?: string | null
           created_at?: string
@@ -327,6 +361,7 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          archived_at?: string | null
           author_id?: string
           copy?: string | null
           created_at?: string
@@ -411,6 +446,15 @@ export type Database = {
       auth_account_ids: { Args: never; Returns: string[] }
       auth_agency_id: { Args: never; Returns: string }
       auth_role: { Args: never; Returns: string }
+      check_and_increment_piece_quota: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
+      get_account_storage_limit_kb: {
+        Args: { p_account_id: string }
+        Returns: number
+      }
+      get_client_piece_limit: { Args: { p_user_id: string }; Returns: number }
       get_user_agency_id: { Args: never; Returns: string }
       pieces_by_status_count: {
         Args: { p_agency_id: string }
