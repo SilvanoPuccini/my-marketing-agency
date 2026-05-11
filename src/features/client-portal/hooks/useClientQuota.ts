@@ -3,11 +3,6 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPlanLimit, type PlanId } from '@/lib/planLimits'
 
-type QuotaRow = {
-  pieces_created: number
-  pieces_limit: number
-}
-
 export function useClientQuota() {
   const { user } = useAuthStore()
 
@@ -18,21 +13,13 @@ export function useClientQuota() {
       const userId = user!.id
       const currentMonth = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
 
-      // client_piece_quota is not in generated types yet — query via REST
-      const { data: session } = await supabase.auth.getSession()
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
-
-      const [quotaResponse, profileRes] = await Promise.all([
-        fetch(
-          `${supabaseUrl}/rest/v1/client_piece_quota?user_id=eq.${userId}&year_month=eq.${currentMonth}&select=pieces_created,pieces_limit`,
-          {
-            headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${session.session?.access_token ?? supabaseKey}`,
-            },
-          },
-        ).then((r) => r.json()) as Promise<QuotaRow[]>,
+      const [quotaRes, profileRes] = await Promise.all([
+        supabase
+          .from('client_piece_quota')
+          .select('pieces_created, pieces_limit')
+          .eq('user_id', userId)
+          .eq('year_month', currentMonth)
+          .maybeSingle(),
         supabase
           .from('users')
           .select('agency_id, agencies(plan)')
@@ -47,9 +34,8 @@ export function useClientQuota() {
       )?.plan as PlanId ?? 'solo'
       const limits = getPlanLimit(plan)
 
-      const quotaRow = Array.isArray(quotaResponse) ? quotaResponse[0] : null
-      const used = quotaRow?.pieces_created ?? 0
-      const limit = quotaRow?.pieces_limit ?? limits.piecesPerClient
+      const used = quotaRes.data?.pieces_created ?? 0
+      const limit = quotaRes.data?.pieces_limit ?? limits.piecesPerClient
 
       return {
         used,

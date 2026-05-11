@@ -3,12 +3,6 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPlanLimit, type PlanId } from '@/lib/planLimits'
 
-type AccountStorageRow = {
-  id: string
-  name: string
-  storage_used_kb: number
-}
-
 export function useAccountStorage() {
   const { user } = useAuthStore()
   return useQuery({
@@ -23,7 +17,7 @@ export function useAccountStorage() {
           .from('accounts')
           .select('id, name, storage_used_kb')
           .eq('agency_id', agencyId)
-          .order('name') as unknown as { data: AccountStorageRow[] | null; error: Error | null },
+          .order('name'),
       ])
 
       if (agencyRes.error) throw agencyRes.error
