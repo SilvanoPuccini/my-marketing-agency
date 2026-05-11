@@ -14,6 +14,7 @@ function useRecentReports(agencyId: string | undefined) {
       const { data, error } = await supabase
         .from('pieces')
         .select('id, title, status, updated_at, type, accounts(name)')
+        .is('archived_at', null)
         .eq('status', 'published')
         .order('updated_at', { ascending: false })
         .limit(7)

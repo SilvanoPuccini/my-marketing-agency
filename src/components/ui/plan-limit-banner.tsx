@@ -1,19 +1,20 @@
 import { Link } from 'react-router-dom'
 import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
 
-type LimitType = 'accounts' | 'users'
+type LimitType = 'accounts' | 'teamSeats'
 
 export function PlanLimitBanner({ type }: { type: LimitType }) {
   const { data } = useAgencyUsage()
   if (!data) return null
 
-  const { used, limit } = data[type]
+  const { used, limit, overflow } = data[type]
   const atLimit = used >= limit
   const nearLimit = used >= limit - 1 && !atLimit
 
   if (!atLimit && !nearLimit) return null
 
-  const label = type === 'accounts' ? 'cuentas' : 'usuarios'
+  const label = type === 'accounts' ? 'cuentas' : 'asientos de equipo'
+  const singular = type === 'accounts' ? 'cuenta' : 'asiento'
 
   return (
     <div
@@ -30,14 +31,19 @@ export function PlanLimitBanner({ type }: { type: LimitType }) {
       }}
     >
       <div style={{ fontSize: 13, color: 'var(--fg-1)' }}>
-        {atLimit ? (
+        {overflow > 0 ? (
           <>
-            Llegaste al límite de {label} de tu plan <strong>{data.plan}</strong> ({used}/{limit}).
-            Actualizá tu plan para agregar más.
+            Estas por encima del limite de {label} de tu plan <strong>{data.plan}</strong> ({used}/{limit}).
+            Considera hacer upgrade o reducir {label}.
+          </>
+        ) : atLimit ? (
+          <>
+            Llegaste al limite de {label} de tu plan <strong>{data.plan}</strong> ({used}/{limit}).
+            Actualiza tu plan para agregar mas.
           </>
         ) : (
           <>
-            Te queda <strong>1 {type === 'accounts' ? 'cuenta' : 'usuario'}</strong> disponible en tu plan <strong>{data.plan}</strong> ({used}/{limit}).
+            Te queda <strong>1 {singular}</strong> disponible en tu plan <strong>{data.plan}</strong> ({used}/{limit}).
           </>
         )}
       </div>

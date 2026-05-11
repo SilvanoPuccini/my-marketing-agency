@@ -96,12 +96,35 @@
 | RNF-11 | La aplicacion debe estar disponible en produccion mediante despliegue continuo en Vercel. |
 | RNF-12 | El sistema debe ser compatible con las ultimas versiones de Chrome, Firefox, Edge y Safari. |
 
+### Planes y Limites
+
+| ID | Requerimiento |
+|----|---------------|
+| RF-21 | El sistema debe ofrecer tres planes de suscripcion: Solo, Estudio y Casa. |
+| RF-22 | El sistema debe controlar el limite de cuentas-cliente por agencia segun el plan (1/5/15). |
+| RF-23 | El sistema debe controlar el limite de asientos de equipo por agencia segun el plan (2/5/15). Los clientes portal NO consumen asiento. |
+| RF-24 | El sistema debe controlar el limite de clientes portal por cuenta segun el plan (2/5/15). |
+| RF-25 | El sistema debe controlar la cuota mensual de piezas por cliente portal (60/80/160). La cuota se renueva automaticamente cada mes. |
+| RF-26 | El sistema debe controlar el almacenamiento por cuenta segun el plan (1 GB / 1.6 GB / 3 GB). Bloquea uploads cuando se excede. |
+| RF-27 | El sistema debe validar el tamano de archivos antes de subir: imagenes max 10 MB, videos max 50 MB. |
+| RF-28 | El sistema debe soportar archival de piezas antiguas mediante soft delete (archived_at). |
+| RF-29 | En un downgrade de plan, el sistema no debe borrar datos existentes sino bloquear la creacion de nuevos recursos que excedan el limite. |
+| RF-30 | El sistema debe mostrar el uso actual vs limite en la pagina de facturacion (cuentas, asientos, storage, piezas). |
+
+### Precios de Planes
+
+| Plan | Precio (ARS/mes) | Cuentas | Asientos equipo | Clientes portal/cuenta | Piezas/mes/cliente | Storage/cuenta |
+|------|-------------------|---------|-----------------|------------------------|--------------------|--------------------|
+| Solo | $36.000 | 1 | 2 | 2 | 60 | 1 GB |
+| Estudio | $72.000 | 5 | 5 | 5 | 80 | 1.6 GB |
+| Casa | $144.000 | 15 | 15 | 15 | 160 | 3 GB |
+
 ## 1.4 Resumen
 
 | Tipo | Cantidad |
 |------|----------|
-| Requerimientos Funcionales | 20 |
+| Requerimientos Funcionales | 30 |
 | Requerimientos No Funcionales | 12 |
-| **Total** | **32** |
+| **Total** | **42** |
 
-Distribucion de RF por modulo: Auth (5) - Cuentas (4) - Calendario y Piezas (4) - Aprobaciones (3) - Comentarios (2) - Dashboard (2)
+Distribucion de RF por modulo: Auth (5) - Cuentas (4) - Calendario y Piezas (4) - Aprobaciones (3) - Comentarios (2) - Dashboard (2) - Planes y Limites (10)

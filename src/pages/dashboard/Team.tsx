@@ -67,7 +67,7 @@ export function Team() {
       />
 
       <div className="page-content" style={{ padding: '24px 32px' }}>
-        <PlanLimitBanner type="users" />
+        <PlanLimitBanner type="teamSeats" />
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Equipo</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>

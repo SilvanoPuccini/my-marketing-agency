@@ -67,9 +67,9 @@ function formatStorage(used: number, limit: number): string {
 }
 
 const PLANS = [
-  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 1,   seats: 1,  storage: 20,  desc: 'Para freelancers que arman su primer flujo.' },
-  { key: 'estudio', name: 'Estudio', price: 72000,  accounts: 5,   seats: 5,  storage: 100, desc: 'Para agencias de 3 a 12 personas.' },
-  { key: 'casa',    name: 'Casa',    price: 144000, accounts: 999, seats: 999, storage: 500, desc: 'Para agencias grandes. Sin límites.' },
+  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 1,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.' },
+  { key: 'estudio', name: 'Estudio', price: 72000,  accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.' },
+  { key: 'casa',    name: 'Casa',    price: 144000, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.' },
 ]
 
 function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () => void }) {
@@ -97,9 +97,10 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
                     <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-3)' }}> /mes</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--fg-3)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div>{p.accounts === 999 ? 'Cuentas ilimitadas' : `${p.accounts} cuentas`}</div>
-                    <div>{p.seats} asientos</div>
-                    <div>{p.storage} GB almacenamiento</div>
+                    <div>{p.accounts} {p.accounts === 1 ? 'cuenta' : 'cuentas'}</div>
+                    <div>{p.seats} asientos de equipo</div>
+                    <div>{p.storageGB} GB por cuenta</div>
+                    <div>{p.piecesPerClient} piezas/mes por cliente</div>
                   </div>
                   <button
                     onClick={() => {
@@ -215,6 +216,9 @@ export function Billing() {
   const accountsPct  = limits.accounts  > 0 ? Math.round((accountsUsed  / limits.accounts)  * 100) : 0
   const seatsPct     = limits.seats     > 0 ? Math.round((seatsUsed     / limits.seats)     * 100) : 0
   const storagePct   = limits.storageGB > 0 ? Math.round((storageUsedGB / limits.storageGB) * 100) : 0
+  const accountsOverflow = Math.max(0, accountsUsed - limits.accounts)
+  const seatsOverflow    = Math.max(0, seatsUsed - limits.seats)
+  const hasOverflow      = accountsOverflow > 0 || seatsOverflow > 0
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -245,6 +249,51 @@ export function Billing() {
             {agencyName} · Plan {planLabel} mensual.
           </p>
         </div>
+
+        {hasOverflow && (
+          <div
+            style={{
+              padding: '14px 18px',
+              borderRadius: 'var(--r-2)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              background: 'rgba(239,68,68,0.08)',
+              marginBottom: 16,
+              fontSize: 13,
+              color: 'var(--fg-1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+            }}
+          >
+            <div>
+              <strong>Estas por encima del limite de tu plan {planLabel}.</strong>
+              {accountsOverflow > 0 && (
+                <span> Cuentas: {accountsUsed}/{limits.accounts}.</span>
+              )}
+              {seatsOverflow > 0 && (
+                <span> Asientos: {seatsUsed}/{limits.seats}.</span>
+              )}
+              <span> No podes crear nuevos hasta reducir o hacer upgrade.</span>
+            </div>
+            <button
+              onClick={() => setShowPlanModal(true)}
+              style={{
+                flexShrink: 0,
+                padding: '6px 14px',
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#fff',
+                borderRadius: 'var(--r-2)',
+                border: '1px solid var(--violet-400)',
+                background: 'var(--violet-500)',
+                cursor: 'pointer',
+              }}
+            >
+              Upgrade
+            </button>
+          </div>
+        )}
 
         <div className="billing-layout" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, marginBottom: 16 }}>
           {/* Plan actual */}
@@ -281,8 +330,8 @@ export function Billing() {
                     <Meter value={storagePct} />
                   </div>
                   <div style={{ marginTop: 16 }}>
-                    <PlanRow label="Portales de cliente" value="14 ilimitados" />
-                    <PlanRow label="Reportes PDF con marca propia" value="Incluido" />
+                    <PlanRow label="Clientes portal por cuenta" value={`${limits.portalClientsPerAccount} max`} />
+                    <PlanRow label="Piezas/mes por cliente" value={`${limits.piecesPerClient}`} />
                     <PlanRow label="Soporte por WhatsApp" value="Incluido" />
                   </div>
                 </>

@@ -51,6 +51,7 @@ export function useTeam(agencyId: string | undefined) {
         ? await supabase
             .from('pieces')
             .select('id, status, scheduled_date, author_id')
+            .is('archived_at', null)
             .in('author_id', userIds)
             .gte('scheduled_date', wStart2)
             .lte('scheduled_date', wEnd2)

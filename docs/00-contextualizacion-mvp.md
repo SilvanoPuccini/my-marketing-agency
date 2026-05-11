@@ -113,4 +113,7 @@ El MVP consiste en una aplicacion web responsive que permite a una agencia de ma
 - No es mobile-first (responsive, pero disenada para desktop primario)
 - No integra publicacion automatica a redes sociales
 - No procesa pagos online
-- Soporta una sola agencia por instancia (multi-tenancy queda para v2)
+
+**Multi-tenancy y planes (v2 — implementado):**
+
+El sistema soporta multiples agencias con suscripcion individual. Cada agencia contrata un plan (Solo/Estudio/Casa) que define sus limites de cuentas, asientos de equipo, clientes portal, piezas mensuales y almacenamiento. Los controles se aplican tanto en la base de datos (triggers) como en el frontend (banners, validaciones). El modelo de suscripcion es: 1 agencia = 1 plan = N cuentas-cliente internas. Los clientes portal no consumen asientos de equipo. El downgrade no borra datos existentes, solo bloquea creacion nueva.

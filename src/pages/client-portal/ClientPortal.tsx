@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 import { useAuthStore } from '@/stores/auth.store'
+import { QuotaBanner } from '@/features/client-portal/components/QuotaBanner'
 
 const TYPE_RATIO: Record<string, string> = {
   post: '1/1', reel: '9/16', story: '9/16', carrusel: '1/1', ad: '1/1', blog: '1/1',
@@ -51,6 +52,8 @@ export function ClientPortal() {
           </div>
         ) : (
           <>
+            <QuotaBanner />
+
             {/* Hero block */}
             <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{

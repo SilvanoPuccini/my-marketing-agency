@@ -44,6 +44,7 @@ export function useReports(agencyId: string | undefined, month?: number, year?: 
       const { data, error } = await supabase
         .from('pieces')
         .select('id, type, status, scheduled_date, accounts(id, name)')
+        .is('archived_at', null)
         .gte('scheduled_date', monthStart)
         .lte('scheduled_date', monthEnd)
       if (error) throw error
