@@ -13,6 +13,7 @@ const Register = lazy(() => import('@/pages/public/Register').then(m => ({ defau
 const AuthCallback = lazy(() => import('@/pages/public/AuthCallback').then(m => ({ default: m.AuthCallback })))
 const CompleteInvitation = lazy(() => import('@/pages/public/CompleteInvitation').then(m => ({ default: m.CompleteInvitation })))
 const ForgotPassword = lazy(() => import('@/pages/public/ForgotPassword').then(m => ({ default: m.ForgotPassword })))
+const ResetPassword = lazy(() => import('@/pages/public/ResetPassword').then(m => ({ default: m.ResetPassword })))
 const Privacy = lazy(() => import('@/pages/public/Privacy').then(m => ({ default: m.Privacy })))
 const Terms = lazy(() => import('@/pages/public/Terms').then(m => ({ default: m.Terms })))
 const Status = lazy(() => import('@/pages/public/Status').then(m => ({ default: m.Status })))
@@ -57,6 +58,7 @@ export function AppRouter() {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/complete-invitation" element={<CompleteInvitation />} />
           <Route path="/recuperar-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacidad" element={<Privacy />} />
           <Route path="/terminos" element={<Terms />} />
           <Route path="/estado" element={<Status />} />
