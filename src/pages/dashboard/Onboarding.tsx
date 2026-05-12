@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useCreateAccount } from '@/features/accounts/hooks/useCreateAccount'
+import { useNeedsOnboarding } from '@/features/onboarding/hooks/useOnboarding'
 
 const accountSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
@@ -25,8 +24,14 @@ const INDUSTRIES = [
 export function Onboarding() {
   const { user } = useAuthStore()
   const navigate = useNavigate()
-  const qc = useQueryClient()
-  const [step, setStep] = useState<'welcome' | 'create'>(user ? 'welcome' : 'welcome')
+  const createAccount = useCreateAccount()
+  const onboarding = useNeedsOnboarding()
+  const [step, setStep] = useState<'welcome' | 'create'>('welcome')
+
+  // Si ya tiene cuentas (recargó la página), ir al dashboard
+  if (onboarding.data && !onboarding.data.needsOnboarding) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   const {
     register,
@@ -39,36 +44,17 @@ export function Onboarding() {
 
   async function onSubmit(values: AccountValues) {
     if (!user) return
-    const { error } = await supabase.from('accounts').insert({
-      agency_id: user.agency_id,
-      name: values.name,
-      industry: values.industry || null,
-      contact_name: values.contactName || null,
-      contact_email: values.contactEmail || null,
-      is_active: true,
-    })
-    if (error) {
-      toast.error(error.message)
-      return
-    }
-    // Agregar al usuario como account_member
-    const { data: account } = await supabase
-      .from('accounts')
-      .select('id')
-      .eq('agency_id', user.agency_id)
-      .eq('name', values.name)
-      .single()
-    if (account) {
-      await supabase.from('account_members').insert({
-        account_id: account.id,
-        user_id: user.id,
+    try {
+      await createAccount.mutateAsync({
+        name: values.name,
+        industry: values.industry || undefined,
+        contact_name: values.contactName || undefined,
+        contact_email: values.contactEmail || undefined,
       })
+      navigate('/billing')
+    } catch {
+      // useCreateAccount already shows toast.error
     }
-    toast.success('¡Primera cuenta creada!')
-    qc.invalidateQueries({ queryKey: ['onboarding-check'] })
-    qc.invalidateQueries({ queryKey: ['accounts'] })
-    qc.invalidateQueries({ queryKey: ['dashboard'] })
-    navigate('/dashboard')
   }
 
   const inputStyle: React.CSSProperties = {
@@ -160,6 +146,17 @@ export function Onboarding() {
               }}
             >
               Crear mi primera cuenta
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              style={{
+                width: '100%', padding: 11, marginTop: 8, fontSize: 13,
+                color: 'var(--fg-3)', borderRadius: 'var(--r-2)',
+                border: 'none', background: 'transparent',
+                cursor: 'pointer',
+              }}
+            >
+              Saltar por ahora →
             </button>
           </div>
         )}

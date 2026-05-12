@@ -1,6 +1,6 @@
 export const PLAN_LIMITS = {
   solo: {
-    accounts: 1,
+    accounts: 2,
     teamSeats: 2,
     portalClientsPerAccount: 2,
     piecesPerClient: 60,

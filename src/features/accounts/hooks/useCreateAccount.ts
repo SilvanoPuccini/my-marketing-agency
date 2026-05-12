@@ -75,6 +75,12 @@ export function useCreateAccount() {
       if (error) throw error
       if (!accountData) throw new Error('No se pudo crear la cuenta')
 
+      // Agregar al creador como account_member
+      await supabase.from('account_members').insert({
+        account_id: accountData.id,
+        user_id: user.id,
+      })
+
       // Auto-invite: si tiene email de contacto, enviar invitación al cliente
       if (input.contact_email) {
         await autoInviteClientIfNeeded(

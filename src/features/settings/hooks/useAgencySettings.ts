@@ -17,6 +17,7 @@ export type Agency = {
   name:     string
   plan:     string
   settings: AgencySettingsData
+  stripe_subscription_id: string | null
 }
 
 export function useAgencySettings() {
@@ -27,7 +28,7 @@ export function useAgencySettings() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('agencies')
-        .select('id, name, plan, settings')
+        .select('id, name, plan, settings, stripe_subscription_id')
         .eq('id', user!.agency_id)
         .single()
       if (error) throw error

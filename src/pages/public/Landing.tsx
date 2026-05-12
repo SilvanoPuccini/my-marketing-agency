@@ -322,9 +322,9 @@ function Flow() {
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing() {
   const plans = [
-    { name: 'Solo', slug: 'solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta de cliente', '2 asientos de equipo', '2 clientes portal / cuenta', '60 piezas / mes por portal', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
-    { name: 'Estudio', slug: 'estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente', '5 asientos de equipo', '5 clientes portal / cuenta', '80 piezas / mes por portal', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
-    { name: 'Casa', slug: 'casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente', '15 asientos de equipo', '15 clientes portal / cuenta', '160 piezas / mes por portal', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
+    { name: 'Solo', slug: 'solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['2 cuentas de cliente con portal', '2 asientos de equipo (admin + 1)', '60 piezas / mes por cliente', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', slug: 'estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente con portal', '5 asientos de equipo (admin + 4)', '80 piezas / mes por cliente', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', slug: 'casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente con portal', '15 asientos de equipo (admin + 14)', '160 piezas / mes por cliente', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (

@@ -5,6 +5,7 @@ import { useBilling } from '@/features/billing/hooks/useBilling'
 import { useInvoices } from '@/features/billing/hooks/useInvoices'
 import { generateInvoicePdf } from '@/features/billing/utils/generateInvoicePdf'
 import { useCheckout } from '@/features/billing/hooks/useCheckout'
+import { usePaymentGate } from '@/features/billing/hooks/usePaymentGate'
 
 const panel: React.CSSProperties = {
   background:   'var(--bg-1)',
@@ -67,7 +68,7 @@ function formatStorage(used: number, limit: number): string {
 }
 
 const PLANS = [
-  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 1,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.' },
+  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 2,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.' },
   { key: 'estudio', name: 'Estudio', price: 72000,  accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.' },
   { key: 'casa',    name: 'Casa',    price: 144000, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.' },
 ]
@@ -177,6 +178,10 @@ export function Billing() {
     isLoading,
   } = useBilling()
 
+  const paymentGate = usePaymentGate()
+  const needsPayment = paymentGate.data && !paymentGate.data.isPaid
+  const checkout = useCheckout()
+
   const { data: invoices = [], isLoading: invoicesLoading } = useInvoices()
 
   function invoiceStatusPill(status: string): { cls: string; label: string } {
@@ -249,6 +254,50 @@ export function Billing() {
             {agencyName} · Plan {planLabel} mensual.
           </p>
         </div>
+
+        {needsPayment && (
+          <div
+            style={{
+              padding: '20px 24px',
+              borderRadius: 'var(--r-3)',
+              border: '1px solid var(--violet-500)',
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.08), transparent 60%)',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>
+                Activá tu plan {planLabel}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>
+                Tu cuenta está creada pero necesitás activar la suscripción para acceder al dashboard y todas las funcionalidades.
+              </div>
+            </div>
+            <button
+              onClick={() => checkout.mutate((agency?.plan ?? 'solo') as 'solo' | 'estudio' | 'casa')}
+              disabled={checkout.isPending}
+              style={{
+                flexShrink: 0,
+                padding: '10px 20px',
+                fontSize: 14,
+                fontWeight: 500,
+                color: '#fff',
+                borderRadius: 'var(--r-2)',
+                border: '1px solid var(--violet-400)',
+                background: 'var(--violet-500)',
+                cursor: checkout.isPending ? 'not-allowed' : 'pointer',
+                opacity: checkout.isPending ? 0.7 : 1,
+                boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset',
+              }}
+            >
+              {checkout.isPending ? 'Redirigiendo a Stripe...' : `Pagar ${formatPrice(planPrice)}/mes`}
+            </button>
+          </div>
+        )}
 
         {hasOverflow && (
           <div
