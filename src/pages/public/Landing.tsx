@@ -322,9 +322,9 @@ function Flow() {
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing() {
   const plans = [
-    { name: 'Solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta', 'Calendario y aprobaciones', '1 usuario', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
-    { name: 'Estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias de 3 a 12 personas con cartera activa.', features: ['Hasta 5 cuentas', '5 usuarios', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
-    { name: 'Casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y holdings. Sin límites.', features: ['Cuentas ilimitadas', 'Usuarios ilimitados', 'Onboarding dedicado', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
+    { name: 'Solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta de cliente', '2 asientos de equipo', '2 clientes portal / cuenta', '60 piezas / mes por portal', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente', '5 asientos de equipo', '5 clientes portal / cuenta', '80 piezas / mes por portal', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente', '15 asientos de equipo', '15 clientes portal / cuenta', '160 piezas / mes por portal', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (

@@ -90,12 +90,12 @@ export function Terms() {
 
         <h2 style={h2style}>3. Planes y facturación</h2>
         <p style={pstyle}>
-          La Plataforma ofrece los siguientes planes de suscripción mensual o anual:
+          La Plataforma ofrece los siguientes planes de suscripción mensual (precios en ARS + IVA):
         </p>
         <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-          <li style={liStyle}><strong>Starter</strong> – hasta 3 cuentas de clientes, 10 GB de almacenamiento.</li>
-          <li style={liStyle}><strong>Pro</strong> – hasta 15 cuentas de clientes, 50 GB de almacenamiento, reportes avanzados.</li>
-          <li style={liStyle}><strong>Agency</strong> – clientes y almacenamiento ilimitados, API, soporte prioritario.</li>
+          <li style={liStyle}><strong>Solo</strong> – $36.000/mes + IVA. 1 cuenta de cliente, 2 asientos de equipo, 60 piezas/mes por portal, 1 GB de almacenamiento.</li>
+          <li style={liStyle}><strong>Estudio</strong> – $72.000/mes + IVA. 5 cuentas de cliente, 5 asientos de equipo, 80 piezas/mes por portal, 1.6 GB por cuenta.</li>
+          <li style={liStyle}><strong>Casa</strong> – $144.000/mes + IVA. 15 cuentas de cliente, 15 asientos de equipo, 160 piezas/mes por portal, 3 GB por cuenta.</li>
         </ul>
         <p style={pstyle}>
           Los precios están expresados en USD e incluyen IVA donde corresponda. La facturación se realiza al inicio
@@ -187,6 +187,28 @@ export function Terms() {
           Consultas sobre estos Términos: <strong>legal@mma.app</strong> o{' '}
           <Link to="/contacto" style={{ color: 'var(--violet-500)' }}>formulario de contacto</Link>.
         </p>
+
+        <div style={{ marginTop: 64, paddingTop: 24, borderTop: '1px solid var(--line-1)' }}>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--fg-3)',
+              fontSize: 13,
+              textDecoration: 'none',
+              transition: 'color 150ms',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-3)' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Volver al inicio
+          </Link>
+        </div>
       </div>
     </div>
   )
