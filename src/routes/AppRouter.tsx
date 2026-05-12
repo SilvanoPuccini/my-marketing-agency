@@ -70,7 +70,7 @@ export function AppRouter() {
           </Route>
 
           {/* Backoffice — requiere auth */}
-          <Route element={<ProtectedRoute allowedRoles={['admin_agency', 'team_member']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['admin_agency', 'manager', 'creator', 'team_member']} />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/accounts" element={<Accounts />} />
@@ -86,7 +86,7 @@ export function AppRouter() {
           </Route>
 
           {/* Portal cliente */}
-          <Route element={<ProtectedRoute allowedRoles={['client', 'admin_agency', 'team_member']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['client', 'admin_agency', 'manager', 'creator', 'team_member']} />}>
             <Route element={<ClientLayout />}>
               <Route path="/portal" element={<ClientPortal />} />
               <Route path="/portal/pieces/:id" element={<ClientApproval />} />

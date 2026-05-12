@@ -21,7 +21,7 @@ export function useAgencyUsage() {
           .from('users')
           .select('id', { count: 'exact', head: true })
           .eq('agency_id', agencyId)
-          .in('role', ['admin_agency', 'team_member']),
+          .in('role', ['admin_agency', 'team_member', 'manager', 'creator']),
       ])
 
       const plan = (agencyRes.data?.plan ?? 'solo') as PlanId

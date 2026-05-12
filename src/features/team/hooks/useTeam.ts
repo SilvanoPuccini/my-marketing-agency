@@ -38,7 +38,7 @@ export function useTeam(agencyId: string | undefined) {
           account_members(account_id)
         `)
         .eq('agency_id', agencyId!)
-        .in('role', ['admin_agency', 'team_member'])
+        .in('role', ['admin_agency', 'manager', 'creator', 'team_member'])
         .order('full_name')
 
       if (error) throw error

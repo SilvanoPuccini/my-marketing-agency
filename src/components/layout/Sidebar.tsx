@@ -44,7 +44,7 @@ function SidebarContent() {
         supabase
           .from('users')
           .select('id', { count: 'exact', head: true })
-          .in('role', ['admin_agency', 'team_member'])
+          .in('role', ['admin_agency', 'team_member', 'manager', 'creator'])
           .eq('is_active', true),
       ])
       return {

@@ -1,4 +1,4 @@
-export type UserRole = 'admin_agency' | 'team_member' | 'client'
+export type UserRole = 'admin_agency' | 'manager' | 'creator' | 'team_member' | 'client'
 
 export type PieceType = 'post' | 'reel' | 'story' | 'ad' | 'blog' | 'carrusel'
 

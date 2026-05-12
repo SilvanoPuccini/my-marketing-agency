@@ -110,8 +110,9 @@ export function CompleteInvitation() {
     setUser(userData as ReturnType<typeof setUser> extends (user: infer U) => void ? U : never)
     setSuccess(true)
 
+    const isTeam = profile?.role === 'admin_agency' || profile?.role === 'team_member' || profile?.role === 'manager' || profile?.role === 'creator'
     setTimeout(() => {
-      navigate('/portal', { replace: true })
+      navigate(isTeam ? '/dashboard' : '/portal', { replace: true })
     }, 1200)
   }
 
@@ -180,7 +181,7 @@ export function CompleteInvitation() {
           Establecé tu contraseña
         </h1>
         <p style={{ color: 'var(--fg-2)', fontSize: 14, margin: '0 0 28px', lineHeight: 1.5 }}>
-          Creá una contraseña para acceder a tu portal de cliente. Depois podrás cambiarla cuando quieras.
+          Creá una contraseña para acceder a tu cuenta. Después podés cambiarla cuando quieras.
         </p>
 
         {error && (
