@@ -164,6 +164,28 @@ export function Privacy() {
           ¿Preguntas sobre privacidad? Escribinos a <strong>privacidad@mma.app</strong> o usá nuestro{' '}
           <Link to="/contacto" style={{ color: 'var(--violet-500)' }}>formulario de contacto</Link>.
         </p>
+
+        <div style={{ marginTop: 64, paddingTop: 24, borderTop: '1px solid var(--line-1)' }}>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--fg-3)',
+              fontSize: 13,
+              textDecoration: 'none',
+              transition: 'color 150ms',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-3)' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Volver al inicio
+          </Link>
+        </div>
       </div>
     </div>
   )
