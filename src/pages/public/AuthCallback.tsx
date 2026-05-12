@@ -17,7 +17,7 @@ export function AuthCallback() {
       const hashParams = new URLSearchParams(window.location.hash.substring(1))
       const type = hashParams.get('type')
 
-      if (type === 'signup' || type === 'magiclink' || type === 'recovery') {
+      if (type === 'signup' || type === 'magiclink' || type === 'recovery' || type === 'invite') {
         // getSession() parsea el hash automáticamente y establece la sesión
         const { error } = await supabase.auth.getSession()
         if (error) {

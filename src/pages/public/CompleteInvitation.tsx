@@ -24,24 +24,30 @@ export function CompleteInvitation() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const token = searchParams.get('token')
-  const type = searchParams.get('type')
-
-  // Si hay token en la URL, intentar setear la sesión
+  // Manejar el código PKCE o hash fragment de Supabase
   useEffect(() => {
-    async function trySetSession() {
-      if (token && (type === 'invite' || !type)) {
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token,
-        })
+    async function establishSession() {
+      // PKCE flow: Supabase redirige con ?code=XXX
+      const code = searchParams.get('code')
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        if (exchangeError) {
+          setError('Este enlace expiró o es inválido. Pedí una nueva invitación.')
+          return
+        }
+      }
+
+      // Hash fragment flow (legacy): #access_token=XXX&type=invite
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        const { error: sessionError } = await supabase.auth.getSession()
         if (sessionError) {
           setError('Este enlace expiró o es inválido. Pedí una nueva invitación.')
         }
       }
     }
-    trySetSession()
-  }, [token, type])
+    establishSession()
+  }, [searchParams])
 
   // Esperar a que auth termine de cargar
   useEffect(() => {
