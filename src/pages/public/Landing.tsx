@@ -105,7 +105,7 @@ function Hero() {
       </div>
 
       <div className="landing-hero-stats" style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        {['Planes desde $36.000/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
+        {['Planes desde US$26/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
           <span key={item}><span style={{ color: 'var(--violet-500)' }}>▸ </span>{item}</span>
         ))}
       </div>
@@ -325,19 +325,19 @@ function Pricing() {
   const [isAnnual, setIsAnnual] = useState(false)
 
   const plans = [
-    { name: 'Solo', slug: 'solo', price: 36000, yearlyPrice: 388800, discount: 10, longInterval: 'anual' as const, desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['2 cuentas de cliente con portal', '2 asientos de equipo (admin + 1)', '60 piezas / mes por cliente', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
-    { name: 'Estudio', slug: 'estudio', price: 72000, yearlyPrice: 777600, discount: 10, longInterval: 'anual' as const, desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente con portal', '5 asientos de equipo (admin + 4)', '80 piezas / mes por cliente', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
-    { name: 'Casa', slug: 'casa', price: 144000, yearlyPrice: 734400, discount: 15, longInterval: 'semestral' as const, desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente con portal', '15 asientos de equipo (admin + 14)', '160 piezas / mes por cliente', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
+    { name: 'Solo', slug: 'solo', price: 26, yearlyPrice: 280, discount: 10, longInterval: 'anual' as const, desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['2 cuentas de cliente con portal', '2 asientos de equipo (admin + 1)', '60 piezas / mes por cliente', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', slug: 'estudio', price: 52, yearlyPrice: 560, discount: 10, longInterval: 'anual' as const, desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente con portal', '5 asientos de equipo (admin + 4)', '80 piezas / mes por cliente', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', slug: 'casa', price: 104, yearlyPrice: 530, discount: 15, longInterval: 'semestral' as const, desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente con portal', '15 asientos de equipo (admin + 14)', '160 piezas / mes por cliente', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (
     <section id="precios" className="landing-section" style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px', borderTop: '1px solid var(--line-1)' }}>
       <div className="mono" style={{ fontSize: 11, color: 'var(--violet-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Precios</div>
       <h2 style={{ fontSize: 40, letterSpacing: '-0.025em', lineHeight: 1.1, fontWeight: 600, maxWidth: 720, margin: '0 0 16px' }}>
-        Transparente. En pesos.
+        Simple. Transparente.
       </h2>
       <p style={{ color: 'var(--fg-2)', maxWidth: 580, fontSize: 16, margin: 0 }}>
-        Sin pricing en dólares "porque queda lindo". Sin escalones que esconden funciones que necesitás. Cancelás cuando quieras.
+        Sin escalones que esconden funciones que necesitás. Un precio, todas las features. Cancelás cuando quieras.
       </p>
 
       {/* Toggle switch */}
@@ -373,8 +373,8 @@ function Pricing() {
         {plans.map((plan) => {
           const showPrice = isAnnual ? plan.yearlyPrice : plan.price
           const period = isAnnual
-            ? plan.longInterval === 'semestral' ? '/ semestre + IVA' : '/ año + IVA'
-            : '/ mes + IVA'
+            ? plan.longInterval === 'semestral' ? '/ semestre USD' : '/ año USD'
+            : '/ mes USD'
           const monthlyEquiv = isAnnual
             ? Math.round(plan.yearlyPrice / (plan.longInterval === 'semestral' ? 6 : 12))
             : null
@@ -392,12 +392,12 @@ function Pricing() {
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{plan.name}</h3>
               <div style={{ margin: '12px 0 4px' }}>
                 <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em' }}>
-                  ${showPrice.toLocaleString('es-AR')}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{period}</small>
+                  US${showPrice.toLocaleString('en-US')}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{period}</small>
                 </div>
                 {isAnnual && (
                   <div style={{ fontSize: 12, marginTop: 4 }}>
                     <span style={{ color: 'var(--violet-400)', fontWeight: 500 }}>{plan.discount}% off</span>
-                    <span style={{ color: 'var(--fg-3)' }}> · ${monthlyEquiv?.toLocaleString('es-AR')}/mes · Ahorrás ${savings.toLocaleString('es-AR')}</span>
+                    <span style={{ color: 'var(--fg-3)' }}> · US${monthlyEquiv?.toLocaleString('en-US')}/mes · Ahorrás US${savings.toLocaleString('en-US')}</span>
                   </div>
                 )}
               </div>

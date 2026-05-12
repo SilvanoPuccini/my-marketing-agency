@@ -59,7 +59,7 @@ const tdStyle: React.CSSProperties = {
 }
 
 function formatPrice(n: number): string {
-  return '$' + n.toLocaleString('es-AR')
+  return 'US$' + n.toLocaleString('en-US')
 }
 
 function formatStorage(used: number, limit: number): string {
@@ -68,9 +68,9 @@ function formatStorage(used: number, limit: number): string {
 }
 
 const PLANS = [
-  { key: 'solo',    name: 'Solo',    price: 36000,  yearlyPrice: 388800,   discount: 10, accounts: 2,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.', longInterval: 'yearly' as const },
-  { key: 'estudio', name: 'Estudio', price: 72000,  yearlyPrice: 777600,   discount: 10, accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.', longInterval: 'yearly' as const },
-  { key: 'casa',    name: 'Casa',    price: 144000, yearlyPrice: 734400,   discount: 15, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.', longInterval: 'semiannual' as const },
+  { key: 'solo',    name: 'Solo',    price: 26,  yearlyPrice: 280,   discount: 10, accounts: 2,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.', longInterval: 'yearly' as const },
+  { key: 'estudio', name: 'Estudio', price: 52,  yearlyPrice: 560,   discount: 10, accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.', longInterval: 'yearly' as const },
+  { key: 'casa',    name: 'Casa',    price: 104, yearlyPrice: 530,   discount: 15, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.', longInterval: 'semiannual' as const },
 ]
 
 function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () => void }) {
@@ -133,12 +133,12 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
                   </div>
                   <div>
                     <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
-                      ${showPrice.toLocaleString('es-AR')}
+                      US${showPrice.toLocaleString('en-US')}
                       <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-3)' }}> {periodLabel}</span>
                     </div>
                     {isAnnual && (
                       <div style={{ fontSize: 11, color: 'var(--violet-400)', marginTop: 4 }}>
-                        {p.discount}% off — Ahorrás ${((p.price * (p.longInterval === 'semiannual' ? 6 : 12)) - p.yearlyPrice).toLocaleString('es-AR')}
+                        {p.discount}% off — Ahorrás US${((p.price * (p.longInterval === 'semiannual' ? 6 : 12)) - p.yearlyPrice).toLocaleString('en-US')}
                       </div>
                     )}
                   </div>
@@ -236,7 +236,7 @@ export function Billing() {
   }
 
   function formatAmount(cents: number): string {
-    return '$' + (cents / 100).toLocaleString('es-AR')
+    return '$' + (cents / 100).toLocaleString('en-US')
   }
 
   function formatEmision(dateStr: string): string {
@@ -407,9 +407,9 @@ export function Billing() {
                   </div>
                   <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em', margin: '8px 0 4px' }}>
                     {formatPrice(planPrice)}{' '}
-                    <span style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>/ mes + IVA</span>
+                    <span style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>/ mes USD</span>
                   </div>
-                  <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>Próxima factura: 1 de mayo de 2026 · ARS {formatPrice(Math.round(planPrice * 1.21))} (IVA 21%)</div>
+                  <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>Próxima factura: 1 de junio de 2026 · {formatPrice(planPrice)}/mes</div>
 
                   <div style={{ marginTop: 24 }}>
                     <PlanRow label="Cuentas activas" value={`${accountsUsed} / ${limits.accounts}`} />

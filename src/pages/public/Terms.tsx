@@ -98,12 +98,12 @@ export function Terms() {
 
         <h2 style={h2style}>3. Planes y facturación</h2>
         <p style={pstyle}>
-          La Plataforma ofrece los siguientes planes de suscripción mensual (precios en ARS + IVA):
+          La Plataforma ofrece los siguientes planes de suscripción mensual (precios en USD):
         </p>
         <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-          <li style={liStyle}><strong>Solo</strong> – $36.000/mes + IVA. 1 cuenta de cliente, 2 asientos de equipo, 60 piezas/mes por portal, 1 GB de almacenamiento.</li>
-          <li style={liStyle}><strong>Estudio</strong> – $72.000/mes + IVA. 5 cuentas de cliente, 5 asientos de equipo, 80 piezas/mes por portal, 1.6 GB por cuenta.</li>
-          <li style={liStyle}><strong>Casa</strong> – $144.000/mes + IVA. 15 cuentas de cliente, 15 asientos de equipo, 160 piezas/mes por portal, 3 GB por cuenta.</li>
+          <li style={liStyle}><strong>Solo</strong> – US$26/mes. 2 cuentas de cliente, 2 asientos de equipo, 60 piezas/mes por portal, 1 GB de almacenamiento.</li>
+          <li style={liStyle}><strong>Estudio</strong> – US$52/mes. 5 cuentas de cliente, 5 asientos de equipo, 80 piezas/mes por portal, 1.6 GB por cuenta.</li>
+          <li style={liStyle}><strong>Casa</strong> – US$104/mes. 15 cuentas de cliente, 15 asientos de equipo, 160 piezas/mes por portal, 3 GB por cuenta.</li>
         </ul>
         <p style={pstyle}>
           Los precios están expresados en USD e incluyen IVA donde corresponda. La facturación se realiza al inicio

@@ -10,9 +10,9 @@ const PLAN_LABELS: Record<string, string> = {
 }
 
 const PLAN_PRICES: Record<string, number> = {
-  solo:    36000,
-  estudio: 72000,
-  casa:    144000,
+  solo:    26,
+  estudio: 52,
+  casa:    104,
 }
 
 export function useBilling() {

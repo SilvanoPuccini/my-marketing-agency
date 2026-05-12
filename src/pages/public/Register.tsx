@@ -7,9 +7,9 @@ import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 const PLANS = [
-  { value: 'solo', label: 'Solo', price: '$36.000/mes', desc: '2 clientes · admin + 1' },
-  { value: 'estudio', label: 'Estudio', price: '$72.000/mes', desc: '5 clientes · admin + 4' },
-  { value: 'casa', label: 'Casa', price: '$144.000/mes', desc: '15 clientes · admin + 14' },
+  { value: 'solo', label: 'Solo', price: 'US$26/mes', desc: '2 clientes · admin + 1' },
+  { value: 'estudio', label: 'Estudio', price: 'US$52/mes', desc: '5 clientes · admin + 4' },
+  { value: 'casa', label: 'Casa', price: 'US$104/mes', desc: '15 clientes · admin + 14' },
 ] as const
 
 const registerSchema = z.object({
