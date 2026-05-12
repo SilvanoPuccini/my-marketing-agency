@@ -74,6 +74,22 @@ serve(async (req) => {
       .eq('id', user.id)
       .single()
 
+    // Prevenir doble pago
+    if (profile?.agency_id) {
+      const { data: agency } = await supabase
+        .from('agencies')
+        .select('stripe_subscription_id')
+        .eq('id', profile.agency_id)
+        .single()
+
+      if (agency?.stripe_subscription_id) {
+        return new Response(JSON.stringify({ error: 'Ya tenés una suscripción activa' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173'
 
     const session = await stripe.checkout.sessions.create({
