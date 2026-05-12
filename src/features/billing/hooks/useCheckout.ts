@@ -2,9 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+export type BillingInterval = 'monthly' | 'yearly' | 'semiannual'
+
 export function useCheckout() {
   return useMutation({
-    mutationFn: async (plan: 'solo' | 'estudio' | 'casa') => {
+    mutationFn: async ({ plan, interval = 'monthly' }: { plan: 'solo' | 'estudio' | 'casa'; interval?: BillingInterval }) => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) throw new Error('No autenticado')
 
@@ -16,7 +18,7 @@ export function useCheckout() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ plan }),
+          body: JSON.stringify({ plan, interval }),
         },
       )
       const data = await res.json()

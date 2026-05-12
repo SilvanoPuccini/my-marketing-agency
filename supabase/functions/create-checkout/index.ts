@@ -10,10 +10,19 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
 
-const PRICE_MAP: Record<string, string> = {
-  solo: Deno.env.get('STRIPE_PRICE_SOLO')!,
-  estudio: Deno.env.get('STRIPE_PRICE_ESTUDIO')!,
-  casa: Deno.env.get('STRIPE_PRICE_CASA')!,
+const PRICE_MAP: Record<string, Record<string, string>> = {
+  solo: {
+    monthly: Deno.env.get('STRIPE_PRICE_SOLO')!,
+    yearly: Deno.env.get('STRIPE_PRICE_SOLO_YEARLY')!,
+  },
+  estudio: {
+    monthly: Deno.env.get('STRIPE_PRICE_ESTUDIO')!,
+    yearly: Deno.env.get('STRIPE_PRICE_ESTUDIO_YEARLY')!,
+  },
+  casa: {
+    monthly: Deno.env.get('STRIPE_PRICE_CASA')!,
+    semiannual: Deno.env.get('STRIPE_PRICE_CASA_SEMIANNUAL')!,
+  },
 }
 
 const corsHeaders = {
@@ -27,10 +36,17 @@ serve(async (req) => {
   }
 
   try {
-    const { plan } = await req.json()
-    const priceId = PRICE_MAP[plan]
-    if (!priceId) {
+    const { plan, interval = 'monthly' } = await req.json()
+    const planPrices = PRICE_MAP[plan]
+    if (!planPrices) {
       return new Response(JSON.stringify({ error: 'Plan inválido' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const priceId = planPrices[interval]
+    if (!priceId) {
+      return new Response(JSON.stringify({ error: 'Intervalo inválido para este plan' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -71,6 +87,7 @@ serve(async (req) => {
       metadata: {
         agency_id: profile?.agency_id ?? '',
         plan,
+        interval,
       },
     })
 

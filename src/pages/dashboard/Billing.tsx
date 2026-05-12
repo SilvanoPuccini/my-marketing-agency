@@ -4,7 +4,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { useBilling } from '@/features/billing/hooks/useBilling'
 import { useInvoices } from '@/features/billing/hooks/useInvoices'
 import { generateInvoicePdf } from '@/features/billing/utils/generateInvoicePdf'
-import { useCheckout } from '@/features/billing/hooks/useCheckout'
+import { useCheckout, type BillingInterval } from '@/features/billing/hooks/useCheckout'
 import { usePaymentGate } from '@/features/billing/hooks/usePaymentGate'
 
 const panel: React.CSSProperties = {
@@ -68,13 +68,15 @@ function formatStorage(used: number, limit: number): string {
 }
 
 const PLANS = [
-  { key: 'solo',    name: 'Solo',    price: 36000,  accounts: 2,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.' },
-  { key: 'estudio', name: 'Estudio', price: 72000,  accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.' },
-  { key: 'casa',    name: 'Casa',    price: 144000, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.' },
+  { key: 'solo',    name: 'Solo',    price: 36000,  yearlyPrice: 388800,   discount: 10, accounts: 2,  seats: 2,  storageGB: 1,   piecesPerClient: 60,  desc: 'Para freelancers que arman su primer flujo.', longInterval: 'yearly' as const },
+  { key: 'estudio', name: 'Estudio', price: 72000,  yearlyPrice: 777600,   discount: 10, accounts: 5,  seats: 5,  storageGB: 1.6, piecesPerClient: 80,  desc: 'Para agencias de 3 a 12 personas.', longInterval: 'yearly' as const },
+  { key: 'casa',    name: 'Casa',    price: 144000, yearlyPrice: 734400,   discount: 15, accounts: 15, seats: 15, storageGB: 3,   piecesPerClient: 160, desc: 'Para agencias grandes con operacion completa.', longInterval: 'semiannual' as const },
 ]
 
 function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () => void }) {
   const checkout = useCheckout()
+  const [isAnnual, setIsAnnual] = useState(false)
+
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(5,5,9,0.72)', zIndex: 40 }} />
@@ -84,18 +86,61 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
             <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>Cambiar plan</h2>
             <button onClick={onClose} style={{ width: 26, height: 26, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 5, color: 'var(--fg-2)', display: 'grid', placeItems: 'center', cursor: 'pointer', fontSize: 12 }}>X</button>
           </div>
+
+          {/* Toggle switch mensual / anual */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 20px 0', gap: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: isAnnual ? 400 : 600, color: isAnnual ? 'var(--fg-3)' : 'var(--fg-1)' }}>Mensual</span>
+            <button
+              role="switch"
+              aria-checked={isAnnual}
+              onClick={() => setIsAnnual(!isAnnual)}
+              style={{
+                position: 'relative', width: 44, height: 24, borderRadius: 12, border: 'none',
+                background: isAnnual ? 'var(--violet-500)' : 'var(--bg-3)',
+                cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute', top: 3, left: isAnnual ? 23 : 3,
+                width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </button>
+            <span style={{ fontSize: 13, fontWeight: isAnnual ? 600 : 400, color: isAnnual ? 'var(--fg-1)' : 'var(--fg-3)' }}>
+              Anual / Semestral
+            </span>
+            {isAnnual && (
+              <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: 'rgba(124,58,237,0.15)', color: 'var(--violet-400)', letterSpacing: '0.02em' }}>
+                AHORRÁ
+              </span>
+            )}
+          </div>
+
           <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {PLANS.map((p) => {
               const isCurrent = p.key === currentPlan
+              const showPrice = isAnnual ? p.yearlyPrice : p.price
+              const periodLabel = isAnnual
+                ? p.longInterval === 'semiannual' ? '/semestre' : '/año'
+                : '/mes'
+              const interval: BillingInterval = isAnnual ? p.longInterval : 'monthly'
+
               return (
                 <div key={p.key} style={{ border: isCurrent ? '2px solid var(--violet-500)' : '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, background: isCurrent ? 'var(--violet-soft)' : 'var(--bg-2)' }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em' }}>{p.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 4 }}>{p.desc}</div>
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
-                    ${p.price.toLocaleString('es-AR')}
-                    <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-3)' }}> /mes</span>
+                  <div>
+                    <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
+                      ${showPrice.toLocaleString('es-AR')}
+                      <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-3)' }}> {periodLabel}</span>
+                    </div>
+                    {isAnnual && (
+                      <div style={{ fontSize: 11, color: 'var(--violet-400)', marginTop: 4 }}>
+                        {p.discount}% off — Ahorrás ${((p.price * (p.longInterval === 'semiannual' ? 6 : 12)) - p.yearlyPrice).toLocaleString('es-AR')}
+                      </div>
+                    )}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--fg-3)', display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <div>{p.accounts} {p.accounts === 1 ? 'cuenta' : 'cuentas'}</div>
@@ -106,7 +151,7 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
                   <button
                     onClick={() => {
                       if (!isCurrent) {
-                        checkout.mutate(p.key as 'solo' | 'estudio' | 'casa')
+                        checkout.mutate({ plan: p.key as 'solo' | 'estudio' | 'casa', interval })
                       }
                     }}
                     disabled={isCurrent || checkout.isPending}
@@ -278,7 +323,7 @@ export function Billing() {
               </div>
             </div>
             <button
-              onClick={() => checkout.mutate((agency?.plan ?? 'solo') as 'solo' | 'estudio' | 'casa')}
+              onClick={() => checkout.mutate({ plan: (agency?.plan ?? 'solo') as 'solo' | 'estudio' | 'casa' })}
               disabled={checkout.isPending}
               style={{
                 flexShrink: 0,

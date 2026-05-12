@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // ── Shared button styles ───────────────────────────────────────────────────────
@@ -321,10 +322,12 @@ function Flow() {
 
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing() {
+  const [isAnnual, setIsAnnual] = useState(false)
+
   const plans = [
-    { name: 'Solo', slug: 'solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['2 cuentas de cliente con portal', '2 asientos de equipo (admin + 1)', '60 piezas / mes por cliente', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
-    { name: 'Estudio', slug: 'estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente con portal', '5 asientos de equipo (admin + 4)', '80 piezas / mes por cliente', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
-    { name: 'Casa', slug: 'casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente con portal', '15 asientos de equipo (admin + 14)', '160 piezas / mes por cliente', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
+    { name: 'Solo', slug: 'solo', price: 36000, yearlyPrice: 388800, discount: 10, longInterval: 'anual' as const, desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['2 cuentas de cliente con portal', '2 asientos de equipo (admin + 1)', '60 piezas / mes por cliente', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', slug: 'estudio', price: 72000, yearlyPrice: 777600, discount: 10, longInterval: 'anual' as const, desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente con portal', '5 asientos de equipo (admin + 4)', '80 piezas / mes por cliente', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', slug: 'casa', price: 144000, yearlyPrice: 734400, discount: 15, longInterval: 'semestral' as const, desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente con portal', '15 asientos de equipo (admin + 14)', '160 piezas / mes por cliente', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (
@@ -337,31 +340,81 @@ function Pricing() {
         Sin pricing en dólares "porque queda lindo". Sin escalones que esconden funciones que necesitás. Cancelás cuando quieras.
       </p>
 
-      <div className="landing-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 48 }}>
-        {plans.map((plan) => (
-          <div key={plan.name} style={{ background: plan.featured ? 'linear-gradient(180deg, rgba(124,58,237,0.08), transparent 50%), var(--bg-1)' : 'var(--bg-1)', border: `1px solid ${plan.featured ? 'var(--violet-500)' : 'var(--line-1)'}`, borderRadius: 'var(--r-3)', padding: 28, display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: plan.featured ? '0 0 0 1px var(--violet-500), 0 24px 40px -16px var(--violet-glow)' : 'none' }}>
-            {plan.featured && (
-              <span style={{ position: 'absolute', top: -10, right: 24, fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--violet-500)', color: '#fff', padding: '4px 8px', borderRadius: 'var(--r-1)' }}>
-                Más elegido
-              </span>
-            )}
-            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{plan.name}</h3>
-            <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em', margin: '12px 0 4px' }}>
-              {plan.price}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{plan.period}</small>
+      {/* Toggle switch */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 32, gap: 12 }}>
+        <span style={{ fontSize: 14, fontWeight: isAnnual ? 400 : 600, color: isAnnual ? 'var(--fg-3)' : 'var(--fg-1)', transition: 'color 0.2s' }}>Mensual</span>
+        <button
+          role="switch"
+          aria-checked={isAnnual}
+          onClick={() => setIsAnnual(!isAnnual)}
+          style={{
+            position: 'relative', width: 48, height: 26, borderRadius: 13, border: 'none',
+            background: isAnnual ? 'var(--violet-500)' : 'var(--bg-3)',
+            cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0,
+          }}
+        >
+          <span style={{
+            position: 'absolute', top: 3, left: isAnnual ? 25 : 3,
+            width: 20, height: 20, borderRadius: '50%', background: '#fff',
+            transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+          }} />
+        </button>
+        <span style={{ fontSize: 14, fontWeight: isAnnual ? 600 : 400, color: isAnnual ? 'var(--fg-1)' : 'var(--fg-3)', transition: 'color 0.2s' }}>
+          Anual / Semestral
+        </span>
+        {isAnnual && (
+          <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 10, background: 'rgba(124,58,237,0.15)', color: 'var(--violet-400)', letterSpacing: '0.02em', animation: 'fadeIn 0.2s' }}>
+            AHORRÁ HASTA 15%
+          </span>
+        )}
+      </div>
+
+      <div className="landing-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 32 }}>
+        {plans.map((plan) => {
+          const showPrice = isAnnual ? plan.yearlyPrice : plan.price
+          const period = isAnnual
+            ? plan.longInterval === 'semestral' ? '/ semestre + IVA' : '/ año + IVA'
+            : '/ mes + IVA'
+          const monthlyEquiv = isAnnual
+            ? Math.round(plan.yearlyPrice / (plan.longInterval === 'semestral' ? 6 : 12))
+            : null
+          const savings = isAnnual
+            ? (plan.price * (plan.longInterval === 'semestral' ? 6 : 12)) - plan.yearlyPrice
+            : 0
+
+          return (
+            <div key={plan.name} style={{ background: plan.featured ? 'linear-gradient(180deg, rgba(124,58,237,0.08), transparent 50%), var(--bg-1)' : 'var(--bg-1)', border: `1px solid ${plan.featured ? 'var(--violet-500)' : 'var(--line-1)'}`, borderRadius: 'var(--r-3)', padding: 28, display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: plan.featured ? '0 0 0 1px var(--violet-500), 0 24px 40px -16px var(--violet-glow)' : 'none' }}>
+              {plan.featured && (
+                <span style={{ position: 'absolute', top: -10, right: 24, fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--violet-500)', color: '#fff', padding: '4px 8px', borderRadius: 'var(--r-1)' }}>
+                  Más elegido
+                </span>
+              )}
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{plan.name}</h3>
+              <div style={{ margin: '12px 0 4px' }}>
+                <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em' }}>
+                  ${showPrice.toLocaleString('es-AR')}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{period}</small>
+                </div>
+                {isAnnual && (
+                  <div style={{ fontSize: 12, marginTop: 4 }}>
+                    <span style={{ color: 'var(--violet-400)', fontWeight: 500 }}>{plan.discount}% off</span>
+                    <span style={{ color: 'var(--fg-3)' }}> · ${monthlyEquiv?.toLocaleString('es-AR')}/mes · Ahorrás ${savings.toLocaleString('es-AR')}</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ color: 'var(--fg-2)', fontSize: 14, minHeight: 42 }}>{plan.desc}</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {plan.features.map((f) => (
+                  <li key={f} style={{ fontSize: 13, color: 'var(--fg-2)', display: 'flex', gap: 10 }}>
+                    <span className="mono" style={{ color: 'var(--violet-400)' }}>✓</span>{f}
+                  </li>
+                ))}
+              </ul>
+              <Link to={`/registro?plan=${plan.slug}`} onClick={() => window.scrollTo(0, 0)} style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto', textDecoration: 'none' }}>
+                {plan.cta}
+              </Link>
             </div>
-            <div style={{ color: 'var(--fg-2)', fontSize: 14, minHeight: 42 }}>{plan.desc}</div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {plan.features.map((f) => (
-                <li key={f} style={{ fontSize: 13, color: 'var(--fg-2)', display: 'flex', gap: 10 }}>
-                  <span className="mono" style={{ color: 'var(--violet-400)' }}>✓</span>{f}
-                </li>
-              ))}
-            </ul>
-            <Link to={`/registro?plan=${plan.slug}`} onClick={() => window.scrollTo(0, 0)} style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto', textDecoration: 'none' }}>
-              {plan.cta}
-            </Link>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )
