@@ -204,6 +204,7 @@ export function Status() {
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-3)' }}
+            onClick={() => window.scrollTo(0, 0)}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />

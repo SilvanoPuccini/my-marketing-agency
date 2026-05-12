@@ -322,9 +322,9 @@ function Flow() {
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing() {
   const plans = [
-    { name: 'Solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta de cliente', '2 asientos de equipo', '2 clientes portal / cuenta', '60 piezas / mes por portal', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
-    { name: 'Estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente', '5 asientos de equipo', '5 clientes portal / cuenta', '80 piezas / mes por portal', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
-    { name: 'Casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente', '15 asientos de equipo', '15 clientes portal / cuenta', '160 piezas / mes por portal', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
+    { name: 'Solo', slug: 'solo', price: '$36.000', period: '/ mes + IVA', desc: 'Para freelancers que arman su primer flujo de cliente.', features: ['1 cuenta de cliente', '2 asientos de equipo', '2 clientes portal / cuenta', '60 piezas / mes por portal', '1 GB almacenamiento', 'Calendario y aprobaciones', 'Reportes básicos'], cta: 'Crear cuenta', featured: false },
+    { name: 'Estudio', slug: 'estudio', price: '$72.000', period: '/ mes + IVA', desc: 'Para agencias con hasta 12 personas y cartera activa.', features: ['5 cuentas de cliente', '5 asientos de equipo', '5 clientes portal / cuenta', '80 piezas / mes por portal', '1.6 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte por WhatsApp'], cta: 'Crear cuenta', featured: true },
+    { name: 'Casa', slug: 'casa', price: '$144.000', period: '/ mes + IVA', desc: 'Para agencias grandes y equipos con operación completa.', features: ['15 cuentas de cliente', '15 asientos de equipo', '15 clientes portal / cuenta', '160 piezas / mes por portal', '3 GB almacenamiento', 'Portal de cliente con tu marca', 'Reportes en PDF · export Drive', 'Soporte prioritario'], cta: 'Crear cuenta', featured: false },
   ]
 
   return (
@@ -357,7 +357,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <Link to="/registro" style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto' }}>
+            <Link to={`/registro?plan=${plan.slug}`} onClick={() => window.scrollTo(0, 0)} style={{ ...(plan.featured ? btnPrimary : btnSecondary), marginTop: 'auto', textDecoration: 'none' }}>
               {plan.cta}
             </Link>
           </div>
@@ -530,17 +530,11 @@ function Cambios() {
           ))}
 
           <div style={{ marginTop: 12, background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 12.5, color: 'var(--fg-2)', lineHeight: 1.5 }}>
-            <div style={{ fontWeight: 600, color: 'var(--fg-1)', fontSize: 13, marginBottom: 6 }}>Recibí los cambios por mail</div>
-            Una vez por mes, lo importante. Sin newsletters de cinco párrafos.
-            <input type="email" placeholder="vos@tuestudio.com.ar" style={{ width: '100%', marginTop: 10, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', padding: '8px 10px', color: 'var(--fg-1)', fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
-          </div>
-
-          <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 12.5, color: 'var(--fg-2)', lineHeight: 1.5 }}>
             <div style={{ fontWeight: 600, color: 'var(--fg-1)', fontSize: 13, marginBottom: 6 }}>Pedí una feature</div>
             Tenés algo que falta y te haría la vida más fácil. Mandalo, lo leemos.
-            <a href="#" style={{ display: 'inline-block', marginTop: 8, color: 'var(--violet-400)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <Link to="/contacto" style={{ display: 'inline-block', marginTop: 8, color: 'var(--violet-400)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em', textDecoration: 'none' }}>
               Abrir formulario →
-            </a>
+            </Link>
           </div>
         </aside>
 

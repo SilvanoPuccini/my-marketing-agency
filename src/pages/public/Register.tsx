@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -26,9 +26,15 @@ const registerSchema = z.object({
 
 type RegisterValues = z.infer<typeof registerSchema>
 
+const VALID_PLANS = ['solo', 'estudio', 'casa'] as const
+type PlanValue = (typeof VALID_PLANS)[number]
+
 export function Register() {
   const [serverError, setServerError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const planParam = searchParams.get('plan')
+  const defaultPlan: PlanValue = VALID_PLANS.includes(planParam as PlanValue) ? (planParam as PlanValue) : 'solo'
 
   const {
     register,
@@ -38,7 +44,7 @@ export function Register() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', agencyName: '', email: '', password: '', confirmPassword: '', plan: 'solo' as const },
+    defaultValues: { fullName: '', agencyName: '', email: '', password: '', confirmPassword: '', plan: defaultPlan },
   })
 
   async function onSubmit(values: RegisterValues) {
