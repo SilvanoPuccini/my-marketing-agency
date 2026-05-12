@@ -1,4 +1,11 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+
+// ── Scroll to top on mount ───────────────────────────────────────────────────
+function ScrollReset() {
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+  return null
+}
 
 const wrap: React.CSSProperties = {
   background: 'var(--bg-0)',
@@ -119,6 +126,7 @@ const services = [
 export function Status() {
   return (
     <div style={wrap}>
+      <ScrollReset />
       <div style={header}>
         <Link to="/" style={logo}>M</Link>
         <span style={{ fontSize: 14, color: 'var(--fg-3)' }}>Estado del Servicio</span>
