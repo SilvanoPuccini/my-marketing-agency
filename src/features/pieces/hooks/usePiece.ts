@@ -5,6 +5,13 @@ import { useAuthStore } from '@/stores/auth.store'
 import { getTransitionError } from '@/features/pieces/utils/pieceTransitions'
 import type { PieceStatus, UserRole } from '@/types/domain.types'
 
+export type PieceFile = {
+  id: string
+  file_url: string
+  file_name: string
+  file_type: string
+}
+
 export type PieceDetail = {
   id: string
   title: string
@@ -19,6 +26,7 @@ export type PieceDetail = {
   pauta_amount: number | null
   updated_at: string
   accounts: { name: string } | null
+  piece_files: PieceFile[]
   comments: Array<{
     id: string
     content: string
@@ -38,6 +46,7 @@ export function usePiece(id: string | null) {
           id, title, type, copy, platform, scheduled_date, scheduled_time,
           status, rejection_reason, has_pauta, pauta_amount, updated_at,
           accounts(name),
+          piece_files(id, file_url, file_name, file_type),
           comments(id, content, created_at, users!author_id(full_name))
         `)
         .eq('id', id!)

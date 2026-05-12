@@ -1,20 +1,20 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
+import { useAuthStore } from '@/stores/auth.store'
+import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 
-interface ClientLayoutProps {
-  accountName?: string
-  agencyName?: string
-  clientName?: string
-  clientInitials?: string
-}
-
-export function ClientLayout({
-  accountName = 'Parrilla Don Tito',
-  agencyName = 'Estudio Pampas',
-  clientName = 'Rocío Paz',
-  clientInitials = 'RP',
-}: ClientLayoutProps) {
+export function ClientLayout() {
   usePiecesRealtime()
+  const { user } = useAuthStore()
+  const { data } = useClientPieces(user?.id)
+
+  const clientName = user?.full_name ?? 'Cliente'
+  const clientInitials = user?.initials ?? '?'
+  const accountName = data?.accountName ?? '—'
+
+  const now = new Date()
+  const monthLabel = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase()
+
   return (
     <div style={{ background: 'var(--bg-0)', minHeight: '100vh' }}>
       {/* Client nav */}
@@ -62,7 +62,7 @@ export function ClientLayout({
                 letterSpacing: '0.06em',
               }}
             >
-              Vista de cliente · gestionado por {agencyName}
+              Vista de cliente · Portal
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@ export function ClientLayout({
           className="mono"
           style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase' }}
         >
-          ABRIL 2026
+          {monthLabel}
         </span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

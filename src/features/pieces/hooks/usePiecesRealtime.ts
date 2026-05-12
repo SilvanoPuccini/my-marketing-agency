@@ -13,29 +13,29 @@ export function usePiecesRealtime() {
   const qc = useQueryClient()
 
   useEffect(() => {
+    function invalidateAll(pieceId?: string) {
+      qc.invalidateQueries({ queryKey: ['dashboard'] })
+      qc.invalidateQueries({ queryKey: ['dashboard', 'attention'] })
+      qc.invalidateQueries({ queryKey: ['calendar'] })
+      qc.invalidateQueries({ queryKey: ['accounts'] })
+      qc.invalidateQueries({ queryKey: ['client-pieces'] })
+      if (pieceId) {
+        qc.invalidateQueries({ queryKey: ['piece', pieceId] })
+        qc.invalidateQueries({ queryKey: ['account-pieces'] })
+      }
+    }
+
     const channel = supabase
-      .channel('pieces:status-changes')
+      .channel('pieces:changes')
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'pieces',
-        },
-        (payload) => {
-          const pieceId = payload.new?.id as string | undefined
-          // Invalidar queries globales
-          qc.invalidateQueries({ queryKey: ['dashboard'] })
-          qc.invalidateQueries({ queryKey: ['dashboard', 'attention'] })
-          qc.invalidateQueries({ queryKey: ['calendar'] })
-          qc.invalidateQueries({ queryKey: ['accounts'] })
-          qc.invalidateQueries({ queryKey: ['client-pieces'] })
-          // Invalidar pieza específica si está abierta
-          if (pieceId) {
-            qc.invalidateQueries({ queryKey: ['piece', pieceId] })
-            qc.invalidateQueries({ queryKey: ['account-pieces'] })
-          }
-        },
+        { event: 'INSERT', schema: 'public', table: 'pieces' },
+        (payload) => invalidateAll(payload.new?.id as string | undefined),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'pieces' },
+        (payload) => invalidateAll(payload.new?.id as string | undefined),
       )
       .subscribe()
 

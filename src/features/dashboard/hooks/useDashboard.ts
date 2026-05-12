@@ -40,26 +40,74 @@ function getISOWeek(d: Date): number {
   return 1 + Math.round(((tmp.getTime() - w1.getTime()) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7)
 }
 
+function getPreviousPeriodRange(period: Period) {
+  const now = new Date()
+  if (period === 'today') {
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const d = yesterday.toISOString().split('T')[0]
+    return { start: d, end: d }
+  }
+  if (period === 'week') {
+    const { start } = getWeekRange()
+    const prevEnd = new Date(start + 'T00:00:00')
+    prevEnd.setDate(prevEnd.getDate() - 1)
+    const prevStart = new Date(prevEnd)
+    prevStart.setDate(prevEnd.getDate() - 6)
+    return {
+      start: prevStart.toISOString().split('T')[0],
+      end: prevEnd.toISOString().split('T')[0],
+    }
+  }
+  // previous month
+  const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+  const prevStart = new Date(prevEnd.getFullYear(), prevEnd.getMonth(), 1)
+  return {
+    start: prevStart.toISOString().split('T')[0],
+    end: prevEnd.toISOString().split('T')[0],
+  }
+}
+
+function countStatuses(data: { status: string }[]) {
+  const map: Record<string, number> = {}
+  for (const row of data) map[row.status] = (map[row.status] ?? 0) + 1
+  const active = (map.draft ?? 0) + (map.sent_client ?? 0) + (map.approved ?? 0) + (map.rejected ?? 0)
+  const pending = map.sent_client ?? 0
+  const decided = (map.approved ?? 0) + (map.rejected ?? 0)
+  const approvalRate = decided > 0 ? Math.round(((map.approved ?? 0) / decided) * 100) : 0
+  return { active, pending, approvalRate }
+}
+
 export function useDashboardStats(agencyId: string | undefined, period: Period = 'week') {
   const { start, end } = getPeriodRange(period)
+  const prev = getPreviousPeriodRange(period)
   return useQuery({
     queryKey: ['dashboard', 'stats', agencyId, period],
     enabled: !!agencyId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pieces')
-        .select('status')
-        .is('archived_at', null)
-        .gte('scheduled_date', start)
-        .lte('scheduled_date', end)
-      if (error) throw error
-      const map: Record<string, number> = {}
-      for (const row of data ?? []) map[row.status] = (map[row.status] ?? 0) + 1
-      const active = (map.draft ?? 0) + (map.sent_client ?? 0) + (map.approved ?? 0) + (map.rejected ?? 0)
-      const pending = map.sent_client ?? 0
-      const decided = (map.approved ?? 0) + (map.rejected ?? 0)
-      const approvalRate = decided > 0 ? Math.round(((map.approved ?? 0) / decided) * 100) : 0
-      return { active, pending, approvalRate }
+      const [current, previous] = await Promise.all([
+        supabase
+          .from('pieces')
+          .select('status')
+          .is('archived_at', null)
+          .gte('scheduled_date', start)
+          .lte('scheduled_date', end),
+        supabase
+          .from('pieces')
+          .select('status')
+          .is('archived_at', null)
+          .gte('scheduled_date', prev.start)
+          .lte('scheduled_date', prev.end),
+      ])
+      if (current.error) throw current.error
+      const stats = countStatuses(current.data ?? [])
+      const prevStats = countStatuses(previous.data ?? [])
+      return {
+        ...stats,
+        prevActive: prevStats.active,
+        prevPending: prevStats.pending,
+        prevApprovalRate: prevStats.approvalRate,
+      }
     },
   })
 }
@@ -73,6 +121,7 @@ export type AttentionPiece = {
   scheduled_date: string
   scheduled_time: string | null
   accounts: { name: string } | null
+  thumbnail_url: string | null
 }
 
 export function useAttentionPieces(agencyId: string | undefined) {
@@ -82,13 +131,27 @@ export function useAttentionPieces(agencyId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pieces')
-        .select('id, title, type, status, updated_at, scheduled_date, scheduled_time, accounts(name)')
+        .select('id, title, type, status, updated_at, scheduled_date, scheduled_time, accounts(name), piece_files(file_url, file_type)')
         .is('archived_at', null)
         .in('status', ['draft', 'sent_client', 'rejected'])
         .order('updated_at', { ascending: false })
         .limit(8)
       if (error) throw error
-      return (data ?? []) as AttentionPiece[]
+      return (data ?? []).map((p): AttentionPiece => {
+        const files = (p.piece_files ?? []) as { file_url: string; file_type: string }[]
+        const imageFile = files.find(f => f.file_type?.startsWith('image/'))
+        return {
+          id: p.id,
+          title: p.title,
+          type: p.type,
+          status: p.status,
+          updated_at: p.updated_at,
+          scheduled_date: p.scheduled_date,
+          scheduled_time: p.scheduled_time,
+          accounts: p.accounts as { name: string } | null,
+          thumbnail_url: imageFile?.file_url ?? null,
+        }
+      })
     },
   })
 }

@@ -172,7 +172,7 @@ export function useDeleteFile() {
 
       // 2. Extraer el path (sacar el dominio de la URL pública si existe)
       const fileUrl = fileRecord?.file_url ?? ''
-      const pathMatch = fileUrl.match(/\/pieces-files\/(.+)/)
+      const pathMatch = fileUrl.match(/\/piece-files\/(.+)/)
       const storagePath = pathMatch ? pathMatch[1] : null
 
       // 3. Borrar de Storage (si hay path válido)

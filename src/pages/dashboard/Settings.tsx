@@ -51,11 +51,11 @@ const NAV_SECTIONS = [
 const BRAND_COLORS = ['#7C3AED', '#5B21B6', '#3B82F6', '#0EA5E9', '#10B981', '#EF4444', '#FAFAFA']
 
 const INTEGRATIONS = [
-  { name: 'Google Drive',       desc: 'Importar briefs y exportar entregables.',              status: 'approved', statusLabel: 'Conectado · lucia@estudiopampas.com.ar', btnLabel: 'Desconectar' },
-  { name: 'Meta Business Suite',desc: 'Publicar piezas aprobadas, leer métricas.',            status: 'approved', statusLabel: 'Conectado · 14 cuentas',                btnLabel: 'Gestionar'   },
-  { name: 'WhatsApp Business',  desc: 'Notificar a clientes cuando hay piezas para aprobar.', status: 'sent',     statusLabel: 'Pendiente de verificar',                btnLabel: 'Continuar'   },
-  { name: 'Notion',             desc: 'Sincronizar briefs con bases de Notion.',              status: null,       statusLabel: 'No conectado',                          btnLabel: 'Conectar'    },
-  { name: 'Slack',              desc: 'Avisos en canales internos.',                          status: null,       statusLabel: 'No conectado',                          btnLabel: 'Conectar'    },
+  { name: 'Google Drive',       desc: 'Importar briefs y exportar entregables.',              status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
+  { name: 'Meta Business Suite',desc: 'Publicar piezas aprobadas, leer métricas.',            status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
+  { name: 'WhatsApp Business',  desc: 'Notificar a clientes cuando hay piezas para aprobar.', status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
+  { name: 'Notion',             desc: 'Sincronizar briefs con bases de Notion.',              status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
+  { name: 'Slack',              desc: 'Avisos en canales internos.',                          status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
 ]
 
 const NOTIFICATIONS: { key: NotifKey; label: string; desc: string }[] = [
@@ -570,7 +570,7 @@ export function Settings() {
                         <button
                           onClick={() => {
                             if (deleteInput !== form.name) { toast.error('El nombre no coincide'); return }
-                            toast.success('Solicitud registrada. Tu agencia será eliminada dentro de las próximas 24 hs.')
+                            toast.info('Para eliminar tu agencia, contactá a soporte: soporte@mma.app con el asunto "Eliminar agencia".')
                             setShowDeleteConfirm(false)
                             setDeleteInput('')
                           }}

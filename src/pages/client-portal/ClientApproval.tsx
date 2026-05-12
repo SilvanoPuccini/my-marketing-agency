@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { usePiece, useUpdatePieceStatus, useAddComment } from '@/features/pieces/hooks/usePiece'
+import { useCommentsRealtime } from '@/features/pieces/hooks/useCommentsRealtime'
 import { useAuthStore } from '@/stores/auth.store'
 
 const TYPE_RATIO: Record<string, string> = {
@@ -46,6 +47,7 @@ export function ClientApproval() {
   const { data: piece, isLoading } = usePiece(id ?? null)
   const updateStatus = useUpdatePieceStatus()
   const addComment = useAddComment()
+  useCommentsRealtime(id ?? null)
 
   const [comment, setComment] = useState('')
   const [localStatus, setLocalStatus] = useState<string | null>(null)
@@ -137,20 +139,44 @@ export function ClientApproval() {
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'flex-start' }}>
           {/* Media side */}
           <section style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 20, position: 'sticky', top: 80 }}>
-            {/* Media placeholder */}
-            <div style={{
-              aspectRatio: TYPE_RATIO[piece.type] ?? '1/1', maxWidth: 360, margin: '0 auto',
-              background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
-              border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11,
-              textTransform: 'uppercase', letterSpacing: '0.06em',
-            }}>
-              {(piece.type === 'reel' || piece.type === 'story') && (
-                <div style={{ width: 56, height: 56, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', display: 'grid', placeItems: 'center', color: '#fff', marginBottom: 12, backdropFilter: 'blur(4px)' }}>▶</div>
-              )}
-              [ {piece.type} ]
-            </div>
+            {/* Media */}
+            {(() => {
+              const files = piece.piece_files ?? []
+              const firstFile = files[0]
+              const isImage = firstFile?.file_type?.startsWith('image/')
+              const isVideo = firstFile?.file_type?.startsWith('video/')
+
+              if (firstFile && isImage) {
+                return (
+                  <img
+                    src={firstFile.file_url}
+                    alt={firstFile.file_name}
+                    style={{ width: '100%', maxWidth: 360, margin: '0 auto', display: 'block', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', objectFit: 'contain', background: 'var(--bg-2)' }}
+                  />
+                )
+              }
+              if (firstFile && isVideo) {
+                return (
+                  <video
+                    src={firstFile.file_url}
+                    controls
+                    style={{ width: '100%', maxWidth: 360, margin: '0 auto', display: 'block', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)' }}
+                  />
+                )
+              }
+              return (
+                <div style={{
+                  aspectRatio: TYPE_RATIO[piece.type] ?? '1/1', maxWidth: 360, margin: '0 auto',
+                  background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
+                  border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11,
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}>
+                  Sin archivos subidos
+                </div>
+              )
+            })()}
           </section>
 
           {/* Right column */}

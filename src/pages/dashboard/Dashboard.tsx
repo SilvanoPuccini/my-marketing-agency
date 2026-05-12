@@ -98,24 +98,6 @@ function StatusPill({ status, label }: { status: string; label: string }) {
   )
 }
 
-function Spark({ values }: { values: number[] }) {
-  const max = Math.max(...values)
-  return (
-    <div style={{ height: 28, marginTop: 12, display: 'flex', alignItems: 'flex-end', gap: 3 }}>
-      {values.map((v, i) => (
-        <span
-          key={i}
-          style={{
-            flex: 1,
-            background: v === max ? 'var(--violet-500)' : 'var(--violet-soft)',
-            borderRadius: 1,
-            height: `${Math.max(8, v)}%`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
 
 function Avatar({ initials: init, violet }: { initials: string; violet?: boolean }) {
   return (
@@ -186,34 +168,41 @@ export function Dashboard() {
 
   const weekNumber = getISOWeek(new Date())
 
+  function deltaLabel(current: number, prev: number, suffix = ''): { text: string; up: boolean } {
+    const diff = current - prev
+    if (diff === 0) return { text: 'Sin cambio', up: true }
+    const sign = diff > 0 ? '+' : ''
+    return { text: `${sign}${diff}${suffix} vs. período anterior`, up: diff > 0 }
+  }
+
+  const activeDelta = stats.data ? deltaLabel(stats.data.active, stats.data.prevActive) : { text: '—', up: true }
+  const pendingDelta = stats.data ? deltaLabel(stats.data.pending, stats.data.prevPending) : { text: '—', up: true }
+  const rateDelta = stats.data ? deltaLabel(stats.data.approvalRate, stats.data.prevApprovalRate, '%') : { text: '—', up: true }
+
   const statsCards = [
     {
       label: 'Piezas activas',
       value: stats.isLoading ? '—' : String(stats.data?.active ?? 0),
-      delta: '— vs. mes pasado',
-      deltaUp: true,
-      spark: [30, 40, 35, 50, 45, 55, stats.data?.active ?? 10],
+      delta: stats.isLoading ? '—' : activeDelta.text,
+      deltaUp: activeDelta.up,
     },
     {
       label: 'Pendientes de aprobación',
       value: stats.isLoading ? '—' : String(stats.data?.pending ?? 0),
-      delta: '— desde ayer',
-      deltaUp: false,
-      spark: [20, 30, 25, 40, 35, 45, stats.data?.pending ?? 5],
+      delta: stats.isLoading ? '—' : pendingDelta.text,
+      deltaUp: !pendingDelta.up, // fewer pending is good
     },
     {
-      label: 'Tiempo medio de aprobación',
-      value: '—',
-      delta: 'Sin datos aún',
+      label: 'Publicadas',
+      value: stats.isLoading ? '—' : String((stats.data?.active ?? 0) - (stats.data?.pending ?? 0)),
+      delta: stats.isLoading ? '—' : `En el período actual`,
       deltaUp: true,
-      spark: [50, 50, 50, 50, 50, 50, 50],
     },
     {
       label: 'Tasa de aprobación',
       value: stats.isLoading ? '—' : `${stats.data?.approvalRate ?? 0}%`,
-      delta: '— vs. mes pasado',
-      deltaUp: true,
-      spark: [40, 50, 45, 60, 55, 65, stats.data?.approvalRate ?? 0],
+      delta: stats.isLoading ? '—' : rateDelta.text,
+      deltaUp: rateDelta.up,
     },
   ]
 
@@ -275,7 +264,6 @@ export function Dashboard() {
               <div className="mono" style={{ fontSize: 11, marginTop: 6, color: s.deltaUp ? 'var(--status-approved)' : 'var(--status-rejected)' }}>
                 {s.delta}
               </div>
-              <Spark values={s.spark} />
             </div>
           ))}
         </div>
@@ -312,7 +300,11 @@ export function Dashboard() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
               >
-                <div style={{ width: 32, height: 32, borderRadius: 6, background: 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)', border: '1px solid var(--line-1)' }} />
+                <div style={{
+                  width: 32, height: 32, borderRadius: 6,
+                  background: item.thumbnail_url ? `url(${item.thumbnail_url}) center/cover no-repeat` : 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)',
+                  border: '1px solid var(--line-1)',
+                }} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{item.title}</div>
                   <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>

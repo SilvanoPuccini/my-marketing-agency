@@ -191,23 +191,48 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', overflow: 'hidden' }}>
           {/* Left — media + copy */}
           <div style={{ overflowY: 'auto', padding: 24, background: 'radial-gradient(60% 80% at 50% 0%, rgba(124,58,237,0.06), transparent 60%), var(--bg-1)' }}>
-            {/* Media placeholder */}
-            <div
-              style={{
-                aspectRatio: piece?.type === 'post' || piece?.type === 'carrusel' ? '1/1' : '9/16',
-                maxHeight: '60vh', margin: '0 auto',
-                background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
-                border: '1px solid var(--line-2)', borderRadius: 10,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11,
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-              }}
-            >
-              <div style={{ width: 56, height: 56, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', display: 'grid', placeItems: 'center', color: '#fff', marginBottom: 12, backdropFilter: 'blur(4px)', fontSize: 18 }}>
-                {piece?.type === 'reel' || piece?.type === 'story' ? '▶' : '□'}
-              </div>
-              [ {piece?.type ?? '—'} ]
-            </div>
+            {/* Media */}
+            {(() => {
+              const files = piece?.piece_files ?? []
+              const firstFile = files[0]
+              const isImage = firstFile?.file_type?.startsWith('image/')
+              const isVideo = firstFile?.file_type?.startsWith('video/')
+              const ratio = piece?.type === 'post' || piece?.type === 'carrusel' ? '1/1' : '9/16'
+
+              if (firstFile && isImage) {
+                return (
+                  <img
+                    src={firstFile.file_url}
+                    alt={firstFile.file_name}
+                    style={{ width: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--bg-2)' }}
+                  />
+                )
+              }
+              if (firstFile && isVideo) {
+                return (
+                  <video
+                    src={firstFile.file_url}
+                    controls
+                    style={{ width: '100%', maxHeight: '60vh', borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--bg-2)' }}
+                  />
+                )
+              }
+              return (
+                <div
+                  style={{
+                    aspectRatio: ratio,
+                    maxHeight: '60vh', margin: '0 auto',
+                    background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
+                    border: '1px solid var(--line-2)', borderRadius: 10,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11,
+                    textTransform: 'uppercase', letterSpacing: '0.06em',
+                  }}
+                >
+                  Sin archivos subidos
+                </div>
+              )
+            })()}
 
             <h2 style={{ margin: '24px 0 6px', fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>
               {isLoading ? 'Cargando…' : piece?.title}

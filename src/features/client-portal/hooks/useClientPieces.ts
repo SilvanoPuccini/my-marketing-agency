@@ -10,6 +10,7 @@ export type ClientPiece = {
   platform: string | null
   scheduled_date: string
   scheduled_time: string | null
+  thumbnail_url: string | null
 }
 
 export type ClientAccountInfo = {
@@ -40,10 +41,10 @@ export function useClientPieces(userId: string | undefined) {
       const accountId = clientData.account_id
       const accountName = (clientData.accounts as { name: string } | null)?.name ?? '—'
 
-      // Get all pieces for this account
+      // Get all pieces for this account with first file thumbnail
       const { data: pieces, error: piecesError } = await supabase
         .from('pieces')
-        .select('id, title, type, status, copy, platform, scheduled_date, scheduled_time')
+        .select('id, title, type, status, copy, platform, scheduled_date, scheduled_time, piece_files(file_url, file_type)')
         .is('archived_at', null)
         .eq('account_id', accountId)
         .in('status', ['sent_client', 'approved', 'rejected', 'published'])
@@ -51,7 +52,21 @@ export function useClientPieces(userId: string | undefined) {
 
       if (piecesError) throw piecesError
 
-      const all = (pieces ?? []) as ClientPiece[]
+      const all = (pieces ?? []).map((p): ClientPiece => {
+        const files = (p.piece_files ?? []) as { file_url: string; file_type: string }[]
+        const imageFile = files.find(f => f.file_type?.startsWith('image/'))
+        return {
+          id: p.id,
+          title: p.title,
+          type: p.type,
+          status: p.status,
+          copy: p.copy,
+          platform: p.platform,
+          scheduled_date: p.scheduled_date,
+          scheduled_time: p.scheduled_time,
+          thumbnail_url: imageFile?.file_url ?? null,
+        }
+      })
 
       return {
         accountId,

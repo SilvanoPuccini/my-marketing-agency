@@ -133,7 +133,7 @@ export function ClientPortal() {
                       >
                         <div style={{
                           aspectRatio: TYPE_RATIO[p.type] ?? '1/1',
-                          background: 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
+                          background: p.thumbnail_url ? `url(${p.thumbnail_url}) center/cover no-repeat` : 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
                           borderBottom: '1px solid var(--line-1)',
                           display: 'grid', placeItems: 'center',
                           color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 10,
@@ -142,10 +142,10 @@ export function ClientPortal() {
                           <span style={{ position: 'absolute', top: 10, left: 10 }}>
                             <span className={`pill pill-${p.status}`}><span className="dot" />{STATUS_LABELS[p.status] ?? p.status}</span>
                           </span>
-                          {(p.type === 'reel' || p.type === 'story') && (
+                          {!p.thumbnail_url && (p.type === 'reel' || p.type === 'story') && (
                             <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', display: 'grid', placeItems: 'center', color: '#fff' }}>▶</div>
                           )}
-                          {p.type !== 'reel' && p.type !== 'story' && <span>[{p.type.toUpperCase()}]</span>}
+                          {!p.thumbnail_url && p.type !== 'reel' && p.type !== 'story' && <span>[{p.type.toUpperCase()}]</span>}
                         </div>
                         <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
                           <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -185,7 +185,11 @@ export function ClientPortal() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                     >
-                      <div style={{ width: 36, height: 36, borderRadius: 6, background: 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)', border: '1px solid var(--line-1)' }} />
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 6,
+                        background: p.thumbnail_url ? `url(${p.thumbnail_url}) center/cover no-repeat` : 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)',
+                        border: '1px solid var(--line-1)',
+                      }} />
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</div>
                         <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>
