@@ -42,6 +42,7 @@ const NAV_SECTIONS = [
     { key: 'notif',    label: 'Notificaciones' },
   ]},
   { group: 'Avanzado', items: [
+    { key: 'seguridad', label: 'Seguridad' },
     { key: 'soporte', label: 'Soporte' },
     { key: 'export', label: 'Exportar datos' },
     { key: 'zona',   label: 'Zona peligrosa', danger: true },
@@ -138,6 +139,8 @@ export function Settings() {
   const [active, setActive]           = useState('general')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteInput, setDeleteInput] = useState('')
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwLoading, setPwLoading] = useState(false)
 
   // Initialize form when agency data loads
   useEffect(() => {
@@ -188,9 +191,26 @@ export function Settings() {
     setForm(saved)
   }
 
-  function scrollTo(id: string) {
+  function goTo(id: string) {
     setActive(id)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  async function handleChangePassword() {
+    if (pwForm.next.length < 6) { toast.error('La contraseña debe tener al menos 6 caracteres'); return }
+    if (pwForm.next !== pwForm.confirm) { toast.error('Las contraseñas no coinciden'); return }
+    setPwLoading(true)
+    const { error } = await supabase.auth.updateUser({ password: pwForm.next })
+    setPwLoading(false)
+    if (error) {
+      if (error.message.includes('same_password') || error.message.includes('same password')) {
+        toast.error('Elegí una contraseña diferente a la anterior.')
+      } else {
+        toast.error(error.message)
+      }
+      return
+    }
+    toast.success('Contraseña actualizada')
+    setPwForm({ current: '', next: '', confirm: '' })
   }
 
   async function handleExportCSV() {
@@ -257,14 +277,14 @@ export function Settings() {
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Ajustes del estudio</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>
-            Identidad, marca, integraciones y notificaciones — aplica a todo {form.name || agency?.name || 'tu agencia'}.
+            Configuración general de {form.name || agency?.name || 'tu agencia'}.
           </p>
         </div>
 
         <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 32 }}>
 
           {/* ── Side nav ── */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 76, alignSelf: 'start' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 76, alignSelf: 'start', minHeight: 'fit-content' }}>
             {NAV_SECTIONS.map((section) => (
               <div key={section.group}>
                 <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 8px 6px' }}>
@@ -273,7 +293,7 @@ export function Settings() {
                 {section.items.map((item) => (
                   <button
                     key={item.key}
-                    onClick={() => scrollTo(item.key)}
+                    onClick={() => goTo(item.key)}
                     style={{
                       display: 'block', width: '100%', textAlign: 'left',
                       padding: '7px 10px', fontSize: 13,
@@ -295,7 +315,7 @@ export function Settings() {
           <div>
 
             {/* General */}
-            <section style={sec} id="general">
+            {active === 'general' && <section style={sec} id="general">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>General</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Identidad básica del estudio.</p>
@@ -339,10 +359,10 @@ export function Settings() {
                   </select>
                 </RowI>
               </div>
-            </section>
+            </section>}
 
             {/* Marca y portales */}
-            <section style={sec} id="brand">
+            {active === 'brand' && <section style={sec} id="brand">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Marca y portales de cliente</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Cómo ven los clientes su portal y los reportes en PDF.</p>
@@ -398,11 +418,10 @@ export function Settings() {
                   />
                 </RowI>
               </div>
-            </section>
-
+            </section>}
 
             {/* Integraciones */}
-            <section style={sec} id="integ">
+            {active === 'integ' && <section style={sec} id="integ">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Integraciones</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Conectá las herramientas donde ya trabaja tu equipo.</p>
@@ -428,10 +447,10 @@ export function Settings() {
                   </div>
                 ))}
               </div>
-            </section>
+            </section>}
 
             {/* Notificaciones */}
-            <section style={sec} id="notif">
+            {active === 'notif' && <section style={sec} id="notif">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Notificaciones</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Qué te avisamos por email — cada persona puede sobrescribir esto desde su perfil.</p>
@@ -448,11 +467,60 @@ export function Settings() {
                   </div>
                 ))}
               </div>
-            </section>
+            </section>}
 
+            {/* Seguridad */}
+            {active === 'seguridad' && <section style={sec} id="seguridad">
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Seguridad</h3>
+                <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Cambiar tu contraseña de acceso.</p>
+              </div>
+              <div style={{ padding: '18px 20px', maxWidth: 400 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
+                      Nueva contraseña
+                    </label>
+                    <input
+                      type="password"
+                      value={pwForm.next}
+                      onChange={(e) => setPwForm(p => ({ ...p, next: e.target.value }))}
+                      placeholder="Mínimo 6 caracteres"
+                      style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
+                      Repetir nueva contraseña
+                    </label>
+                    <input
+                      type="password"
+                      value={pwForm.confirm}
+                      onChange={(e) => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                      placeholder="Repetí la contraseña"
+                      style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={pwLoading || !pwForm.next || !pwForm.confirm}
+                    style={{
+                      padding: '9px 14px', fontSize: 13, fontWeight: 500,
+                      color: '#fff', borderRadius: 'var(--r-2)',
+                      border: '1px solid var(--violet-400)', background: 'var(--violet-500)',
+                      cursor: pwLoading ? 'not-allowed' : 'pointer',
+                      opacity: pwLoading || !pwForm.next || !pwForm.confirm ? 0.5 : 1,
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    {pwLoading ? 'Guardando…' : 'Cambiar contraseña'}
+                  </button>
+                </div>
+              </div>
+            </section>}
 
             {/* Soporte */}
-            <section style={sec} id="soporte">
+            {active === 'soporte' && <section style={sec} id="soporte">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Soporte</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Contactá al equipo de MMA directamente desde acá.</p>
@@ -478,10 +546,10 @@ export function Settings() {
                   Tiempo de respuesta: menos de 24 h hábiles · Lun a Vie · ART (UTC−3)
                 </div>
               </div>
-            </section>
+            </section>}
 
             {/* Exportar datos */}
-            <section style={sec} id="export">
+            {active === 'export' && <section style={sec} id="export">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Exportar datos</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Descargá toda la información de tu agencia en formatos abiertos.</p>
@@ -514,10 +582,10 @@ export function Settings() {
                   </button>
                 </div>
               </div>
-            </section>
+            </section>}
 
             {/* Zona peligrosa */}
-            <section style={{ ...sec, borderColor: 'rgba(239,68,68,0.3)' }} id="zona">
+            {active === 'zona' && <section style={{ ...sec, borderColor: 'rgba(239,68,68,0.3)' }} id="zona">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(239,68,68,0.3)' }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--status-rejected)' }}>Zona peligrosa</h3>
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Acciones irreversibles. Pensálo dos veces.</p>
@@ -590,7 +658,7 @@ export function Settings() {
                   )}
                 </div>
               </div>
-            </section>
+            </section>}
 
           </div>
         </div>
