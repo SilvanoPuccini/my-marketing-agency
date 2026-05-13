@@ -19,10 +19,9 @@ export function ClientHistory() {
   const { user } = useAuthStore()
   const { data, isLoading } = useClientPieces(user?.id)
 
-  const allPieces = data?.pieces ?? []
-  // Historico: todas las piezas de meses anteriores o ya terminadas
-  const historicPieces = allPieces.filter(
-    (p) => p.status === 'published' || p.status === 'approved',
+  // Historico: piezas aprobadas y publicadas
+  const historicPieces = [...(data?.published ?? [])].sort(
+    (a, b) => (b.scheduled_date ?? '').localeCompare(a.scheduled_date ?? ''),
   )
 
   return (

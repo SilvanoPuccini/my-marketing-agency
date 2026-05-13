@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { supabase } from '@/lib/supabase'
-import { useAuthStore } from '@/stores/auth.store'
 
 const schema = z.object({
   password: z.string().min(6, 'Mínimo 6 caracteres'),
@@ -19,7 +18,6 @@ type FormValues = z.infer<typeof schema>
 export function CompleteInvitation() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { isLoading: authLoading } = useAuthStore()
   const [sessionReady, setSessionReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
