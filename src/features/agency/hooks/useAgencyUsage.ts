@@ -15,19 +15,19 @@ export function useAgencyUsage() {
         supabase.from('agencies').select('plan').eq('id', agencyId).single(),
         supabase
           .from('accounts')
-          .select('id', { count: 'exact', head: true })
+          .select('id')
           .eq('agency_id', agencyId),
         supabase
           .from('users')
-          .select('id', { count: 'exact', head: true })
+          .select('id')
           .eq('agency_id', agencyId)
           .in('role', ['admin_agency', 'team_member', 'manager', 'creator']),
       ])
 
       const plan = (agencyRes.data?.plan ?? 'solo') as PlanId
       const limits = getPlanLimit(plan)
-      const accountsUsed = accountsRes.count ?? 0
-      const seatsUsed = seatsRes.count ?? 0
+      const accountsUsed = accountsRes.data?.length ?? 0
+      const seatsUsed = seatsRes.data?.length ?? 0
 
       return {
         plan,
