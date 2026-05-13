@@ -376,11 +376,28 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
           </div>
 
           {/* Footer */}
+          {uploadFiles.progress && isUploading && (
+            <div style={{ padding: '0 20px 8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--fg-3)', marginBottom: 6 }}>
+                <span>{uploadFiles.progress.fileName}</span>
+                <span className="mono">{uploadFiles.progress.percent}%</span>
+              </div>
+              <div style={{ height: 6, background: 'var(--bg-3)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', background: 'var(--violet-500)', borderRadius: 999,
+                  width: `${uploadFiles.progress.percent}%`,
+                  transition: 'width 0.3s ease',
+                }} />
+              </div>
+            </div>
+          )}
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '14px 20px', borderTop: '1px solid var(--line-1)', background: 'var(--bg-1)' }}>
             <button
               type="button"
               onClick={onClose}
-              style={{ padding: '8px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+              disabled={isBusy}
+              style={{ padding: '8px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: isBusy ? 'not-allowed' : 'pointer', opacity: isBusy ? 0.5 : 1 }}
             >
               Cancelar
             </button>
@@ -389,7 +406,7 @@ export function CreatePieceModal({ onClose, defaultAccountId }: CreatePieceModal
               disabled={isBusy}
               style={{ padding: '8px 16px', fontSize: 13, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: isBusy ? 'var(--violet-600)' : 'var(--violet-500)', cursor: isBusy ? 'not-allowed' : 'pointer' }}
             >
-              {isUploading ? 'Subiendo archivo…' : isBusy ? 'Guardando…' : 'Crear pieza'}
+              {isUploading ? `Subiendo ${uploadFiles.progress?.percent ?? 0}%...` : isBusy ? 'Guardando…' : 'Crear pieza'}
             </button>
           </div>
         </form>

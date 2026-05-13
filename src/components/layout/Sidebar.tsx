@@ -108,7 +108,7 @@ function SidebarContent() {
         <div>
           <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>{agencyName}</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-            PLAN {plan.toUpperCase()} · {counts?.accounts ?? 0} / {planLimits.accounts}
+            PLAN {plan.toUpperCase()} · {counts?.accounts ?? 0}/{planLimits.accounts} cuentas · {counts?.team ?? 0}/{planLimits.teamSeats} equipo
           </div>
         </div>
       </div>

@@ -415,8 +415,28 @@ function UploadModal({ files, onClose }: UploadModalProps) {
           ))}
         </div>
 
+        {upload.progress && upload.isPending && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--fg-3)', marginBottom: 6 }}>
+              <span>
+                {upload.progress.totalFiles > 1
+                  ? `Archivo ${upload.progress.currentFile}/${upload.progress.totalFiles}`
+                  : upload.progress.fileName}
+              </span>
+              <span className="mono">{upload.progress.percent}%</span>
+            </div>
+            <div style={{ height: 6, background: 'var(--bg-3)', borderRadius: 999, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', background: 'var(--violet-500)', borderRadius: 999,
+                width: `${upload.progress.percent}%`,
+                transition: 'width 0.3s ease',
+              }} />
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '7px 14px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}>
+          <button onClick={onClose} disabled={upload.isPending} style={{ padding: '7px 14px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: upload.isPending ? 'not-allowed' : 'pointer', opacity: upload.isPending ? 0.5 : 1 }}>
             Cancelar
           </button>
           <button
@@ -429,7 +449,7 @@ function UploadModal({ files, onClose }: UploadModalProps) {
               cursor: isDisabled ? 'not-allowed' : 'pointer',
             }}
           >
-            {upload.isPending ? 'Subiendo...' : 'Subir'}
+            {upload.isPending ? `Subiendo ${upload.progress?.percent ?? 0}%...` : 'Subir'}
           </button>
         </div>
       </div>

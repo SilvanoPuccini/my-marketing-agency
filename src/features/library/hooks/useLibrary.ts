@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
@@ -111,9 +112,24 @@ function validateFileSize(file: File): string | null {
   return null
 }
 
+export type UploadProgress = {
+  /** 0-100 overall progress */
+  percent: number
+  /** Current file index (1-based) */
+  currentFile: number
+  /** Total files */
+  totalFiles: number
+  /** Current file name */
+  fileName: string
+}
+
 export function useUploadFiles() {
   const qc = useQueryClient()
-  return useMutation({
+  const [progress, setProgress] = useState<UploadProgress | null>(null)
+
+  const reset = useCallback(() => setProgress(null), [])
+
+  const mutation = useMutation({
     mutationFn: async ({ files, pieceId }: { files: File[]; pieceId: string }) => {
       // Validate all files before uploading any
       for (const file of files) {
@@ -122,14 +138,29 @@ export function useUploadFiles() {
       }
 
       const results = []
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
         const ext = file.name.split('.').pop() ?? 'bin'
         const path = `pieces/${pieceId}/${crypto.randomUUID()}.${ext}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('piece-files')
-          .upload(path, file)
-        if (uploadError) throw uploadError
+        // Update progress: starting this file
+        setProgress({
+          percent: Math.round((i / files.length) * 100),
+          currentFile: i + 1,
+          totalFiles: files.length,
+          fileName: file.name,
+        })
+
+        // Upload with XHR for progress tracking on large files
+        await uploadWithProgress(path, file, (filePercent) => {
+          const overallPercent = Math.round(((i + filePercent / 100) / files.length) * 100)
+          setProgress({
+            percent: overallPercent,
+            currentFile: i + 1,
+            totalFiles: files.length,
+            fileName: file.name,
+          })
+        })
 
         const { data: urlData } = supabase.storage
           .from('piece-files')
@@ -147,14 +178,67 @@ export function useUploadFiles() {
         if (dbError) throw dbError
         results.push(path)
       }
+
+      setProgress({ percent: 100, currentFile: files.length, totalFiles: files.length, fileName: '' })
       return results
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['library-files'] })
       qc.invalidateQueries({ queryKey: ['library-folders'] })
+      qc.invalidateQueries({ queryKey: ['piece'] })
       toast.success('Archivos subidos correctamente')
+      setTimeout(reset, 500)
     },
-    onError: () => toast.error('Error al subir archivos'),
+    onError: () => {
+      toast.error('Error al subir archivos')
+      reset()
+    },
+  })
+
+  return { ...mutation, progress, resetProgress: reset }
+}
+
+/** Upload a file to Supabase Storage with XHR progress tracking */
+async function uploadWithProgress(
+  path: string,
+  file: File,
+  onProgress: (percent: number) => void,
+): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('No autenticado')
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const url = `${supabaseUrl}/storage/v1/object/piece-files/${path}`
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('Authorization', `Bearer ${session.access_token}`)
+    xhr.setRequestHeader('x-upsert', 'false')
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        onProgress(Math.round((e.loaded / e.total) * 100))
+      }
+    })
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve()
+      } else {
+        try {
+          const body = JSON.parse(xhr.responseText)
+          reject(new Error(body.message || body.error || `Upload failed: ${xhr.status}`))
+        } catch {
+          reject(new Error(`Upload failed: ${xhr.status}`))
+        }
+      }
+    })
+
+    xhr.addEventListener('error', () => reject(new Error('Error de red al subir archivo')))
+    xhr.addEventListener('abort', () => reject(new Error('Subida cancelada')))
+
+    xhr.send(file)
   })
 }
 
