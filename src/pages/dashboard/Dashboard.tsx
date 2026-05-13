@@ -162,7 +162,9 @@ export function Dashboard() {
   const activity = useRecentActivity(agencyId)
 
   // Redirigir a onboarding si no tiene cuentas (DESPUÉS de todos los hooks)
-  if (onboarding.data?.needsOnboarding) {
+  // Si el usuario eligió "Saltar por ahora", no redirigir de vuelta
+  const skippedOnboarding = sessionStorage.getItem('skipped-onboarding') === '1'
+  if (onboarding.data?.needsOnboarding && !skippedOnboarding) {
     return <Navigate to="/onboarding" replace />
   }
 

@@ -106,7 +106,10 @@ export function Onboarding() {
               Crear mi primera cuenta
             </button>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => {
+                sessionStorage.setItem('skipped-onboarding', '1')
+                navigate('/dashboard')
+              }}
               style={{
                 width: '100%', padding: 11, marginTop: 8, fontSize: 13,
                 color: 'var(--fg-3)', borderRadius: 'var(--r-2)',
