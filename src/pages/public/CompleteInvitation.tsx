@@ -19,12 +19,12 @@ type FormValues = z.infer<typeof schema>
 export function CompleteInvitation() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { setUser, isLoading: authLoading } = useAuthStore()
-  const [authChecked, setAuthChecked] = useState(false)
+  const { isLoading: authLoading } = useAuthStore()
+  const [sessionReady, setSessionReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  // Manejar el código PKCE o hash fragment de Supabase
+  // Establecer sesión desde el enlace de invitación (PKCE o hash)
   useEffect(() => {
     async function establishSession() {
       // PKCE flow: Supabase redirige con ?code=XXX
@@ -35,26 +35,32 @@ export function CompleteInvitation() {
           setError('Este enlace expiró o es inválido. Pedí una nueva invitación.')
           return
         }
+        setSessionReady(true)
+        return
       }
 
-      // Hash fragment flow (legacy): #access_token=XXX&type=invite
+      // Hash fragment flow: #access_token=XXX&type=invite
       const hash = window.location.hash
       if (hash && hash.includes('access_token')) {
         const { error: sessionError } = await supabase.auth.getSession()
         if (sessionError) {
           setError('Este enlace expiró o es inválido. Pedí una nueva invitación.')
+          return
         }
+        setSessionReady(true)
+        return
+      }
+
+      // Si no hay código ni hash, verificar si ya tiene sesión activa
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setSessionReady(true)
+      } else {
+        setError('No se encontró un enlace de invitación válido. Revisá tu email o pedí uno nuevo.')
       }
     }
     establishSession()
   }, [searchParams])
-
-  // Esperar a que auth termine de cargar
-  useEffect(() => {
-    if (!authLoading) {
-      setAuthChecked(true)
-    }
-  }, [authLoading])
 
   const {
     register,
@@ -68,61 +74,50 @@ export function CompleteInvitation() {
   async function onSubmit(values: FormValues) {
     setError(null)
 
-    // 1. Verificar que haya usuario (sesión activa del invite)
+    // 1. Verificar sesión activa
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     if (!currentUser) {
       setError('No se encontró una sesión válida. Probá con el enlace del email de nuevo.')
       return
     }
 
-    // 2. Obtener el token actual para poder actualizar el usuario
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.access_token) {
-      setError('No se encontró una sesión válida. Probá con el enlace del email de nuevo.')
-      return
-    }
-
-    // 3. Actualizar la contraseña
+    // 2. Actualizar la contraseña
     const { error: updateError } = await supabase.auth.updateUser({
       password: values.password,
     })
 
     if (updateError) {
-      setError(updateError.message)
+      // Manejar error de misma contraseña con mensaje amigable
+      if (updateError.message.includes('same_password') || updateError.message.includes('same password')) {
+        setError('Elegí una contraseña diferente a la anterior.')
+      } else {
+        setError(updateError.message)
+      }
       return
     }
 
-    // 4. Refrescar perfil y redirigir
+    // 3. Éxito — onAuthStateChange en initAuth ya actualiza el store.
+    // Esperar a que el store se actualice y redirigir según rol.
+    setSuccess(true)
+
+    // Obtener rol del perfil para decidir destino
     const { data: profile } = await supabase
       .from('users')
-      .select('agency_id, role')
+      .select('role')
       .eq('id', currentUser.id)
       .single()
 
-    const userData = {
-      id: currentUser.id,
-      agency_id: profile?.agency_id ?? '',
-      email: currentUser.email ?? '',
-      full_name: currentUser.user_metadata?.full_name ?? '',
-      role: profile?.role ?? ('client' as const),
-      initials: (currentUser.user_metadata?.full_name ?? 'U')
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((n: string) => n[0].toUpperCase())
-        .join(''),
-    }
-
-    setUser(userData as ReturnType<typeof setUser> extends (user: infer U) => void ? U : never)
-    setSuccess(true)
-
     const isTeam = profile?.role === 'admin_agency' || profile?.role === 'team_member' || profile?.role === 'manager' || profile?.role === 'creator'
+    const destination = isTeam ? '/dashboard' : '/portal'
+
+    // Dar tiempo al store para sincronizar antes de navegar
     setTimeout(() => {
-      navigate(isTeam ? '/dashboard' : '/portal', { replace: true })
-    }, 1200)
+      navigate(destination, { replace: true })
+    }, 1500)
   }
 
-  if (!authChecked) {
+  // Spinner mientras se establece la sesión
+  if (!sessionReady && !error) {
     return (
       <div style={{
         minHeight: '100vh', display: 'grid', placeItems: 'center',
@@ -156,7 +151,7 @@ export function CompleteInvitation() {
             ✓
           </div>
           <h2 style={{ fontSize: 20, fontWeight: 600, margin: '0 0 8px' }}>¡Cuenta lista!</h2>
-          <p style={{ color: 'var(--fg-2)', fontSize: 14 }}>Redirigiendo al portal...</p>
+          <p style={{ color: 'var(--fg-2)', fontSize: 14 }}>Redirigiendo...</p>
         </div>
       </div>
     )

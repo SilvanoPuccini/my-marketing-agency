@@ -35,6 +35,8 @@ const Onboarding = lazy(() => import('@/pages/dashboard/Onboarding').then(m => (
 
 // Client portal — lazy
 const ClientPortal = lazy(() => import('@/pages/client-portal/ClientPortal').then(m => ({ default: m.ClientPortal })))
+const ClientHistory = lazy(() => import('@/pages/client-portal/ClientHistory').then(m => ({ default: m.ClientHistory })))
+const ClientReports = lazy(() => import('@/pages/client-portal/ClientReports').then(m => ({ default: m.ClientReports })))
 const ClientApproval = lazy(() => import('@/pages/client-portal/ClientApproval').then(m => ({ default: m.ClientApproval })))
 
 function PageLoader() {
@@ -89,6 +91,8 @@ export function AppRouter() {
           <Route element={<ProtectedRoute allowedRoles={['client', 'admin_agency', 'manager', 'creator', 'team_member']} />}>
             <Route element={<ClientLayout />}>
               <Route path="/portal" element={<ClientPortal />} />
+              <Route path="/portal/history" element={<ClientHistory />} />
+              <Route path="/portal/reports" element={<ClientReports />} />
               <Route path="/portal/pieces/:id" element={<ClientApproval />} />
             </Route>
           </Route>
