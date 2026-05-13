@@ -11,6 +11,7 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { emailLayout, statusBadge, alertBox } from '../_shared/email-layout.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -64,17 +65,19 @@ serve(async (req) => {
         from: 'MMA <notificaciones@mymarketing.com.ar>',
         to: [author.email],
         subject: `Pieza ${statusLabel}: ${piece.title}`,
-        html: `
-          <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto;">
-            <h2 style="color: #1a1a2e;">Pieza ${statusLabel}</h2>
-            <p><strong>${piece.title}</strong> de la cuenta <strong>${account.name}</strong> fue ${statusLabel} por el cliente.</p>
+        html: emailLayout({
+          preheader: `${piece.title} fue ${statusLabel} por el cliente`,
+          title: `Pieza ${statusLabel}`,
+          body: `
+            <p style="margin:0 0 16px;">${statusBadge(record.status)}</p>
+            <p style="margin:0 0 8px;">La pieza <strong style="color:#F4F4F7;">${piece.title}</strong> de la cuenta <strong style="color:#F4F4F7;">${account.name}</strong> fue ${statusLabel} por el cliente.</p>
             ${record.status === 'rejected' && piece.rejection_reason
-              ? `<p style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; color: #991b1b;"><strong>Motivo:</strong> ${piece.rejection_reason}</p>`
+              ? alertBox(`<strong>Motivo:</strong> ${piece.rejection_reason}`)
               : ''
             }
-            <a href="${siteUrl}/dashboard" style="display: inline-block; margin-top: 16px; padding: 10px 20px; background: #7c3aed; color: white; text-decoration: none; border-radius: 6px;">Ver en MMA</a>
-          </div>
-        `,
+          `,
+          cta: { label: 'Ver en el dashboard', url: `${siteUrl}/dashboard` },
+        }),
       }),
     })
 
