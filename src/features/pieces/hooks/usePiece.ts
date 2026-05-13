@@ -127,6 +127,27 @@ export function useAddComment() {
   })
 }
 
+export function useUpdatePiece() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, ...fields }: { id: string; copy?: string; title?: string; platform?: string; scheduled_date?: string; scheduled_time?: string }) => {
+      const { error } = await supabase
+        .from('pieces')
+        .update(fields)
+        .eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: (_, { id }) => {
+      toast.success('Pieza actualizada')
+      qc.invalidateQueries({ queryKey: ['piece', id] })
+      qc.invalidateQueries({ queryKey: ['dashboard'] })
+      qc.invalidateQueries({ queryKey: ['calendar'] })
+      qc.invalidateQueries({ queryKey: ['client-pieces'] })
+    },
+    onError: (e: Error) => toast.error(e.message ?? 'No se pudo actualizar la pieza'),
+  })
+}
+
 export type CreatePieceInput = {
   account_id: string
   title: string

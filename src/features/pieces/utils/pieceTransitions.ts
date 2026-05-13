@@ -16,7 +16,7 @@ const TRANSITIONS: Record<PieceStatus, PieceStatus[]> = {
   draft:       ['sent_client'],
   sent_client: ['approved', 'rejected', 'draft'],
   approved:    ['published', 'draft'],
-  rejected:    ['draft'],
+  rejected:    ['draft', 'sent_client'],
   published:   [],
 }
 

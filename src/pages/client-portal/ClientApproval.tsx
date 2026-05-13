@@ -82,6 +82,8 @@ export function ClientApproval() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return
       if (e.key === 'a' || e.key === 'A') handleApprove()
       if (e.key === 'c' || e.key === 'C') handleReject()
     }

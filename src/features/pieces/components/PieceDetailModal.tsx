@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
-import { usePiece, useUpdatePieceStatus, useAddComment } from '@/features/pieces/hooks/usePiece'
+import { X, Upload, Trash2, Pencil, Check } from 'lucide-react'
+import { usePiece, useUpdatePieceStatus, useAddComment, useUpdatePiece } from '@/features/pieces/hooks/usePiece'
 import { useCommentsRealtime } from '@/features/pieces/hooks/useCommentsRealtime'
+import { useUploadFiles, useDeleteFile } from '@/features/library/hooks/useLibrary'
 import { useAuthStore } from '@/stores/auth.store'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -82,9 +83,15 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   const { user } = useAuthStore()
   const { data: piece, isLoading } = usePiece(pieceId)
   const updateStatus = useUpdatePieceStatus()
+  const updatePiece = useUpdatePiece()
   const addComment = useAddComment()
+  const uploadFiles = useUploadFiles()
+  const deleteFile = useDeleteFile()
   useCommentsRealtime(pieceId)
   const [commentText, setCommentText] = useState('')
+  const [editingCopy, setEditingCopy] = useState(false)
+  const [copyDraft, setCopyDraft] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -110,6 +117,22 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
     updateStatus.mutate({ id: pieceId, status: 'published', currentStatus: status })
   }
 
+  function handleSaveCopy() {
+    updatePiece.mutate({ id: pieceId, copy: copyDraft }, { onSuccess: () => setEditingCopy(false) })
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (!files?.length) return
+    uploadFiles.mutate({ files: Array.from(files), pieceId })
+    e.target.value = ''
+  }
+
+  function handleDeleteFile(fileId: string) {
+    if (!confirm('¿Eliminar este archivo?')) return
+    deleteFile.mutate(fileId)
+  }
+
   const sectionStyle: React.CSSProperties = {
     padding: '16px 20px',
     borderBottom: '1px solid var(--line-1)',
@@ -126,6 +149,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   }
 
   const status = piece?.status ?? 'draft'
+  const canEdit = status === 'draft' || status === 'rejected'
   const userInitials = user?.initials ?? '?'
 
   return (
@@ -242,15 +266,81 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
               {piece?.platform && <span>{piece.platform}</span>}
             </div>
 
-            {piece?.copy && (
-              <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 13, lineHeight: 1.55, color: 'var(--fg-2)', marginTop: 12, whiteSpace: 'pre-wrap' }}>
-                {piece.copy}
+            {/* Copy — editable in draft/rejected */}
+            {editingCopy ? (
+              <div style={{ marginTop: 12 }}>
+                <textarea
+                  value={copyDraft}
+                  onChange={(e) => setCopyDraft(e.target.value)}
+                  autoFocus
+                  style={{ width: '100%', minHeight: 120, background: 'var(--bg-2)', border: '1px solid var(--violet-400)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 13, lineHeight: 1.55, color: 'var(--fg-1)', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-sans)' }}
+                />
+                <div style={{ display: 'flex', gap: 8, marginTop: 8, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setEditingCopy(false)} style={{ padding: '5px 10px', fontSize: 11, color: 'var(--fg-2)', background: 'var(--bg-3)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', cursor: 'pointer' }}>
+                    Cancelar
+                  </button>
+                  <button onClick={handleSaveCopy} disabled={updatePiece.isPending} style={{ padding: '5px 10px', fontSize: 11, color: '#fff', background: 'var(--violet-500)', border: '1px solid var(--violet-400)', borderRadius: 'var(--r-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Check size={12} /> Guardar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={canEdit ? () => { setCopyDraft(piece?.copy ?? ''); setEditingCopy(true) } : undefined}
+                style={{ background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 13, lineHeight: 1.55, color: piece?.copy ? 'var(--fg-2)' : 'var(--fg-3)', marginTop: 12, whiteSpace: 'pre-wrap', cursor: canEdit ? 'pointer' : 'default', position: 'relative' }}
+              >
+                {piece?.copy || (isLoading ? '…' : 'Sin copy todavía.')}
+                {canEdit && (
+                  <Pencil size={12} style={{ position: 'absolute', top: 10, right: 10, color: 'var(--fg-3)' }} />
+                )}
               </div>
             )}
 
-            {!piece?.copy && !isLoading && (
-              <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', padding: 14, fontSize: 13, color: 'var(--fg-3)', marginTop: 12, fontStyle: 'italic' }}>
-                Sin copy todavía.
+            {/* File list + upload */}
+            {piece && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Archivos · {piece.piece_files.length}
+                  </span>
+                  {canEdit && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadFiles.isPending}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', fontSize: 11, color: 'var(--violet-400)', background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', cursor: 'pointer' }}
+                    >
+                      <Upload size={12} /> Subir
+                    </button>
+                  )}
+                  <input ref={fileInputRef} type="file" multiple accept="image/*,video/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+                </div>
+
+                {uploadFiles.progress && (
+                  <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--fg-2)', marginBottom: 4 }}>
+                      Subiendo {uploadFiles.progress.currentFile}/{uploadFiles.progress.totalFiles}: {uploadFiles.progress.fileName}
+                    </div>
+                    <div style={{ height: 4, background: 'var(--bg-3)', borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${uploadFiles.progress.percent}%`, background: 'var(--violet-500)', borderRadius: 2, transition: 'width 0.2s' }} />
+                    </div>
+                  </div>
+                )}
+
+                {piece.piece_files.map((f) => (
+                  <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', fontSize: 12, color: 'var(--fg-2)' }}>
+                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.file_name}</span>
+                    {canEdit && (
+                      <button
+                        onClick={() => handleDeleteFile(f.id)}
+                        disabled={deleteFile.isPending}
+                        style={{ background: 'none', border: 'none', color: 'var(--fg-3)', cursor: 'pointer', padding: 2 }}
+                        title="Eliminar archivo"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
