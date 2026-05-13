@@ -28,6 +28,7 @@ const Calendar = lazy(() => import('@/pages/dashboard/Calendar').then(m => ({ de
 const Library = lazy(() => import('@/pages/dashboard/Library').then(m => ({ default: m.Library })))
 const Reports = lazy(() => import('@/pages/dashboard/Reports').then(m => ({ default: m.Reports })))
 const Team = lazy(() => import('@/pages/dashboard/Team').then(m => ({ default: m.Team })))
+const TeamMember = lazy(() => import('@/pages/dashboard/TeamMember').then(m => ({ default: m.TeamMember })))
 const Billing = lazy(() => import('@/pages/dashboard/Billing').then(m => ({ default: m.Billing })))
 const Settings = lazy(() => import('@/pages/dashboard/Settings').then(m => ({ default: m.Settings })))
 const Profile = lazy(() => import('@/pages/dashboard/Profile').then(m => ({ default: m.Profile })))
@@ -81,6 +82,7 @@ export function AppRouter() {
               <Route path="/library" element={<Library />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/team" element={<Team />} />
+              <Route path="/team/:id" element={<TeamMember />} />
               <Route path="/billing" element={<Billing />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />

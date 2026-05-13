@@ -1,13 +1,17 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useTeam } from '@/features/team/hooks/useTeam'
 import { useAuthStore } from '@/stores/auth.store'
+import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
 import { InviteMemberModal } from '@/features/team/components/InviteMemberModal'
 import { PlanLimitBanner } from '@/components/ui/plan-limit-banner'
 
 const ROLE_LABELS: Record<string, string> = {
   admin_agency: 'Admin',
   team_member:  'Equipo',
+  manager:      'Manager',
+  creator:      'Creador',
   client:       'Cliente',
 }
 
@@ -24,9 +28,12 @@ const tdStyle: React.CSSProperties = {
 
 export function Team() {
   const { user } = useAuthStore()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [showInvite, setShowInvite] = useState(false)
   const { data: members = [], isLoading } = useTeam(user?.agency_id)
+  const { data: usage } = useAgencyUsage()
+  const canInvite = usage?.canAddTeamMember ?? true
 
   const filtered = members.filter((m) =>
     m.full_name.toLowerCase().includes(search.toLowerCase())
@@ -57,8 +64,10 @@ export function Team() {
               style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
             >Exportar</button>
             <button
-              onClick={() => setShowInvite(true)}
-              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
+              onClick={() => canInvite && setShowInvite(true)}
+              disabled={!canInvite}
+              title={!canInvite ? 'Llegaste al límite de tu plan. Mejorá tu plan para invitar más personas.' : undefined}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: canInvite ? 'pointer' : 'not-allowed', opacity: canInvite ? 1 : 0.5 }}
             >
               + Invitar persona
             </button>
@@ -71,7 +80,10 @@ export function Team() {
         <div style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Equipo</h2>
           <p style={{ color: 'var(--fg-3)', margin: 0, fontSize: 13 }}>
-            {isLoading ? 'Cargando…' : `${members.length} persona${members.length !== 1 ? 's' : ''} en el equipo`}
+            {isLoading ? 'Cargando…' : usage
+              ? `${usage.teamSeats.used} / ${usage.teamSeats.limit} personas en el equipo`
+              : `${members.length} persona${members.length !== 1 ? 's' : ''} en el equipo`
+            }
           </p>
         </div>
 
@@ -115,6 +127,7 @@ export function Team() {
                 <tr
                   key={m.id}
                   style={{ cursor: 'pointer', opacity: m.is_active ? 1 : 0.5 }}
+                  onClick={() => navigate(`/team/${m.id}`)}
                   onMouseEnter={(e) => { e.currentTarget.querySelectorAll('td').forEach((td) => { td.style.background = 'var(--bg-3)' }) }}
                   onMouseLeave={(e) => { e.currentTarget.querySelectorAll('td').forEach((td) => { td.style.background = 'transparent' }) }}
                 >
