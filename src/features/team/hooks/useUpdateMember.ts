@@ -30,6 +30,7 @@ export function useUpdateMember() {
       qc.invalidateQueries({ queryKey: ['team'] })
       qc.invalidateQueries({ queryKey: ['team-member', variables.id] })
       qc.invalidateQueries({ queryKey: ['sidebar-counts'] })
+      qc.invalidateQueries({ queryKey: ['agency-usage'] })
     },
     onError: (e: Error) => {
       toast.error(e.message ?? 'No se pudo actualizar el miembro')

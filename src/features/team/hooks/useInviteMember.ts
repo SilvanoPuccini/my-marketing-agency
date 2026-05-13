@@ -44,6 +44,8 @@ export function useInviteMember() {
     onSuccess: () => {
       toast.success('Invitación enviada por email')
       qc.invalidateQueries({ queryKey: ['team'] })
+      qc.invalidateQueries({ queryKey: ['agency-usage'] })
+      qc.invalidateQueries({ queryKey: ['sidebar-counts'] })
     },
     onError: (e: Error) => {
       if (e.message.includes('already registered') || e.message.includes('already been registered')) {
