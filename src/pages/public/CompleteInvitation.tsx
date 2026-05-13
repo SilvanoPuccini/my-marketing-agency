@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth.store'
 
 const schema = z.object({
   password: z.string().min(6, 'Mínimo 6 caracteres'),
@@ -94,24 +95,32 @@ export function CompleteInvitation() {
       return
     }
 
-    // 3. Éxito — onAuthStateChange en initAuth ya actualiza el store.
-    // Esperar a que el store se actualice y redirigir según rol.
+    // 3. Éxito — obtener perfil y actualizar store directamente
     setSuccess(true)
 
-    // Obtener rol del perfil para decidir destino
     const { data: profile } = await supabase
       .from('users')
-      .select('role')
+      .select('*')
       .eq('id', currentUser.id)
       .single()
+
+    if (profile) {
+      useAuthStore.getState().setUser({
+        ...profile,
+        role: profile.role as 'admin_agency' | 'team_member' | 'manager' | 'creator' | 'client',
+        initials: profile.full_name.split(' ').filter(Boolean).slice(0, 2).map((n: string) => n[0].toUpperCase()).join(''),
+        position: profile.position ?? undefined,
+        avatar_url: profile.avatar_url ?? undefined,
+      })
+    }
 
     const isTeam = profile?.role === 'admin_agency' || profile?.role === 'team_member' || profile?.role === 'manager' || profile?.role === 'creator'
     const destination = isTeam ? '/dashboard' : '/portal'
 
-    // Dar tiempo al store para sincronizar antes de navegar
+    // Store ya actualizado, navegar después de mostrar el éxito brevemente
     setTimeout(() => {
       navigate(destination, { replace: true })
-    }, 1500)
+    }, 800)
   }
 
   // Spinner mientras se establece la sesión
