@@ -12,7 +12,9 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
 import { supabase } from '@/lib/supabase'
 import { PLAN_LIMITS, type PlanId } from '@/lib/planLimits'
+import { NAV_ACCESS, ROLE_LABELS } from '@/lib/roles'
 import { LogoutConfirmDialog } from '@/components/ui/LogoutConfirmDialog'
+import type { UserRole } from '@/types/domain.types'
 
 interface NavItem {
   to:       string
@@ -64,7 +66,10 @@ function SidebarContent() {
   const brandLetter = agencyName.charAt(0).toUpperCase()
   const logoUrl     = (agency?.settings as Record<string, unknown>)?.logo_url as string | undefined
 
-  const NAV_ITEMS: NavItem[] = [
+  const userRole = (user?.role ?? 'team_member') as UserRole
+  const allowedPaths = NAV_ACCESS[userRole] ?? []
+
+  const ALL_NAV_ITEMS: NavItem[] = [
     { to: '/dashboard', icon: <LayoutGrid size={15} />, label: 'Panel',       section: 'Operación' },
     { to: '/accounts',  icon: <Users size={15} />,      label: 'Cuentas',     count: counts?.accounts },
     { to: '/calendar',  icon: <Calendar size={15} />,   label: 'Calendario',  count: counts?.pieces   },
@@ -74,6 +79,8 @@ function SidebarContent() {
     { to: '/billing',   icon: <CreditCard size={15} />, label: 'Facturación'  },
     { to: '/settings',  icon: <Settings size={15} />,   label: 'Ajustes'      },
   ]
+
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => allowedPaths.includes(item.to))
 
   function handleLogout() {
     logout()
@@ -176,7 +183,7 @@ function SidebarContent() {
               {user?.full_name}
             </div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase' }}>
-              {user?.position ?? user?.role}
+              {user?.position ?? ROLE_LABELS[userRole]}
             </div>
           </div>
         </NavLink>

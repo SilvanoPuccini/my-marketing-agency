@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
+import { mkInitials } from '@/lib/utils'
 
 const schema = z.object({
   password: z.string().min(6, 'Mínimo 6 caracteres'),
@@ -108,7 +109,7 @@ export function CompleteInvitation() {
       useAuthStore.getState().setUser({
         ...profile,
         role: profile.role as 'admin_agency' | 'team_member' | 'manager' | 'creator' | 'client',
-        initials: profile.full_name.split(' ').filter(Boolean).slice(0, 2).map((n: string) => n[0].toUpperCase()).join(''),
+        initials: mkInitials(profile.full_name),
         position: profile.position ?? undefined,
         avatar_url: profile.avatar_url ?? undefined,
       })

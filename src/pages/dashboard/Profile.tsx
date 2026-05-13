@@ -3,12 +3,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { useAuthStore } from '@/stores/auth.store'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-
-const ROLE_LABELS: Record<string, string> = {
-  admin_agency: 'Administrador',
-  team_member:  'Miembro del equipo',
-  client:       'Cliente',
-}
+import { ROLE_LABELS_LONG as ROLE_LABELS } from '@/lib/roles'
 
 const panel: React.CSSProperties = {
   background: 'var(--bg-1)',

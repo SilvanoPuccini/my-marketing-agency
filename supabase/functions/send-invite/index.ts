@@ -1,6 +1,6 @@
 // Supabase Edge Function: send-invite
 // Invita a un miembro del equipo o cliente vía email.
-// Crea el usuario en auth.users con inviteUserByEmail y el perfil en public.users.
+// Pasa agency_id en metadata para que handle_new_user cree el perfil correcto.
 //
 // Deploy: supabase functions deploy send-invite --no-verify-jwt
 // Env vars: SUPABASE_SERVICE_ROLE_KEY, SITE_URL
@@ -13,13 +13,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const PLAN_LIMITS: Record<string, number> = {
+  solo: 2,
+  estudio: 5,
+  casa: 15,
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { email, full_name, role, account_id } = await req.json()
+    const { email, full_name, role, position, account_id } = await req.json()
 
     if (!email || !full_name || !role) {
       return new Response(
@@ -28,7 +34,15 @@ serve(async (req) => {
       )
     }
 
-    // Verificar que el usuario que invita está autenticado
+    const validRoles = ['admin_agency', 'manager', 'creator', 'team_member', 'client']
+    if (!validRoles.includes(role)) {
+      return new Response(
+        JSON.stringify({ error: `Rol inválido: ${role}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
+    // Verify inviter is authenticated
     const authHeader = req.headers.get('Authorization')!
     const supabaseUser = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -43,8 +57,13 @@ serve(async (req) => {
       )
     }
 
-    // Obtener agency_id del que invita
-    const { data: inviterProfile } = await supabaseUser
+    // Get inviter's agency_id and plan
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
+
+    const { data: inviterProfile } = await supabaseAdmin
       .from('users')
       .select('agency_id')
       .eq('id', inviter.id)
@@ -57,19 +76,40 @@ serve(async (req) => {
       )
     }
 
-    // Service role para crear el usuario invitado
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
+    const agencyId = inviterProfile.agency_id
+
+    // Pre-flight seat check (only for team roles, not clients)
+    if (role !== 'client') {
+      const { data: agency } = await supabaseAdmin
+        .from('agencies')
+        .select('plan')
+        .eq('id', agencyId)
+        .single()
+
+      const limit = PLAN_LIMITS[agency?.plan ?? 'solo'] ?? 2
+
+      const { count } = await supabaseAdmin
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('agency_id', agencyId)
+        .in('role', ['admin_agency', 'manager', 'creator', 'team_member'])
+
+      if ((count ?? 0) >= limit) {
+        return new Response(
+          JSON.stringify({ error: `Límite de equipo alcanzado (${count}/${limit}). Actualizá tu plan.` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        )
+      }
+    }
 
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173'
 
-    // Invitar por email (Supabase envía el email automáticamente)
+    // Invite by email — pass agency_id in metadata so handle_new_user
+    // creates the profile with the correct agency and role (no orphan agency)
     const { data: invited, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       email,
       {
-        data: { full_name, role },
+        data: { full_name, role, agency_id: agencyId },
         redirectTo: `${siteUrl}/complete-invitation`,
       },
     )
@@ -81,68 +121,31 @@ serve(async (req) => {
       )
     }
 
-    // Crear perfil en public.users
-    // NOTA: inviteUserByEmail dispara el trigger handle_new_user que ya crea
-    // una fila en public.users (con role='admin_agency' y una agency nueva).
-    // Por eso usamos upsert en vez de insert puro — si el trigger ya creó
-    // el perfil, lo actualizamos con el agency_id y role correctos.
     if (invited.user) {
-      const { data: existingProfile } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('id', invited.user.id)
-        .single()
+      // The trigger now creates the correct profile (with agency_id from metadata).
+      // We only need to update position if provided, and link to account.
 
-      if (existingProfile) {
-        // Trigger already created profile — update with correct agency and role
-        const { error: updateError } = await supabaseAdmin
+      if (position) {
+        await supabaseAdmin
           .from('users')
-          .update({
-            agency_id: inviterProfile.agency_id,
-            email,
-            full_name,
-            role,
-            is_active: true,
-          })
+          .update({ position })
           .eq('id', invited.user.id)
-        if (updateError) {
-          return new Response(
-            JSON.stringify({ error: `Error al actualizar perfil: ${updateError.message}` }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-          )
-        }
-      } else {
-        // Fallback: trigger didn't run, insert from scratch
-        const { error: insertError } = await supabaseAdmin.from('users').insert({
-          id: invited.user.id,
-          agency_id: inviterProfile.agency_id,
-          email,
-          full_name,
-          role,
-          is_active: true,
-        })
-        if (insertError) {
-          return new Response(
-            JSON.stringify({ error: `Error al crear perfil: ${insertError.message}` }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-          )
-        }
       }
 
-      // Si es cliente y tiene account_id, vincularlo
-      if (role === 'client' && account_id) {
-        await supabaseAdmin.from('account_clients').insert({
-          account_id,
-          user_id: invited.user.id,
-        })
-      }
-
-      // Si es team_member y tiene account_id, agregarlo como member
-      if (role === 'team_member' && account_id) {
-        await supabaseAdmin.from('account_members').insert({
-          account_id,
-          user_id: invited.user.id,
-        })
+      // Link to account if provided
+      if (account_id) {
+        if (role === 'client') {
+          await supabaseAdmin.from('account_clients').upsert({
+            account_id,
+            user_id: invited.user.id,
+          })
+        } else {
+          // All team roles: link via account_members
+          await supabaseAdmin.from('account_members').upsert({
+            account_id,
+            user_id: invited.user.id,
+          })
+        }
       }
     }
 

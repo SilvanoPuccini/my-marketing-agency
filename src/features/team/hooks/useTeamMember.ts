@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { mkInitials, getCurrentWeekRange } from '@/lib/utils'
 
 export interface MemberAccount {
   id: string
@@ -32,15 +33,9 @@ export interface MemberDetail {
   pieces: MemberPiece[]
   stats: {
     totalPieces: number
-    approvedFirstTry: number
     approvalRate: number
     weeklyLoad: number
-    weeklyCapacity: number
   }
-}
-
-function mkInitials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 }
 
 export function useTeamMember(memberId: string | undefined) {
@@ -91,13 +86,7 @@ export function useTeamMember(memberId: string | undefined) {
       }))
 
       // Weekly load
-      const now = new Date()
-      const weekStart = new Date(now)
-      weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7))
-      const weekEnd = new Date(weekStart)
-      weekEnd.setDate(weekStart.getDate() + 6)
-      const wStart = weekStart.toISOString().split('T')[0]
-      const wEnd = weekEnd.toISOString().split('T')[0]
+      const { wStart, wEnd } = getCurrentWeekRange()
       const weeklyPieces = allPieces.filter(
         (p) => p.scheduled_date >= wStart && p.scheduled_date <= wEnd
       )
@@ -106,9 +95,8 @@ export function useTeamMember(memberId: string | undefined) {
       const totalPieces = allPieces.length
       const approvedPieces = allPieces.filter((p) => p.status === 'approved' || p.status === 'published')
       const rejectedPieces = allPieces.filter((p) => p.status === 'rejected')
-      const approvedFirstTry = approvedPieces.length
       const approvalRate = totalPieces > 0
-        ? Math.round((approvedFirstTry / Math.max(1, approvedFirstTry + rejectedPieces.length)) * 100)
+        ? Math.round((approvedPieces.length / Math.max(1, approvedPieces.length + rejectedPieces.length)) * 100)
         : 0
 
       const memberPieces: MemberPiece[] = allPieces.map((p) => ({
@@ -135,10 +123,8 @@ export function useTeamMember(memberId: string | undefined) {
         pieces: memberPieces,
         stats: {
           totalPieces,
-          approvedFirstTry,
           approvalRate,
           weeklyLoad: weeklyPieces.length,
-          weeklyCapacity: 14,
         },
       }
     },

@@ -9,7 +9,8 @@ import { useAuthStore } from '@/stores/auth.store'
  */
 export function usePaymentGate() {
   const { user } = useAuthStore()
-  const isAgencyUser = user?.role === 'admin_agency' || user?.role === 'team_member'
+  // Only admin sees the payment gate — team members should not be blocked by billing
+  const isAgencyUser = user?.role === 'admin_agency'
 
   return useQuery({
     queryKey: ['payment-gate', user?.agency_id],

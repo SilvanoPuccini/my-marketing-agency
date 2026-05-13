@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { mkInitials, getCurrentWeekRange } from '@/lib/utils'
 
 export type TeamMemberRow = {
   id: string
@@ -9,13 +10,8 @@ export type TeamMemberRow = {
   is_active: boolean
   initials: string
   accountCount: number
-  piecesDone: number
-  piecesTotal: number
-  loadPct: number
-}
-
-function mkInitials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
+  weeklyPieces: number
+  weeklyDone: number
 }
 
 export function useTeam(agencyId: string | undefined) {
@@ -23,13 +19,7 @@ export function useTeam(agencyId: string | undefined) {
     queryKey: ['team', agencyId],
     enabled: !!agencyId,
     queryFn: async () => {
-      const now = new Date()
-      const weekStart = new Date(now)
-      weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7))
-      const weekEnd = new Date(weekStart)
-      weekEnd.setDate(weekStart.getDate() + 6)
-      const wStart = weekStart.toISOString().split('T')[0]
-      const wEnd = weekEnd.toISOString().split('T')[0]
+      const { wStart, wEnd } = getCurrentWeekRange()
 
       const { data, error } = await supabase
         .from('users')
@@ -43,18 +33,15 @@ export function useTeam(agencyId: string | undefined) {
 
       if (error) throw error
 
-      // Fetch weekly pieces per user separately (author_id FK may not exist)
-      const wStart2 = wStart
-      const wEnd2 = wEnd
       const userIds = (data ?? []).map(u => u.id)
       const { data: piecesData } = userIds.length > 0
         ? await supabase
             .from('pieces')
-            .select('id, status, scheduled_date, author_id')
+            .select('id, status, author_id')
             .is('archived_at', null)
             .in('author_id', userIds)
-            .gte('scheduled_date', wStart2)
-            .lte('scheduled_date', wEnd2)
+            .gte('scheduled_date', wStart)
+            .lte('scheduled_date', wEnd)
         : { data: [] }
 
       const piecesByUser = new Map<string, { id: string; status: string }[]>()
@@ -67,8 +54,6 @@ export function useTeam(agencyId: string | undefined) {
         const members = u.account_members as { account_id: string }[]
         const userPieces = piecesByUser.get(u.id) ?? []
         const done = userPieces.filter((p) => p.status === 'published').length
-        const total = userPieces.length
-        const loadPct = total > 0 ? Math.round((done / total) * 100) : 0
 
         return {
           id: u.id,
@@ -78,9 +63,8 @@ export function useTeam(agencyId: string | undefined) {
           is_active: u.is_active,
           initials: mkInitials(u.full_name),
           accountCount: members.length,
-          piecesDone: done,
-          piecesTotal: total,
-          loadPct,
+          weeklyPieces: userPieces.length,
+          weeklyDone: done,
         }
       })
     },

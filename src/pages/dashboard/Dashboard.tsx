@@ -155,16 +155,18 @@ export function Dashboard() {
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('week')
 
+  const isAdmin = user?.role === 'admin_agency'
+  const isManager = user?.role === 'manager'
+
   const stats = useDashboardStats(agencyId, period)
   const attention = useAttentionPieces(agencyId)
   const teamLoad = useTeamLoad(agencyId)
   const pauta = useAccountsWithPauta(agencyId)
   const activity = useRecentActivity(agencyId)
 
-  // Redirigir a onboarding si no tiene cuentas (DESPUÉS de todos los hooks)
-  // Si el usuario eligió "Saltar por ahora", no redirigir de vuelta
+  // Only admin gets redirected to onboarding
   const skippedOnboarding = sessionStorage.getItem('skipped-onboarding') === '1'
-  if (onboarding.data?.needsOnboarding && !skippedOnboarding) {
+  if (isAdmin && onboarding.data?.needsOnboarding && !skippedOnboarding) {
     return <Navigate to="/onboarding" replace />
   }
 
@@ -236,21 +238,23 @@ export function Dashboard() {
                 : ' Todo al día por ahora.'}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {(['today', 'week', 'month'] as Period[]).map((p) => {
-              const label = p === 'today' ? 'Hoy' : p === 'week' ? 'Esta semana' : 'Mes'
-              const active = period === p
-              return (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, cursor: 'pointer', borderRadius: 'var(--r-2)', border: active ? '1px solid var(--violet-400)' : '1px solid var(--line-2)', background: active ? 'var(--violet-soft)' : 'var(--bg-2)', color: active ? 'var(--violet-400)' : 'var(--fg-2)' }}
-                >
-                  {label}
-                </button>
-              )
-            })}
-          </div>
+          {isAdmin && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(['today', 'week', 'month'] as Period[]).map((p) => {
+                const label = p === 'today' ? 'Hoy' : p === 'week' ? 'Esta semana' : 'Mes'
+                const active = period === p
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, cursor: 'pointer', borderRadius: 'var(--r-2)', border: active ? '1px solid var(--violet-400)' : '1px solid var(--line-2)', background: active ? 'var(--violet-soft)' : 'var(--bg-2)', color: active ? 'var(--violet-400)' : 'var(--fg-2)' }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -271,7 +275,7 @@ export function Dashboard() {
         </div>
 
         {/* Row 1 */}
-        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginTop: 24 }}>
+        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: isAdmin ? '2fr 1fr' : '1fr', gap: 16, marginTop: 24 }}>
           {/* Attention items */}
           <section style={panel}>
             <div style={panelH}>
@@ -321,7 +325,8 @@ export function Dashboard() {
             ))}
           </section>
 
-          {/* Team load */}
+          {/* Team load — admin only */}
+          {isAdmin && (
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Carga del equipo</h3>
@@ -360,10 +365,12 @@ export function Dashboard() {
               })}
             </div>
           </section>
+          )}
         </div>
 
-        {/* Row 2 */}
-        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
+        {/* Row 2 — admin sees both, manager sees activity only */}
+        {(isAdmin || isManager) && (
+        <div className="dashboard-row" style={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 1fr' : '1fr', gap: 16, marginTop: 16 }}>
           {/* Recent activity */}
           <section style={panel}>
             <div style={panelH}>
@@ -398,7 +405,8 @@ export function Dashboard() {
             </div>
           </section>
 
-          {/* Accounts with pauta */}
+          {/* Accounts with pauta — admin only */}
+          {isAdmin && (
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Cuentas con pauta este mes</h3>
@@ -437,7 +445,9 @@ export function Dashboard() {
               </div>
             ))}
           </section>
+          )}
         </div>
+        )}
       </div>
 
       {showCreate && (

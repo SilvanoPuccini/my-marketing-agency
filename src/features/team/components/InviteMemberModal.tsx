@@ -81,6 +81,7 @@ export function InviteMemberModal({ onClose }: InviteMemberModalProps) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -174,6 +175,17 @@ export function InviteMemberModal({ onClose }: InviteMemberModalProps) {
                   </select>
                 </Field>
               </div>
+
+              {/* Role description */}
+              {(() => {
+                const selectedRole = watch('role')
+                const roleInfo = ROLES.find((r) => r.value === selectedRole)
+                return roleInfo ? (
+                  <div style={{ padding: '10px 12px', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)', borderRadius: 'var(--r-2)', fontSize: 12, color: 'var(--violet-400)', lineHeight: 1.5 }}>
+                    <strong>{roleInfo.label}:</strong> {roleInfo.desc}
+                  </div>
+                ) : null
+              })()}
 
               <div style={{ padding: '10px 12px', background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-2)', fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.5 }}>
                 Se enviará un email con un enlace para que configure su contraseña y acceda al dashboard.

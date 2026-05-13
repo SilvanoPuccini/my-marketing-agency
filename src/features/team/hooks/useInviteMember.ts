@@ -3,10 +3,11 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 
 export type InviteMemberInput = {
-  email:     string
-  full_name: string
-  position?: string
-  role:      'team_member' | 'admin_agency' | 'manager' | 'creator'
+  email:      string
+  full_name:  string
+  position?:  string
+  role:       'team_member' | 'admin_agency' | 'manager' | 'creator'
+  account_id?: string
 }
 
 export function useInviteMember() {
@@ -29,20 +30,14 @@ export function useInviteMember() {
             email: input.email,
             full_name: input.full_name,
             role: input.role,
+            position: input.position,
+            account_id: input.account_id,
           }),
         },
       )
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al invitar')
-
-      // Update position if provided
-      if (input.position && data.userId) {
-        await supabase
-          .from('users')
-          .update({ position: input.position })
-          .eq('id', data.userId)
-      }
 
       return { email: input.email }
     },

@@ -1,15 +1,14 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useTeamMember } from '@/features/team/hooks/useTeamMember'
 import { useTeam } from '@/features/team/hooks/useTeam'
+import { useUpdateMember } from '@/features/team/hooks/useUpdateMember'
+import { useDeleteMember } from '@/features/team/hooks/useDeleteMember'
 import { useAuthStore } from '@/stores/auth.store'
-
-const ROLE_LABELS: Record<string, string> = {
-  admin_agency: 'Admin',
-  team_member: 'Equipo',
-  manager: 'Manager',
-  creator: 'Creador',
-}
+import { useAssignAccounts } from '@/features/team/hooks/useAssignAccounts'
+import { useAccounts } from '@/features/accounts/hooks/useAccounts'
+import { ROLE_LABELS } from '@/lib/roles'
 
 const STATUS_PILL: Record<string, string> = {
   draft: 'pill-draft',
@@ -44,12 +43,28 @@ function timeSince(dateStr: string): string {
   return rem > 0 ? `${years} a ${rem} m` : `${years} año${years > 1 ? 's' : ''}`
 }
 
+const TEAM_ROLES = [
+  { value: 'creator',      label: 'Creador' },
+  { value: 'manager',      label: 'Manager' },
+  { value: 'team_member',  label: 'Miembro' },
+  { value: 'admin_agency', label: 'Administrador' },
+] as const
+
 export function TeamMember() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { data: member, isLoading } = useTeamMember(id)
   const { data: allMembers = [] } = useTeam(user?.agency_id)
+  const updateMember = useUpdateMember()
+  const deleteMember = useDeleteMember()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [editingAccounts, setEditingAccounts] = useState(false)
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([])
+  const assignAccounts = useAssignAccounts()
+  const { data: allAccounts = [] } = useAccounts()
+  const isAdmin = user?.role === 'admin_agency'
+  const isSelf = user?.id === id
 
   // Navigation between members
   const currentIdx = allMembers.findIndex((m) => m.id === id)
@@ -166,7 +181,7 @@ export function TeamMember() {
         }}>
           {[
             { label: 'Piezas totales', value: member.stats.totalPieces },
-            { label: 'Aprobadas sin cambios', value: `${member.stats.approvalRate}%` },
+            { label: 'Tasa de aprobación', value: `${member.stats.approvalRate}%` },
             { label: 'Cuentas asignadas', value: member.accounts.length },
             { label: 'Carga esta semana', value: `${member.stats.weeklyLoad}` },
           ].map((s) => (
@@ -203,7 +218,7 @@ export function TeamMember() {
             {activePieces.slice(0, 8).map((p) => (
               <div
                 key={p.id}
-                onClick={() => navigate(`/portal/pieces/${p.id}`)}
+                onClick={() => navigate(`/calendar`)}
                 style={{
                   display: 'grid', gridTemplateColumns: '36px 1fr auto auto',
                   gap: 14, alignItems: 'center', padding: '12px 18px',
@@ -243,35 +258,117 @@ export function TeamMember() {
                 padding: '14px 18px', borderBottom: '1px solid var(--line-1)',
               }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Cuentas que atiende</h3>
-                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  {member.accounts.length} ASIGNADAS
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {member.accounts.length} ASIGNADAS
+                  </span>
+                  {isAdmin && !editingAccounts && (
+                    <button
+                      onClick={() => {
+                        setSelectedAccountIds(member.accounts.map((a) => a.id))
+                        setEditingAccounts(true)
+                      }}
+                      style={{
+                        padding: '3px 8px', fontSize: 11, fontWeight: 500,
+                        background: 'var(--bg-2)', border: '1px solid var(--line-2)',
+                        borderRadius: 'var(--r-2)', cursor: 'pointer', color: 'var(--violet-400)',
+                      }}
+                    >
+                      Editar
+                    </button>
+                  )}
+                </div>
               </div>
-              <div style={{ padding: '16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {member.accounts.length === 0 && (
-                  <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Sin cuentas asignadas</span>
-                )}
-                {member.accounts.map((acc) => (
-                  <Link
-                    key={acc.id}
-                    to={`/accounts/${acc.id}`}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 8,
-                      padding: '6px 10px', background: 'var(--bg-2)',
-                      border: '1px solid var(--line-2)', borderRadius: 999,
-                      fontSize: 12, color: 'var(--fg-1)', textDecoration: 'none',
-                    }}
-                  >
-                    <div style={{
-                      width: 18, height: 18, borderRadius: 4,
-                      background: 'var(--bg-4)', display: 'grid', placeItems: 'center',
-                      fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600,
-                    }}>{acc.initials}</div>
-                    {acc.name}
-                    <span className="mono" style={{ color: 'var(--fg-3)', fontSize: 10 }}>{acc.pieceCount}</span>
-                  </Link>
-                ))}
-              </div>
+
+              {editingAccounts ? (
+                <div style={{ padding: '14px 18px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
+                    {allAccounts.map((acc) => {
+                      const checked = selectedAccountIds.includes(acc.id)
+                      return (
+                        <label
+                          key={acc.id}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px',
+                            borderRadius: 'var(--r-2)', cursor: 'pointer',
+                            background: checked ? 'rgba(124,58,237,0.06)' : 'transparent',
+                            border: `1px solid ${checked ? 'rgba(124,58,237,0.15)' : 'var(--line-1)'}`,
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              setSelectedAccountIds((prev) =>
+                                checked ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]
+                              )
+                            }}
+                            style={{ accentColor: 'var(--violet-500)' }}
+                          />
+                          <span style={{ fontSize: 13 }}>{acc.name}</span>
+                        </label>
+                      )
+                    })}
+                    {allAccounts.length === 0 && (
+                      <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>No hay cuentas creadas aún.</span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      onClick={() => {
+                        assignAccounts.mutate(
+                          { userId: member.id, accountIds: selectedAccountIds },
+                          { onSuccess: () => setEditingAccounts(false) },
+                        )
+                      }}
+                      disabled={assignAccounts.isPending}
+                      style={{
+                        flex: 1, padding: '7px 12px', fontSize: 12, fontWeight: 500,
+                        background: 'var(--violet-500)', border: '1px solid var(--violet-400)',
+                        borderRadius: 'var(--r-2)', cursor: 'pointer', color: '#fff',
+                      }}
+                    >
+                      {assignAccounts.isPending ? 'Guardando…' : 'Guardar'}
+                    </button>
+                    <button
+                      onClick={() => setEditingAccounts(false)}
+                      style={{
+                        flex: 1, padding: '7px 12px', fontSize: 12, fontWeight: 500,
+                        background: 'var(--bg-2)', border: '1px solid var(--line-2)',
+                        borderRadius: 'var(--r-2)', cursor: 'pointer', color: 'var(--fg-2)',
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: '16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {member.accounts.length === 0 && (
+                    <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Sin cuentas asignadas</span>
+                  )}
+                  {member.accounts.map((acc) => (
+                    <Link
+                      key={acc.id}
+                      to={`/accounts/${acc.id}`}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '6px 10px', background: 'var(--bg-2)',
+                        border: '1px solid var(--line-2)', borderRadius: 999,
+                        fontSize: 12, color: 'var(--fg-1)', textDecoration: 'none',
+                      }}
+                    >
+                      <div style={{
+                        width: 18, height: 18, borderRadius: 4,
+                        background: 'var(--bg-4)', display: 'grid', placeItems: 'center',
+                        fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600,
+                      }}>{acc.initials}</div>
+                      {acc.name}
+                      <span className="mono" style={{ color: 'var(--fg-3)', fontSize: 10 }}>{acc.pieceCount}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Details */}
@@ -280,8 +377,25 @@ export function TeamMember() {
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Detalle</h3>
               </div>
               <div style={{ padding: '8px 18px 18px' }}>
+                {/* Rol — editable by admin */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', fontSize: 13, borderBottom: '1px dashed var(--line-1)' }}>
+                  <span style={{ color: 'var(--fg-3)' }}>Rol</span>
+                  {isAdmin && !isSelf ? (
+                    <select
+                      value={member.role}
+                      onChange={(e) => updateMember.mutate({ id: member.id, role: e.target.value })}
+                      style={{ padding: '4px 8px', fontSize: 12, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', color: 'var(--fg-1)' }}
+                    >
+                      {TEAM_ROLES.map((r) => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span>{ROLE_LABELS[member.role] ?? member.role}</span>
+                  )}
+                </div>
+
                 {[
-                  { k: 'Rol', v: ROLE_LABELS[member.role] ?? member.role },
                   { k: 'Email', v: member.email },
                   { k: 'Posición', v: member.position ?? '—' },
                   { k: 'Ingreso', v: new Date(member.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() },
@@ -298,6 +412,78 @@ export function TeamMember() {
                 ))}
               </div>
             </div>
+
+            {/* Admin actions */}
+            {isAdmin && !isSelf && (
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--line-1)' }}>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Acciones</h3>
+                </div>
+                <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {/* Toggle active */}
+                  <button
+                    onClick={() => updateMember.mutate({ id: member.id, is_active: !member.is_active })}
+                    disabled={updateMember.isPending}
+                    style={{
+                      width: '100%', padding: '9px 14px', fontSize: 13, fontWeight: 500,
+                      background: member.is_active ? 'var(--bg-2)' : 'rgba(34,197,94,0.1)',
+                      border: `1px solid ${member.is_active ? 'var(--line-2)' : 'rgba(34,197,94,0.3)'}`,
+                      borderRadius: 'var(--r-2)', cursor: 'pointer',
+                      color: member.is_active ? 'var(--fg-2)' : 'var(--status-approved)',
+                    }}
+                  >
+                    {member.is_active ? 'Desactivar miembro' : 'Reactivar miembro'}
+                  </button>
+
+                  {/* Delete */}
+                  {!showDeleteConfirm ? (
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      style={{
+                        width: '100%', padding: '9px 14px', fontSize: 13, fontWeight: 500,
+                        background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)',
+                        borderRadius: 'var(--r-2)', cursor: 'pointer', color: '#EF4444',
+                      }}
+                    >
+                      Eliminar del equipo
+                    </button>
+                  ) : (
+                    <div style={{ padding: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 'var(--r-2)' }}>
+                      <p style={{ margin: '0 0 10px', fontSize: 12, color: '#EF4444' }}>
+                        Se eliminará a <strong>{member.full_name}</strong> y todas sus piezas/comentarios. Esta acción no se puede deshacer.
+                      </p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => {
+                            deleteMember.mutate(member.id, {
+                              onSuccess: () => navigate('/team'),
+                            })
+                          }}
+                          disabled={deleteMember.isPending}
+                          style={{
+                            flex: 1, padding: '7px 12px', fontSize: 12, fontWeight: 600,
+                            background: '#EF4444', border: 'none', borderRadius: 'var(--r-2)',
+                            cursor: 'pointer', color: '#fff',
+                          }}
+                        >
+                          {deleteMember.isPending ? 'Eliminando...' : 'Confirmar'}
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          style={{
+                            flex: 1, padding: '7px 12px', fontSize: 12, fontWeight: 500,
+                            background: 'var(--bg-2)', border: '1px solid var(--line-2)',
+                            borderRadius: 'var(--r-2)', cursor: 'pointer', color: 'var(--fg-2)',
+                          }}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

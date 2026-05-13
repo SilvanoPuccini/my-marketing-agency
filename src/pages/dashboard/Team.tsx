@@ -6,14 +6,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
 import { InviteMemberModal } from '@/features/team/components/InviteMemberModal'
 import { PlanLimitBanner } from '@/components/ui/plan-limit-banner'
-
-const ROLE_LABELS: Record<string, string> = {
-  admin_agency: 'Admin',
-  team_member:  'Equipo',
-  manager:      'Manager',
-  creator:      'Creador',
-  client:       'Cliente',
-}
+import { ROLE_LABELS } from '@/lib/roles'
 
 const thStyle: React.CSSProperties = {
   textAlign: 'left', fontWeight: 500, fontSize: 11, letterSpacing: '0.04em',
@@ -49,7 +42,7 @@ export function Team() {
             <button
               onClick={() => {
                 const header = ['Nombre', 'Rol', 'Cuentas', 'Estado']
-                const rows = filtered.map(m => [m.full_name, m.role, m.accountCount, m.is_active ? 'Activo' : 'Inactivo'].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+                const rows = filtered.map(m => [m.full_name, ROLE_LABELS[m.role] ?? m.role, m.accountCount, m.is_active ? 'Activo' : 'Inactivo'].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
                 const csv = '\uFEFF' + [header.join(','), ...rows].join('\r\n')
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
                 const url = URL.createObjectURL(blob)
@@ -103,7 +96,7 @@ export function Team() {
                 <th style={{ ...thStyle, width: '28%' }}>Persona</th>
                 <th style={thStyle}>Rol</th>
                 <th className="col-hide-mobile" style={thStyle}>Cuentas asignadas</th>
-                <th className="col-hide-mobile" style={thStyle}>Carga semanal</th>
+                <th className="col-hide-mobile" style={thStyle}>Piezas esta semana</th>
                 <th style={thStyle}>Estado</th>
                 <th style={thStyle} />
               </tr>
@@ -147,14 +140,10 @@ export function Team() {
                   <td style={tdStyle}>{ROLE_LABELS[m.role] ?? m.role}</td>
                   <td className="col-hide-mobile" style={{ ...tdStyle, fontFamily: 'var(--font-mono)' }}>{m.accountCount}</td>
                   <td className="col-hide-mobile" style={tdStyle}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 96, height: 6, background: 'var(--bg-3)', borderRadius: 999, overflow: 'hidden' }}>
-                        <span style={{ display: 'block', height: '100%', background: m.loadPct >= 90 ? '#F59E0B' : 'var(--violet-500)', borderRadius: 999, width: `${m.loadPct}%` }} />
-                      </div>
-                      <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
-                        {m.piecesDone}/{m.piecesTotal}
-                      </span>
-                    </div>
+                    <span className="mono" style={{ fontSize: 12, color: 'var(--fg-2)' }}>
+                      {m.weeklyDone}/{m.weeklyPieces}
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--fg-3)', marginLeft: 4 }}>esta semana</span>
                   </td>
                   <td style={tdStyle}>
                     <span className={`pill pill-${m.is_active ? 'approved' : 'draft'}`}>
