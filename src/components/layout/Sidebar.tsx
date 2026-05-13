@@ -62,6 +62,7 @@ function SidebarContent() {
   const plan        = agency?.plan ?? 'estudio'
   const planLimits  = PLAN_LIMITS[plan as PlanId] ?? PLAN_LIMITS.solo
   const brandLetter = agencyName.charAt(0).toUpperCase()
+  const logoUrl     = (agency?.settings as Record<string, unknown>)?.logo_url as string | undefined
 
   const NAV_ITEMS: NavItem[] = [
     { to: '/dashboard', icon: <LayoutGrid size={15} />, label: 'Panel',       section: 'Operación' },
@@ -102,11 +103,15 @@ function SidebarContent() {
     >
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 14px', marginBottom: 4, borderBottom: '1px solid var(--line-1)' }}>
-        <div style={{ width: 26, height: 26, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset', flexShrink: 0 }}>
-          {brandLetter}
-        </div>
-        <div>
-          <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>{agencyName}</div>
+        {logoUrl ? (
+          <img src={logoUrl} alt={agencyName} style={{ width: 32, height: 32, borderRadius: 7, objectFit: 'contain', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: 32, height: 32, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 14, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset', flexShrink: 0 }}>
+            {brandLetter}
+          </div>
+        )}
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agencyName}</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             PLAN {plan.toUpperCase()} · {counts?.accounts ?? 0}/{planLimits.accounts} cuentas · {counts?.team ?? 0}/{planLimits.teamSeats} equipo
           </div>

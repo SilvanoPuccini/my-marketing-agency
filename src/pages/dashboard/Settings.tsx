@@ -228,16 +228,16 @@ export function Settings() {
     if (!file.type.startsWith('image/')) { toast.error('Solo se permiten imágenes (PNG, SVG, JPG)'); return }
     setLogoUploading(true)
     const ext = file.name.split('.').pop() ?? 'png'
-    const path = `logos/${agency.id}/logo.${ext}`
+    const path = `${agency.id}/logo.${ext}`
     const { error: uploadError } = await supabase.storage
-      .from('piece-files')
+      .from('logos')
       .upload(path, file, { upsert: true })
     if (uploadError) {
       setLogoUploading(false)
-      toast.error('Error al subir el logo')
+      toast.error('Error al subir el logo: ' + uploadError.message)
       return
     }
-    const { data: urlData } = supabase.storage.from('piece-files').getPublicUrl(path)
+    const { data: urlData } = supabase.storage.from('logos').getPublicUrl(path)
     const publicUrl = urlData.publicUrl + '?t=' + Date.now()
     // Save logo_url in agency settings
     const newSettings = { ...(agency.settings ?? {}), logo_url: publicUrl }
