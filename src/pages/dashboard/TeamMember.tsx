@@ -77,7 +77,7 @@ export function TeamMember() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <TopBar breadcrumb={['Mi agencia', <Link key="team" to="/team" style={{ color: 'inherit' }}>Equipo</Link>, member.full_name]} />
+      <TopBar breadcrumb={['Mi agencia', 'Equipo', member.full_name]} />
 
       <div className="page-content" style={{ padding: '24px 32px' }}>
 
