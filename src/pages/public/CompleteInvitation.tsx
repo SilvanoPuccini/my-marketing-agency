@@ -27,7 +27,7 @@ export function CompleteInvitation() {
     // Supabase auto-detects ?code= or #access_token in the URL
     // via detectSessionInUrl (default: true). We just listen for
     // the auth state change instead of manually exchanging the code.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setSessionReady(true)
       }
