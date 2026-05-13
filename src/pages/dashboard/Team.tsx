@@ -62,7 +62,7 @@ export function Team() {
               title={!canInvite ? 'Llegaste al límite de tu plan. Mejorá tu plan para invitar más personas.' : undefined}
               style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: canInvite ? 'pointer' : 'not-allowed', opacity: canInvite ? 1 : 0.5 }}
             >
-              + Invitar persona
+              + Invitar persona{usage ? ` (${usage.teamSeats.used}/${usage.teamSeats.limit})` : ''}
             </button>
           </div>
         }
