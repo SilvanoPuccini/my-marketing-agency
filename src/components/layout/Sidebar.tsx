@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -11,6 +12,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
 import { supabase } from '@/lib/supabase'
 import { PLAN_LIMITS, type PlanId } from '@/lib/planLimits'
+import { LogoutConfirmDialog } from '@/components/ui/LogoutConfirmDialog'
 
 interface NavItem {
   to:       string
@@ -23,6 +25,7 @@ interface NavItem {
 function SidebarContent() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const [showLogout, setShowLogout] = useState(false)
 
   const { data: agency } = useAgencySettings()
 
@@ -74,6 +77,10 @@ function SidebarContent() {
   function handleLogout() {
     logout()
     navigate('/login')
+  }
+
+  function handleLogoutClick() {
+    setShowLogout(true)
   }
 
   let currentSection: string | undefined
@@ -169,13 +176,20 @@ function SidebarContent() {
           </div>
         </NavLink>
         <button
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           style={{ background: 'none', border: 'none', color: 'var(--fg-3)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
           title="Cerrar sesión"
         >
           <LogOut size={13} />
         </button>
       </div>
+
+      {showLogout && (
+        <LogoutConfirmDialog
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
     </aside>
   )
 }

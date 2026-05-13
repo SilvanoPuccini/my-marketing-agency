@@ -59,7 +59,7 @@ const tdStyle: React.CSSProperties = {
 }
 
 function formatPrice(n: number): string {
-  return 'US$' + n.toLocaleString('en-US')
+  return 'USD $' + n.toLocaleString('en-US')
 }
 
 function formatStorage(used: number, limit: number): string {
@@ -133,12 +133,12 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
                   </div>
                   <div>
                     <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
-                      US${showPrice.toLocaleString('en-US')}
+                      USD ${showPrice.toLocaleString('en-US')}
                       <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-3)' }}> {periodLabel}</span>
                     </div>
                     {isAnnual && (
                       <div style={{ fontSize: 11, color: 'var(--violet-400)', marginTop: 4 }}>
-                        {p.discount}% off — Ahorrás US${((p.price * (p.longInterval === 'semiannual' ? 6 : 12)) - p.yearlyPrice).toLocaleString('en-US')}
+                        {p.discount}% off — Ahorrás USD ${((p.price * (p.longInterval === 'semiannual' ? 6 : 12)) - p.yearlyPrice).toLocaleString('en-US')}
                       </div>
                     )}
                   </div>
@@ -407,7 +407,7 @@ export function Billing() {
                   </div>
                   <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em', margin: '8px 0 4px' }}>
                     {formatPrice(planPrice)}{' '}
-                    <span style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>/ mes USD</span>
+                    <span style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>/ mes</span>
                   </div>
                   <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>Próxima factura: 1 de junio de 2026 · {formatPrice(planPrice)}/mes</div>
 

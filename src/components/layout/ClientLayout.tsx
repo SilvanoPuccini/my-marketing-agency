@@ -1,12 +1,17 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
 import { useAuthStore } from '@/stores/auth.store'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
+import { LogoutConfirmDialog } from '@/components/ui/LogoutConfirmDialog'
 
 export function ClientLayout() {
   usePiecesRealtime()
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
+  const navigate = useNavigate()
   const { data } = useClientPieces(user?.id)
+  const [showLogout, setShowLogout] = useState(false)
 
   const clientName = user?.full_name ?? 'Cliente'
   const clientInitials = user?.initials ?? '?'
@@ -14,6 +19,11 @@ export function ClientLayout() {
 
   const now = new Date()
   const monthLabel = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase()
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div style={{ background: 'var(--bg-0)', minHeight: '100vh' }}>
@@ -119,10 +129,29 @@ export function ClientLayout() {
             {clientInitials}
           </div>
           <span style={{ fontSize: 13 }}>{clientName}</span>
+          <button
+            onClick={() => setShowLogout(true)}
+            style={{
+              background: 'none', border: 'none',
+              color: 'var(--fg-3)', cursor: 'pointer',
+              padding: 4, display: 'flex', alignItems: 'center',
+              marginLeft: 4,
+            }}
+            title="Cerrar sesión"
+          >
+            <LogOut size={14} />
+          </button>
         </div>
       </header>
 
       <Outlet />
+
+      {showLogout && (
+        <LogoutConfirmDialog
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
     </div>
   )
 }

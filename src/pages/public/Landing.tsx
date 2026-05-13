@@ -105,7 +105,7 @@ function Hero() {
       </div>
 
       <div className="landing-hero-stats" style={{ display: 'flex', gap: 24, marginTop: 36, color: 'var(--fg-3)', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        {['Planes desde US$26/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
+        {['Planes desde USD $26/mes', 'Hosteado en AR', 'Setup en 10 min'].map((item) => (
           <span key={item}><span style={{ color: 'var(--violet-500)' }}>▸ </span>{item}</span>
         ))}
       </div>
@@ -392,12 +392,12 @@ function Pricing() {
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{plan.name}</h3>
               <div style={{ margin: '12px 0 4px' }}>
                 <div style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em' }}>
-                  US${showPrice.toLocaleString('en-US')}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{period}</small>
+                  USD ${showPrice.toLocaleString('en-US')}{' '}<small style={{ fontSize: 13, color: 'var(--fg-3)', fontWeight: 400 }}>{period}</small>
                 </div>
                 {isAnnual && (
                   <div style={{ fontSize: 12, marginTop: 4 }}>
                     <span style={{ color: 'var(--violet-400)', fontWeight: 500 }}>{plan.discount}% off</span>
-                    <span style={{ color: 'var(--fg-3)' }}> · US${monthlyEquiv?.toLocaleString('en-US')}/mes · Ahorrás US${savings.toLocaleString('en-US')}</span>
+                    <span style={{ color: 'var(--fg-3)' }}> · USD ${monthlyEquiv?.toLocaleString('en-US')}/mes · Ahorrás USD ${savings.toLocaleString('en-US')}</span>
                   </div>
                 )}
               </div>
