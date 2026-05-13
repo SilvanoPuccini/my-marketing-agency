@@ -102,15 +102,15 @@ function SidebarContent() {
       }}
     >
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 14px', marginBottom: 4, borderBottom: '1px solid var(--line-1)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 8px 16px', marginBottom: 4, borderBottom: '1px solid var(--line-1)' }}>
         {logoUrl ? (
-          <img src={logoUrl} alt={agencyName} style={{ width: 32, height: 32, borderRadius: 7, objectFit: 'contain', flexShrink: 0 }} />
+          <img src={logoUrl} alt={agencyName} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: 'var(--bg-2)', border: '1px solid var(--line-2)', flexShrink: 0 }} />
         ) : (
-          <div style={{ width: 32, height: 32, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 14, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset', flexShrink: 0 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 8, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 17, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset', flexShrink: 0 }}>
             {brandLetter}
           </div>
         )}
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agencyName}</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             PLAN {plan.toUpperCase()} · {counts?.accounts ?? 0}/{planLimits.accounts} cuentas · {counts?.team ?? 0}/{planLimits.teamSeats} equipo

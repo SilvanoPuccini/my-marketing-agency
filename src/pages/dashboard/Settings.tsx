@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAgencySettings, useUpdateAgency } from '@/features/settings/hooks/useAgencySettings'
@@ -125,6 +126,7 @@ const inputStyle: React.CSSProperties = {
 export function Settings() {
   const { data: agency, isLoading } = useAgencySettings()
   const updateAgency = useUpdateAgency()
+  const qc = useQueryClient()
 
   const [form, setForm]               = useState<Form>(DEFAULT_FORM)
   const [saved, setSaved]             = useState<Form>(DEFAULT_FORM)
@@ -244,6 +246,7 @@ export function Settings() {
     await supabase.from('agencies').update({ settings: newSettings }).eq('id', agency.id)
     setLogoUrl(publicUrl)
     setLogoUploading(false)
+    qc.invalidateQueries({ queryKey: ['agency'] })
     toast.success('Logo actualizado')
   }
 
