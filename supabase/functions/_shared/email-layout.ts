@@ -48,7 +48,9 @@ ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;">${prehead
   <!-- Logo -->
   <table width="480" cellpadding="0" cellspacing="0" role="presentation" style="max-width:480px;width:100%;">
   <tr><td style="padding-bottom:32px;text-align:center;">
-    <div style="display:inline-block;width:36px;height:36px;border-radius:8px;background:${BRAND.violet};text-align:center;line-height:36px;font-weight:700;font-size:16px;color:#fff;">M</div>
+    <table cellpadding="0" cellspacing="0" role="presentation" style="display:inline-table;vertical-align:middle;">
+    <tr><td width="36" height="36" align="center" bgcolor="${BRAND.violet}" style="border-radius:8px;font-weight:700;font-size:16px;color:#ffffff;">M</td></tr>
+    </table>
     <span style="margin-left:10px;font-size:15px;font-weight:600;color:${BRAND.text};vertical-align:middle;letter-spacing:-0.02em;">My Marketing Agency</span>
   </td></tr>
   </table>
