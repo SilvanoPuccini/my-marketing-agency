@@ -74,19 +74,30 @@ serve(async (req) => {
       .eq('id', user.id)
       .single()
 
-    // Prevenir doble pago
+    // Prevenir doble pago del MISMO plan, pero permitir upgrades/downgrades
     if (profile?.agency_id) {
       const { data: agency } = await supabase
         .from('agencies')
-        .select('stripe_subscription_id')
+        .select('stripe_subscription_id, plan')
         .eq('id', profile.agency_id)
         .single()
 
-      if (agency?.stripe_subscription_id) {
-        return new Response(JSON.stringify({ error: 'Ya tenés una suscripción activa' }), {
+      if (agency?.stripe_subscription_id && agency.plan === plan) {
+        return new Response(JSON.stringify({ error: 'Ya tenés una suscripción activa con este plan' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
+      }
+
+      // Si tiene suscripción activa con OTRO plan → cancelar la anterior antes de crear nueva
+      if (agency?.stripe_subscription_id && agency.plan !== plan) {
+        try {
+          await stripe.subscriptions.cancel(agency.stripe_subscription_id, {
+            prorate: true,
+          })
+        } catch (cancelErr) {
+          console.warn('Could not cancel previous subscription:', (cancelErr as Error).message)
+        }
       }
     }
 

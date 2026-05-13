@@ -1,25 +1,9 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useAuthStore } from '@/stores/auth.store'
 import { useCreateAccount } from '@/features/accounts/hooks/useCreateAccount'
 import { useNeedsOnboarding } from '@/features/onboarding/hooks/useOnboarding'
-
-const accountSchema = z.object({
-  name: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
-  industry: z.string().optional(),
-  contactName: z.string().optional(),
-  contactEmail: z.string().email('Email inválido').optional().or(z.literal('')),
-})
-
-type AccountValues = z.infer<typeof accountSchema>
-
-const INDUSTRIES = [
-  'Gastronomía', 'Moda', 'Salud', 'Educación', 'Tecnología',
-  'Inmobiliaria', 'Fitness', 'Belleza', 'Turismo', 'Otro',
-]
+import { AccountForm, type AccountFormValues } from '@/features/accounts/components/AccountForm'
 
 export function Onboarding() {
   const { user } = useAuthStore()
@@ -33,40 +17,14 @@ export function Onboarding() {
     return <Navigate to="/dashboard" replace />
   }
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<AccountValues>({
-    resolver: zodResolver(accountSchema),
-    defaultValues: { name: '', industry: '', contactName: '', contactEmail: '' },
-  })
-
-  async function onSubmit(values: AccountValues) {
+  async function handleSubmit(values: AccountFormValues) {
     if (!user) return
     try {
-      await createAccount.mutateAsync({
-        name: values.name,
-        industry: values.industry || undefined,
-        contact_name: values.contactName || undefined,
-        contact_email: values.contactEmail || undefined,
-      })
-      navigate('/billing')
+      await createAccount.mutateAsync(values)
+      navigate('/dashboard')
     } catch {
       // useCreateAccount already shows toast.error
     }
-  }
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '9px 12px',
-    fontSize: 13,
-    background: 'var(--bg-2)',
-    border: '1px solid var(--line-2)',
-    borderRadius: 'var(--r-2)',
-    color: 'var(--fg-1)',
-    outline: 'none',
-    boxSizing: 'border-box',
   }
 
   return (
@@ -80,7 +38,7 @@ export function Onboarding() {
         padding: 32,
       }}
     >
-      <div style={{ width: '100%', maxWidth: 480 }}>
+      <div style={{ width: '100%', maxWidth: 520 }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
           <div
@@ -110,7 +68,7 @@ export function Onboarding() {
               ¡Bienvenido{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}!
             </h1>
             <p style={{ color: 'var(--fg-2)', fontSize: 15, margin: '0 0 32px', lineHeight: 1.5 }}>
-              Tu agencia <strong>{user?.agency_id ? '' : ''}</strong> está lista.
+              Tu agencia está lista.
               Vamos a configurar tu primera cuenta de cliente para que puedas empezar a trabajar.
             </p>
 
@@ -162,7 +120,7 @@ export function Onboarding() {
         )}
 
         {step === 'create' && (
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div>
             {/* Progress */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 32 }}>
               <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--violet-500)' }} />
@@ -176,100 +134,15 @@ export function Onboarding() {
               Una "cuenta" es un cliente de tu agencia. Podés agregar más después.
             </p>
 
-            {/* Name */}
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
-                Nombre del cliente / marca *
-              </label>
-              <input
-                {...register('name')}
-                placeholder="Ej: Parrilla Don Tito"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--violet-500)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-              {errors.name && (
-                <p style={{ color: 'var(--status-rejected)', fontSize: 11, marginTop: 4 }}>{errors.name.message}</p>
-              )}
-            </div>
-
-            {/* Industry */}
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
-                Rubro
-              </label>
-              <select
-                {...register('industry')}
-                style={{ ...inputStyle, appearance: 'auto' }}
-              >
-                <option value="">Seleccionar...</option>
-                {INDUSTRIES.map((ind) => (
-                  <option key={ind} value={ind}>{ind}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Contact name */}
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
-                Nombre de contacto del cliente
-              </label>
-              <input
-                {...register('contactName')}
-                placeholder="Ej: Rocío Paz"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--violet-500)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            {/* Contact email */}
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
-                Email del cliente
-              </label>
-              <input
-                {...register('contactEmail')}
-                type="email"
-                placeholder="cliente@empresa.com"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--violet-500)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--violet-soft)' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line-2)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-              {errors.contactEmail && (
-                <p style={{ color: 'var(--status-rejected)', fontSize: 11, marginTop: 4 }}>{errors.contactEmail.message}</p>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                onClick={() => setStep('welcome')}
-                style={{
-                  padding: '11px 18px', fontSize: 14, fontWeight: 500,
-                  color: 'var(--fg-2)', borderRadius: 'var(--r-2)',
-                  border: '1px solid var(--line-2)', background: 'var(--bg-2)',
-                  cursor: 'pointer',
-                }}
-              >
-                Atrás
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  flex: 1, padding: 11, fontSize: 14, fontWeight: 500,
-                  color: '#fff', borderRadius: 'var(--r-2)',
-                  border: '1px solid var(--violet-400)', background: 'var(--violet-500)',
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  opacity: isSubmitting ? 0.7 : 1,
-                  boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset',
-                }}
-              >
-                {isSubmitting ? 'Creando...' : 'Crear cuenta y empezar'}
-              </button>
-            </div>
-          </form>
+            <AccountForm
+              onSubmit={handleSubmit}
+              onCancel={() => setStep('welcome')}
+              cancelLabel="Atrás"
+              submitLabel="Crear cuenta y empezar"
+              submittingLabel="Creando..."
+              error={createAccount.isError ? ((createAccount.error as Error)?.message ?? 'No se pudo crear la cuenta.') : null}
+            />
+          </div>
         )}
       </div>
     </div>

@@ -96,6 +96,7 @@ export function useCreateAccount() {
       toast.success('Cuenta creada')
       qc.refetchQueries({ queryKey: ['accounts'] })
       qc.invalidateQueries({ queryKey: ['dashboard'] })
+      qc.invalidateQueries({ queryKey: ['onboarding-check'] })
     },
     onError: (e: Error) => toast.error(e.message ?? 'No se pudo crear la cuenta'),
   })

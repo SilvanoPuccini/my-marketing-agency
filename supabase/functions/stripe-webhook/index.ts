@@ -47,7 +47,11 @@ serve(async (req) => {
 
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription
-    // Downgrade a solo cuando cancela
+    // Downgrade: no borra datos, solo quita suscripción y baja el plan.
+    // Los datos (cuentas, piezas, archivos) quedan intactos pero
+    // el payment gate bloquea acceso al dashboard hasta que reactive.
+    // Las cuentas/miembros que excedan el límite del nuevo plan quedan
+    // en estado read-only (no se pueden crear nuevos hasta hacer upgrade).
     const { data: agencies } = await supabase
       .from('agencies')
       .select('id')
