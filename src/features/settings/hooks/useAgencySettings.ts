@@ -9,6 +9,7 @@ export type AgencySettingsData = {
   brand_color?:   string
   show_mma_logo?: boolean
   greeting?:      string
+  logo_url?:      string
   notifications?: Record<string, boolean>
 }
 

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAgencySettings, useUpdateAgency } from '@/features/settings/hooks/useAgencySettings'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth.store'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type NotifKey = 'piece_approved' | 'piece_rejected' | 'new_comment' | 'daily_summary' | 'monthly_report'
@@ -38,7 +39,6 @@ const NAV_SECTIONS = [
   { group: 'Estudio', items: [
     { key: 'general',  label: 'General' },
     { key: 'brand',    label: 'Marca y portales' },
-    { key: 'integ',    label: 'Integraciones' },
     { key: 'notif',    label: 'Notificaciones' },
   ]},
   { group: 'Avanzado', items: [
@@ -50,14 +50,6 @@ const NAV_SECTIONS = [
 ]
 
 const BRAND_COLORS = ['#7C3AED', '#5B21B6', '#3B82F6', '#0EA5E9', '#10B981', '#EF4444', '#FAFAFA']
-
-const INTEGRATIONS = [
-  { name: 'Google Drive',       desc: 'Importar briefs y exportar entregables.',              status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
-  { name: 'Meta Business Suite',desc: 'Publicar piezas aprobadas, leer métricas.',            status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
-  { name: 'WhatsApp Business',  desc: 'Notificar a clientes cuando hay piezas para aprobar.', status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
-  { name: 'Notion',             desc: 'Sincronizar briefs con bases de Notion.',              status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
-  { name: 'Slack',              desc: 'Avisos en canales internos.',                          status: null, statusLabel: 'Próximamente', btnLabel: 'Próximamente' },
-]
 
 const NOTIFICATIONS: { key: NotifKey; label: string; desc: string }[] = [
   { key: 'piece_approved', label: 'Pieza aprobada por cliente',  desc: 'Notificar a la account asignada.'      },
@@ -141,6 +133,9 @@ export function Settings() {
   const [deleteInput, setDeleteInput] = useState('')
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
   const [pwLoading, setPwLoading] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [logoUploading, setLogoUploading] = useState(false)
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize form when agency data loads
   useEffect(() => {
@@ -163,6 +158,8 @@ export function Settings() {
     }
     setForm(f)
     setSaved(f)
+    // Load existing logo
+    if (s.logo_url) setLogoUrl(s.logo_url)
   }, [agency])
 
   const isDirty = JSON.stringify(form) !== JSON.stringify(saved)
@@ -196,9 +193,21 @@ export function Settings() {
   }
 
   async function handleChangePassword() {
-    if (pwForm.next.length < 6) { toast.error('La contraseña debe tener al menos 6 caracteres'); return }
+    if (!pwForm.current) { toast.error('Ingresá tu contraseña actual'); return }
+    if (pwForm.next.length < 6) { toast.error('La nueva contraseña debe tener al menos 6 caracteres'); return }
     if (pwForm.next !== pwForm.confirm) { toast.error('Las contraseñas no coinciden'); return }
     setPwLoading(true)
+    // Verify current password by re-signing in
+    const { user } = useAuthStore.getState()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user?.email ?? '',
+      password: pwForm.current,
+    })
+    if (signInError) {
+      setPwLoading(false)
+      toast.error('La contraseña actual es incorrecta')
+      return
+    }
     const { error } = await supabase.auth.updateUser({ password: pwForm.next })
     setPwLoading(false)
     if (error) {
@@ -211,6 +220,31 @@ export function Settings() {
     }
     toast.success('Contraseña actualizada')
     setPwForm({ current: '', next: '', confirm: '' })
+  }
+
+  async function handleLogoUpload(file: File) {
+    if (!agency) return
+    if (file.size > 2 * 1024 * 1024) { toast.error('El archivo no puede superar 2 MB'); return }
+    if (!file.type.startsWith('image/')) { toast.error('Solo se permiten imágenes (PNG, SVG, JPG)'); return }
+    setLogoUploading(true)
+    const ext = file.name.split('.').pop() ?? 'png'
+    const path = `logos/${agency.id}/logo.${ext}`
+    const { error: uploadError } = await supabase.storage
+      .from('piece-files')
+      .upload(path, file, { upsert: true })
+    if (uploadError) {
+      setLogoUploading(false)
+      toast.error('Error al subir el logo')
+      return
+    }
+    const { data: urlData } = supabase.storage.from('piece-files').getPublicUrl(path)
+    const publicUrl = urlData.publicUrl + '?t=' + Date.now()
+    // Save logo_url in agency settings
+    const newSettings = { ...(agency.settings ?? {}), logo_url: publicUrl }
+    await supabase.from('agencies').update({ settings: newSettings }).eq('id', agency.id)
+    setLogoUrl(publicUrl)
+    setLogoUploading(false)
+    toast.success('Logo actualizado')
   }
 
   async function handleExportCSV() {
@@ -370,14 +404,30 @@ export function Settings() {
               <div style={{ padding: '18px 20px' }}>
                 <RowI label="Logo" desc="PNG o SVG, máx 2 MB.">
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 'var(--r-2)', background: `linear-gradient(135deg, ${form.brand_color}, var(--violet-600))`, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                      {form.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'EP'}
-                    </div>
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="Logo" style={{ width: 56, height: 56, borderRadius: 'var(--r-2)', objectFit: 'contain', background: 'var(--bg-2)', border: '1px solid var(--line-2)' }} />
+                    ) : (
+                      <div style={{ width: 56, height: 56, borderRadius: 'var(--r-2)', background: `linear-gradient(135deg, ${form.brand_color}, var(--violet-600))`, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                        {form.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'EP'}
+                      </div>
+                    )}
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleLogoUpload(file)
+                        e.target.value = ''
+                      }}
+                    />
                     <button
-                      onClick={() => toast.info('Subida de logo disponible próximamente')}
-                      style={{ padding: '6px 10px', fontSize: 12, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={logoUploading}
+                      style={{ padding: '6px 10px', fontSize: 12, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: logoUploading ? 'not-allowed' : 'pointer', opacity: logoUploading ? 0.5 : 1 }}
                     >
-                      Subir nuevo
+                      {logoUploading ? 'Subiendo…' : 'Subir nuevo'}
                     </button>
                   </div>
                 </RowI>
@@ -420,35 +470,6 @@ export function Settings() {
               </div>
             </section>}
 
-            {/* Integraciones */}
-            {active === 'integ' && <section style={sec} id="integ">
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Integraciones</h3>
-                <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Conectá las herramientas donde ya trabaja tu equipo.</p>
-              </div>
-              <div style={{ padding: '18px 20px' }}>
-                {INTEGRATIONS.map((intg) => (
-                  <div key={intg.name} style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
-                    <div>
-                      <div style={{ fontWeight: 500, fontSize: 13 }}>{intg.name}</div>
-                      <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>{intg.desc}</div>
-                    </div>
-                    {intg.status ? (
-                      <span className={`pill pill-${intg.status}`}><span className="dot" />{intg.statusLabel}</span>
-                    ) : (
-                      <span style={{ color: 'var(--fg-3)', fontSize: 12 }}>{intg.statusLabel}</span>
-                    )}
-                    <button
-                      onClick={() => toast.info(`${intg.name} estará disponible próximamente`)}
-                      style={{ padding: '6px 10px', fontSize: 12, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
-                    >
-                      {intg.btnLabel}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>}
-
             {/* Notificaciones */}
             {active === 'notif' && <section style={sec} id="notif">
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
@@ -479,6 +500,19 @@ export function Settings() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
+                      Contraseña actual
+                    </label>
+                    <input
+                      type="password"
+                      value={pwForm.current}
+                      onChange={(e) => setPwForm(p => ({ ...p, current: e.target.value }))}
+                      placeholder="Tu contraseña actual"
+                      style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ height: 1, background: 'var(--line-1)', margin: '4px 0' }} />
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontWeight: 500 }}>
                       Nueva contraseña
                     </label>
                     <input
@@ -503,13 +537,13 @@ export function Settings() {
                   </div>
                   <button
                     onClick={handleChangePassword}
-                    disabled={pwLoading || !pwForm.next || !pwForm.confirm}
+                    disabled={pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm}
                     style={{
                       padding: '9px 14px', fontSize: 13, fontWeight: 500,
                       color: '#fff', borderRadius: 'var(--r-2)',
                       border: '1px solid var(--violet-400)', background: 'var(--violet-500)',
                       cursor: pwLoading ? 'not-allowed' : 'pointer',
-                      opacity: pwLoading || !pwForm.next || !pwForm.confirm ? 0.5 : 1,
+                      opacity: pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm ? 0.5 : 1,
                       alignSelf: 'flex-start',
                     }}
                   >
