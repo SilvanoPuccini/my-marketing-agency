@@ -40,3 +40,4 @@ supabase/.temp/
 .qwen/
 .windsurf/
 skills-lock.json
+.atl/

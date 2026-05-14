@@ -19,6 +19,7 @@ export function ClientLayout() {
   const clientName = user?.full_name ?? 'Cliente'
   const clientInitials = user?.initials ?? '?'
   const accountName = data?.accountName ?? '—'
+  const agencyName = agency?.name ?? 'Mi agencia'
 
   const now = new Date()
   const monthLabel = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase()
@@ -46,12 +47,13 @@ export function ClientLayout() {
           padding: '12px 32px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Brand: agency logo + agency name / client name */}
+        <div className="client-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {logoUrl ? (
             <img
               src={logoUrl}
-              alt="Logo"
-              style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover' }}
+              alt={agencyName}
+              style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }}
             />
           ) : (
             <div
@@ -66,14 +68,15 @@ export function ClientLayout() {
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 700,
                 fontSize: 12,
+                flexShrink: 0,
               }}
             >
-              {(agency?.name ?? 'M').charAt(0).toUpperCase()}
+              {agencyName.charAt(0).toUpperCase()}
             </div>
           )}
-          <div>
-            <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>
-              {accountName}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {agencyName}
             </div>
             <div
               style={{
@@ -82,13 +85,17 @@ export function ClientLayout() {
                 color: 'var(--fg-3)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
-              Vista de cliente · Portal
+              {accountName}
             </div>
           </div>
         </div>
 
+        {/* Nav links */}
         <div className="client-nav-links">
           <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
             {[
@@ -107,6 +114,7 @@ export function ClientLayout() {
                   borderRadius: 'var(--r-2)',
                   background: isActive ? 'var(--bg-2)' : 'transparent',
                   textDecoration: 'none',
+                  whiteSpace: 'nowrap',
                 })}
               >
                 {link.label}
@@ -124,28 +132,35 @@ export function ClientLayout() {
           {monthLabel}
         </span>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 999,
-              background: 'var(--violet-soft)',
-              border: '1px solid var(--violet-soft)',
-              color: 'var(--violet-400)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            {clientInitials}
-          </div>
-          <Link to="/portal/profile" className="client-user-name" style={{ fontSize: 13, color: 'inherit', textDecoration: 'none' }}
+        {/* User profile + logout */}
+        <div className="client-nav-user" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link
+            to="/portal/profile"
+            className="client-profile-link"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'inherit' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--violet-400)' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'inherit' }}
-          >{clientName}</Link>
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 999,
+                background: 'var(--violet-soft)',
+                border: '1px solid var(--violet-soft)',
+                color: 'var(--violet-400)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              {clientInitials}
+            </div>
+            <span className="client-user-name" style={{ fontSize: 13 }}>{clientName}</span>
+          </Link>
           <button
             onClick={() => setShowLogout(true)}
             style={{

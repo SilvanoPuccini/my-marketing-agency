@@ -407,8 +407,12 @@
   }
   .client-nav {
     padding: 10px 16px !important;
-    gap: 8px !important;
+    gap: 6px !important;
     flex-wrap: wrap !important;
+  }
+  .client-nav-brand {
+    flex: 1;
+    min-width: 0;
   }
   .client-nav nav {
     gap: 2px !important;
@@ -421,6 +425,9 @@
   }
   .client-user-name {
     display: none !important;
+  }
+  .client-nav-user {
+    order: 2;
   }
   .client-portal-content,
   .client-history-content {

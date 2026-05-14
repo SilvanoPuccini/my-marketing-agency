@@ -102,7 +102,7 @@ function SidebarContent() {
         display:        'flex',
         flexDirection:  'column',
         gap:            '4px',
-        height:         '100vh',
+        height:         '100dvh',
         overflowY:      'auto',
         width:          240,
         flexShrink:     0,
@@ -213,7 +213,7 @@ export function Sidebar() {
   if (!isMobile) {
     // Desktop: sidebar fija en el flujo del documento
     return (
-      <div style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 20, width: 240 }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, height: '100dvh', zIndex: 20, width: 240 }}>
         <SidebarContent />
       </div>
     )
@@ -229,7 +229,7 @@ export function Sidebar() {
           animate={{ x: 0 }}
           exit={{ x: -240 }}
           transition={{ type: 'spring', stiffness: 340, damping: 34 }}
-          style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 40, width: 240 }}
+          style={{ position: 'fixed', top: 0, left: 0, height: '100dvh', zIndex: 40, width: 240 }}
         >
           <SidebarContent />
         </motion.div>
