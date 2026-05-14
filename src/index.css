@@ -411,14 +411,20 @@
     flex-wrap: wrap !important;
   }
   .client-nav-brand {
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 auto;
   }
-  .client-nav nav {
-    gap: 2px !important;
+  .client-nav-brand > div:last-child {
+    display: none !important;
+  }
+  .client-nav-links {
     order: 10;
     width: 100%;
+  }
+  .client-nav-links nav {
+    gap: 2px !important;
+    width: 100%;
     justify-content: center;
+    margin-left: 0 !important;
   }
   .client-month-label {
     display: none !important;
@@ -478,13 +484,6 @@
   }
   .client-profile-name-edit input {
     width: 100% !important;
-  }
-}
-
-/* Client nav links responsive */
-@media (max-width: 768px) {
-  .client-nav-links nav {
-    margin-left: 0 !important;
   }
 }
 
