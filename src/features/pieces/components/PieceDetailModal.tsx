@@ -5,6 +5,7 @@ import { usePiece, useUpdatePieceStatus, useAddComment, useUpdatePiece } from '@
 import { useCommentsRealtime } from '@/features/pieces/hooks/useCommentsRealtime'
 import { useUploadFiles, useDeleteFile } from '@/features/library/hooks/useLibrary'
 import { useAuthStore } from '@/stores/auth.store'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 const STATUS_LABELS: Record<string, string> = {
   draft:       'Borrador',
@@ -91,6 +92,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   const [commentText, setCommentText] = useState('')
   const [editingCopy, setEditingCopy] = useState(false)
   const [copyDraft, setCopyDraft] = useState('')
+  const [deleteFileId, setDeleteFileId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -129,8 +131,13 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
   }
 
   function handleDeleteFile(fileId: string) {
-    if (!confirm('¿Eliminar este archivo?')) return
-    deleteFile.mutate(fileId)
+    setDeleteFileId(fileId)
+  }
+
+  function confirmDeleteFile() {
+    if (!deleteFileId) return
+    deleteFile.mutate(deleteFileId)
+    setDeleteFileId(null)
   }
 
   const sectionStyle: React.CSSProperties = {
@@ -470,6 +477,18 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
           )}
         </footer>
       </motion.article>
+
+      {deleteFileId && (
+        <ConfirmDialog
+          title="¿Eliminar este archivo?"
+          description="Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          cancelLabel="Cancelar"
+          variant="danger"
+          onConfirm={confirmDeleteFile}
+          onCancel={() => setDeleteFileId(null)}
+        />
+      )}
     </>
   )
 }
