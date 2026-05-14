@@ -258,9 +258,9 @@ export function AccountDetail() {
                 { label: 'Presupuesto mensual', value: formatBudget(account.monthly_budget) },
                 { label: 'Piezas', value: `${published} publicadas / ${total} total` },
               ].map((card) => (
-                <div key={card.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 16 }}>
+                <div key={card.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 16, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--fg-3)', marginBottom: 6 }}>{card.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{card.value}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{card.value}</div>
                 </div>
               ))}
             </div>
@@ -317,7 +317,7 @@ export function AccountDetail() {
                       }}>{mkInitials(c.full_name)}</div>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 500 }}>{c.full_name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--fg-3)' }}>{c.email}</div>
+                        <div style={{ fontSize: 11, color: 'var(--fg-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>
                       </div>
                     </div>
                   ))}
