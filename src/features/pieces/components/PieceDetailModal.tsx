@@ -472,7 +472,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
               disabled={updateStatus.isPending}
               style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
             >
-              Reenviar al cliente →
+              {status === 'draft' ? 'Enviar al cliente →' : 'Reenviar al cliente →'}
             </button>
           )}
         </footer>

@@ -90,14 +90,14 @@ export function useDashboardStats(agencyId: string | undefined, period: Period =
           .from('pieces')
           .select('status')
           .is('archived_at', null)
-          .gte('scheduled_date', start)
-          .lte('scheduled_date', end),
+          .gte('created_at', `${start}T00:00:00`)
+          .lte('created_at', `${end}T23:59:59`),
         supabase
           .from('pieces')
           .select('status')
           .is('archived_at', null)
-          .gte('scheduled_date', prev.start)
-          .lte('scheduled_date', prev.end),
+          .gte('created_at', `${prev.start}T00:00:00`)
+          .lte('created_at', `${prev.end}T23:59:59`),
       ])
       if (current.error) throw current.error
       const stats = countStatuses(current.data ?? [])
@@ -133,7 +133,7 @@ export function useAttentionPieces(agencyId: string | undefined) {
         .from('pieces')
         .select('id, title, type, status, updated_at, scheduled_date, scheduled_time, accounts(name), piece_files(file_url, file_type)')
         .is('archived_at', null)
-        .in('status', ['draft', 'sent_client', 'rejected'])
+        .in('status', ['draft', 'sent_client', 'rejected', 'approved'])
         .order('updated_at', { ascending: false })
         .limit(8)
       if (error) throw error
