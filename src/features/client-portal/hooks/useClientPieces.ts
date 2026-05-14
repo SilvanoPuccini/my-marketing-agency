@@ -17,6 +17,7 @@ export type ClientAccountInfo = {
   accountId: string
   accountName: string
   pending: ClientPiece[]
+  approved: ClientPiece[]
   published: ClientPiece[]
   pendingCount: number
   approvedCount: number
@@ -33,7 +34,8 @@ export function useClientPieces(userId: string | undefined) {
         .from('account_clients')
         .select('account_id, accounts(name)')
         .eq('user_id', userId!)
-        .single()
+        .limit(1)
+        .maybeSingle()
 
       if (clientError) throw clientError
       if (!clientData) throw new Error('No account found for this client')
@@ -72,6 +74,7 @@ export function useClientPieces(userId: string | undefined) {
         accountId,
         accountName,
         pending:       all.filter((p) => p.status === 'sent_client' || p.status === 'rejected'),
+        approved:      all.filter((p) => p.status === 'approved'),
         published:     all.filter((p) => p.status === 'published'),
         pendingCount:  all.filter((p) => p.status === 'sent_client').length,
         approvedCount: all.filter((p) => p.status === 'approved').length,

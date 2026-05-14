@@ -51,9 +51,9 @@ interface AccountFormProps {
   submittingLabel?: string
   onCancel?: () => void
   cancelLabel?: string
-  /** Show error banner */
   error?: string | null
   autoFocusName?: boolean
+  initialValues?: Partial<AccountFormValues>
 }
 
 export function AccountForm({
@@ -64,6 +64,7 @@ export function AccountForm({
   cancelLabel = 'Cancelar',
   error,
   autoFocusName = true,
+  initialValues,
 }: AccountFormProps) {
   const {
     register,
@@ -71,7 +72,14 @@ export function AccountForm({
     formState: { errors, isSubmitting },
   } = useForm<AccountFormValues, unknown, AccountFormValues>({
     resolver: zodResolver(schema) as any,
-    defaultValues: { name: '', industry: '', handle: '', contact_name: '', contact_email: '' },
+    defaultValues: {
+      name: initialValues?.name ?? '',
+      industry: initialValues?.industry ?? '',
+      handle: initialValues?.handle ?? '',
+      contact_name: initialValues?.contact_name ?? '',
+      contact_email: initialValues?.contact_email ?? '',
+      monthly_budget: initialValues?.monthly_budget,
+    },
   })
 
   return (

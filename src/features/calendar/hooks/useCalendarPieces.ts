@@ -8,6 +8,7 @@ export type CalendarPiece = {
   status: string
   scheduled_date: string
   scheduled_time: string | null
+  account_id: string
   accounts: { name: string } | null
 }
 
@@ -20,7 +21,7 @@ export function useCalendarPieces(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pieces')
-        .select('id, title, type, status, scheduled_date, scheduled_time, accounts(name)')
+        .select('id, title, type, status, scheduled_date, scheduled_time, account_id, accounts(name)')
         .is('archived_at', null)
         .gte('scheduled_date', start)
         .lte('scheduled_date', end)

@@ -4,6 +4,7 @@ import { LogOut } from 'lucide-react'
 import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
 import { useAuthStore } from '@/stores/auth.store'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
+import { useAgencySettings } from '@/features/settings/hooks/useAgencySettings'
 import { LogoutConfirmDialog } from '@/components/ui/LogoutConfirmDialog'
 
 export function ClientLayout() {
@@ -11,6 +12,8 @@ export function ClientLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const { data } = useClientPieces(user?.id)
+  const { data: agency } = useAgencySettings()
+  const logoUrl = agency?.settings?.logo_url
   const [showLogout, setShowLogout] = useState(false)
 
   const clientName = user?.full_name ?? 'Cliente'
@@ -29,6 +32,7 @@ export function ClientLayout() {
     <div style={{ background: 'var(--bg-0)', minHeight: '100vh' }}>
       {/* Client nav */}
       <header
+        className="client-nav"
         style={{
           position: 'sticky',
           top: 0,
@@ -43,22 +47,30 @@ export function ClientLayout() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: 7,
-              background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))',
-              display: 'grid',
-              placeItems: 'center',
-              color: '#fff',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              fontSize: 12,
-            }}
-          >
-            M
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="Logo"
+              style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover' }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 7,
+                background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))',
+                display: 'grid',
+                placeItems: 'center',
+                color: '#fff',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              {(agency?.name ?? 'M').charAt(0).toUpperCase()}
+            </div>
+          )}
           <div>
             <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>
               {accountName}
@@ -82,6 +94,7 @@ export function ClientLayout() {
             { to: '/portal', label: 'Tu mes' },
             { to: '/portal/history', label: 'Histórico' },
             { to: '/portal/reports', label: 'Reportes' },
+            { to: '/portal/profile', label: 'Mi perfil' },
           ].map((link) => (
             <NavLink
               key={link.to}

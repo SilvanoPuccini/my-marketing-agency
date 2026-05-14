@@ -31,6 +31,7 @@ export type PieceDetail = {
     id: string
     content: string
     created_at: string
+    author_id: string
     users: { full_name: string } | null
   }>
 }
@@ -47,7 +48,7 @@ export function usePiece(id: string | null) {
           status, rejection_reason, has_pauta, pauta_amount, updated_at,
           accounts(name),
           piece_files(id, file_url, file_name, file_type),
-          comments(id, content, created_at, users!author_id(full_name))
+          comments(id, content, created_at, author_id, users!author_id(full_name))
         `)
         .eq('id', id!)
         .order('created_at', { referencedTable: 'comments', ascending: true })

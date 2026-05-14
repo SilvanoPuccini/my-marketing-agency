@@ -31,14 +31,7 @@ export interface Account {
   industry?: string
   contact_name?: string
   contact_email?: string
-  plan?: string
   monthly_budget?: number
-  assigned_manager_id?: string
-  assigned_manager?: User
-  pieces_total?: number
-  pieces_done?: number
-  next_delivery?: string
-  status_label?: string
   is_active: boolean
   created_at: string
 }
@@ -103,8 +96,6 @@ export interface Agency {
   id: string
   name: string
   plan: 'solo' | 'estudio' | 'casa'
-  accounts_used: number
-  accounts_limit: number
 }
 
 export interface ActivityItem {

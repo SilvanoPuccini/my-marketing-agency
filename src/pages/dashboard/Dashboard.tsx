@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAuthStore } from '@/stores/auth.store'
+import { STATUS_LABELS, formatDateShort, formatBudget, mkInitials } from '@/lib/utils'
 import { useNeedsOnboarding } from '@/features/onboarding/hooks/useOnboarding'
 import {
   useDashboardStats,
@@ -44,39 +45,10 @@ function relativeTime(iso: string): string {
   return `hace ${days} d`
 }
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
-  const day = d.getDate()
-  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
-  return `${wd} ${day} ${mo}`
-}
-
-function formatBudget(n: number): string {
-  return `$${n.toLocaleString('es-AR')}`
-}
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('')
-}
-
 function teamVariant(pct: number): string {
   if (pct >= 95) return 'warn'
   if (pct >= 75) return ''
   return 'ok'
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Borrador',
-  sent_client: 'Esperando cliente',
-  approved: 'Aprobado',
-  rejected: 'Cambios pedidos',
-  published: 'Publicado',
 }
 
 const STATUS_ACTIONS: Record<string, string> = {
@@ -314,7 +286,7 @@ export function Dashboard() {
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{item.title}</div>
                   <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>
-                    {item.accounts?.name ?? '—'} · {item.type} · {formatDate(item.scheduled_date)}
+                    {item.accounts?.name ?? '—'} · {item.type} · {formatDateShort(item.scheduled_date)}
                     {item.scheduled_time ? ` · ${item.scheduled_time.slice(0, 5)}` : ''}
                   </div>
                 </div>
@@ -389,7 +361,7 @@ export function Dashboard() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                 >
-                  <Avatar initials={initials(a.users?.full_name ?? '?')} violet={a.status === 'approved'} />
+                  <Avatar initials={mkInitials(a.users?.full_name ?? '?')} violet={a.status === 'approved'} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, lineHeight: 1.5 }}>
                       <span style={{ fontWeight: 500 }}>{a.users?.full_name ?? 'Alguien'}</span>
@@ -433,7 +405,7 @@ export function Dashboard() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
               >
-                <Avatar initials={initials(a.name)} />
+                <Avatar initials={mkInitials(a.name)} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{a.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 2 }}>

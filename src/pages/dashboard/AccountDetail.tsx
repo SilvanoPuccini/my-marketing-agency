@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { TopBar } from '@/components/layout/TopBar'
@@ -7,6 +7,11 @@ import { TableSkeleton } from '@/components/ui/page-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PieceDetailModal } from '@/features/pieces/components/PieceDetailModal'
 import { InviteClientModal } from '@/features/accounts/components/InviteClientModal'
+import { AccountForm, type AccountFormValues } from '@/features/accounts/components/AccountForm'
+import { useUpdateAccount } from '@/features/accounts/hooks/useUpdateAccount'
+import { useDeleteAccount } from '@/features/accounts/hooks/useDeleteAccount'
+import { useAuthStore } from '@/stores/auth.store'
+import { mkInitials, STATUS_LABELS, formatDateShort, formatBudget } from '@/lib/utils'
 
 type AccountInfo = {
   id: string
@@ -29,13 +34,8 @@ type PieceRow = {
   platform: string | null
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Borrador',
-  sent_client: 'Enviada',
-  approved: 'Aprobada',
-  rejected: 'Cambios',
-  published: 'Publicada',
-}
+type MemberRow = { id: string; full_name: string; role: string; position: string | null }
+type ClientRow = { id: string; full_name: string; email: string }
 
 function useAccountDetail(id: string | undefined) {
   return useQuery({
@@ -70,30 +70,55 @@ function useAccountPieces(accountId: string | undefined) {
   })
 }
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
-  const day = d.getDate()
-  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
-  return `${wd} ${day} ${mo}`
+function useAccountMembers(accountId: string | undefined) {
+  return useQuery({
+    queryKey: ['account-members', accountId],
+    enabled: !!accountId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('account_members')
+        .select('user_id, users(id, full_name, role, position)')
+        .eq('account_id', accountId!)
+      return (data ?? []).map((r) => {
+        const u = r.users as unknown as MemberRow
+        return { id: u.id, full_name: u.full_name, role: u.role, position: u.position }
+      })
+    },
+  })
 }
 
-function formatBudget(n: number | null): string {
-  if (!n) return '—'
-  return `$${n.toLocaleString('es-AR')}`
-}
-
-function initials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
+function useAccountClients(accountId: string | undefined) {
+  return useQuery({
+    queryKey: ['account-clients', accountId],
+    enabled: !!accountId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('account_clients')
+        .select('user_id, users(id, full_name, email)')
+        .eq('account_id', accountId!)
+      return (data ?? []).map((r) => {
+        const u = r.users as unknown as ClientRow
+        return { id: u.id, full_name: u.full_name, email: u.email }
+      })
+    },
+  })
 }
 
 export function AccountDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const isAdmin = user?.role === 'admin_agency'
   const { data: account, isLoading } = useAccountDetail(id)
   const { data: pieces = [], isLoading: piecesLoading } = useAccountPieces(id)
+  const { data: members = [] } = useAccountMembers(id)
+  const { data: clients = [] } = useAccountClients(id)
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
   const [showInviteClient, setShowInviteClient] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const updateAccount = useUpdateAccount()
+  const deleteAccount = useDeleteAccount()
 
   const thStyle: React.CSSProperties = {
     textAlign: 'left', fontWeight: 500, fontSize: 11,
@@ -110,18 +135,42 @@ export function AccountDetail() {
   const published = pieces.filter((p) => p.status === 'published').length
   const total = pieces.length
 
+  async function handleEdit(values: AccountFormValues) {
+    if (!account) return
+    await updateAccount.mutateAsync({
+      id: account.id,
+      name: values.name,
+      industry: values.industry || null,
+      handle: values.handle || null,
+      contact_name: values.contact_name || null,
+      contact_email: values.contact_email || null,
+      monthly_budget: values.monthly_budget ?? null,
+    })
+    setShowEdit(false)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <TopBar
-        breadcrumb={['Mi agencia', 'Cuentas', account?.name ?? 'Cargando…']}
+        breadcrumb={['Mi agencia', 'Cuentas', account?.name ?? 'Cargando...']}
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => setShowInviteClient(true)}
-              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
-            >
-              + Invitar cliente
-            </button>
+            {isAdmin && account && (
+              <>
+                <button
+                  onClick={() => setShowEdit(!showEdit)}
+                  style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+                >
+                  {showEdit ? 'Cancelar edicion' : 'Editar'}
+                </button>
+                <button
+                  onClick={() => setShowInviteClient(true)}
+                  style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: 'var(--violet-500)', cursor: 'pointer' }}
+                >
+                  + Invitar cliente
+                </button>
+              </>
+            )}
             <button
               onClick={() => navigate('/accounts')}
               style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
@@ -137,6 +186,29 @@ export function AccountDetail() {
           <TableSkeleton rows={3} />
         ) : account ? (
           <>
+            {/* Edit form */}
+            {showEdit && isAdmin && (
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', padding: 20, marginBottom: 24 }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 600 }}>Editar cuenta</h3>
+                <AccountForm
+                  onSubmit={handleEdit}
+                  submitLabel="Guardar cambios"
+                  submittingLabel="Guardando..."
+                  onCancel={() => setShowEdit(false)}
+                  error={updateAccount.isError ? (updateAccount.error as Error)?.message : null}
+                  autoFocusName={false}
+                  initialValues={{
+                    name: account.name,
+                    industry: account.industry ?? '',
+                    handle: account.handle ?? '',
+                    contact_name: account.contact_name ?? '',
+                    contact_email: account.contact_email ?? '',
+                    monthly_budget: account.monthly_budget ?? undefined,
+                  }}
+                />
+              </div>
+            )}
+
             {/* Account header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
               <div style={{
@@ -145,7 +217,7 @@ export function AccountDetail() {
                 background: 'var(--violet-soft)', border: '1px solid var(--violet-soft)',
                 color: 'var(--violet-400)', fontSize: 16, fontWeight: 600,
               }}>
-                {initials(account.name)}
+                {mkInitials(account.name)}
               </div>
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
@@ -157,6 +229,21 @@ export function AccountDetail() {
                 </p>
               </div>
               <div style={{ flex: 1 }} />
+              {isAdmin && (
+                <button
+                  onClick={() => updateAccount.mutate({ id: account.id, is_active: !account.is_active })}
+                  disabled={updateAccount.isPending}
+                  style={{
+                    padding: '6px 10px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                    borderRadius: 'var(--r-2)',
+                    background: account.is_active ? 'var(--bg-2)' : 'rgba(34,197,94,0.1)',
+                    border: `1px solid ${account.is_active ? 'var(--line-2)' : 'rgba(34,197,94,0.3)'}`,
+                    color: account.is_active ? 'var(--fg-2)' : 'var(--status-approved)',
+                  }}
+                >
+                  {account.is_active ? 'Pausar' : 'Activar'}
+                </button>
+              )}
               <span className={`pill pill-${account.is_active ? 'approved' : 'draft'}`}>
                 <span className="dot" />
                 {account.is_active ? 'Activa' : 'En pausa'}
@@ -164,7 +251,7 @@ export function AccountDetail() {
             </div>
 
             {/* Info cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
               {[
                 { label: 'Contacto', value: account.contact_name ?? '—' },
                 { label: 'Email', value: account.contact_email ?? '—' },
@@ -176,6 +263,66 @@ export function AccountDetail() {
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{card.value}</div>
                 </div>
               ))}
+            </div>
+
+            {/* Members & Clients row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+              {/* Team members */}
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: '1px solid var(--line-1)' }}>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Equipo asignado</h3>
+                  <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase' }}>{members.length} MIEMBROS</span>
+                </div>
+                <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {members.length === 0 && <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Sin miembros asignados</span>}
+                  {members.map((m) => (
+                    <Link
+                      key={m.id}
+                      to={`/team/${m.id}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '6px 8px', borderRadius: 'var(--r-2)',
+                        textDecoration: 'none', color: 'var(--fg-1)',
+                      }}
+                    >
+                      <div style={{
+                        width: 24, height: 24, borderRadius: 999,
+                        background: 'var(--bg-3)', border: '1px solid var(--line-2)',
+                        display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 600,
+                      }}>{mkInitials(m.full_name)}</div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500 }}>{m.full_name}</div>
+                        {m.position && <div style={{ fontSize: 11, color: 'var(--fg-3)' }}>{m.position}</div>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clients */}
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: '1px solid var(--line-1)' }}>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Clientes del portal</h3>
+                  <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase' }}>{clients.length} CLIENTES</span>
+                </div>
+                <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {clients.length === 0 && <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Sin clientes vinculados</span>}
+                  {clients.map((c) => (
+                    <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px' }}>
+                      <div style={{
+                        width: 24, height: 24, borderRadius: 999,
+                        background: 'var(--violet-soft)', border: '1px solid var(--violet-soft)',
+                        display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 600,
+                        color: 'var(--violet-400)',
+                      }}>{mkInitials(c.full_name)}</div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500 }}>{c.full_name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--fg-3)' }}>{c.email}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Pieces table */}
@@ -226,7 +373,7 @@ export function AccountDetail() {
                       <td style={{ ...tdStyle, fontWeight: 500 }}>{p.title}</td>
                       <td style={{ ...tdStyle, textTransform: 'capitalize' }}>{p.type}</td>
                       <td style={{ ...tdStyle, color: 'var(--fg-3)' }}>{p.platform ?? '—'}</td>
-                      <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--fg-3)' }}>{formatDate(p.scheduled_date)}</td>
+                      <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--fg-3)' }}>{formatDateShort(p.scheduled_date)}</td>
                       <td style={tdStyle}>
                         <span className={`pill pill-${p.status}`}>
                           <span className="dot" />
@@ -238,6 +385,45 @@ export function AccountDetail() {
                 </tbody>
               </table>
             </section>
+
+            {/* Admin: Delete account */}
+            {isAdmin && (
+              <div style={{ marginTop: 24, padding: '14px 18px', background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
+                {!showDeleteConfirm ? (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    style={{
+                      padding: '8px 14px', fontSize: 13, fontWeight: 500,
+                      background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)',
+                      borderRadius: 'var(--r-2)', cursor: 'pointer', color: '#EF4444',
+                    }}
+                  >
+                    Eliminar cuenta
+                  </button>
+                ) : (
+                  <div>
+                    <p style={{ margin: '0 0 10px', fontSize: 12, color: '#EF4444' }}>
+                      Se eliminara <strong>{account.name}</strong> y todas sus piezas. Esta accion no se puede deshacer.
+                    </p>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => deleteAccount.mutate(account.id, { onSuccess: () => navigate('/accounts') })}
+                        disabled={deleteAccount.isPending}
+                        style={{ padding: '7px 12px', fontSize: 12, fontWeight: 600, background: '#EF4444', border: 'none', borderRadius: 'var(--r-2)', cursor: 'pointer', color: '#fff' }}
+                      >
+                        {deleteAccount.isPending ? 'Eliminando...' : 'Confirmar'}
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        style={{ padding: '7px 12px', fontSize: 12, fontWeight: 500, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-2)', cursor: 'pointer', color: 'var(--fg-2)' }}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <EmptyState icon="❌" title="Cuenta no encontrada" description="La cuenta que buscas no existe." />

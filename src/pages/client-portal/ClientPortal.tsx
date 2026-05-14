@@ -2,18 +2,10 @@ import { Link } from 'react-router-dom'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 import { useAuthStore } from '@/stores/auth.store'
 import { QuotaBanner } from '@/features/client-portal/components/QuotaBanner'
+import { STATUS_LABELS, formatDateWithTime } from '@/lib/utils'
 
 const TYPE_RATIO: Record<string, string> = {
   post: '1/1', reel: '9/16', story: '9/16', carrusel: '1/1', ad: '1/1', blog: '1/1',
-}
-
-function formatDate(dateStr: string, timeStr: string | null): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
-  const day = d.getDate()
-  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
-  const time = timeStr?.slice(0, 5) ?? '--:--'
-  return `${wd} ${day} ${mo} · ${time}`
 }
 
 function formatPublished(dateStr: string): string {
@@ -24,13 +16,6 @@ function formatPublished(dateStr: string): string {
   if (d.toDateString() === today.toDateString()) return 'HOY'
   if (d.toDateString() === yesterday.toDateString()) return 'AYER'
   return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase().replace('.', '')
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  sent_client: 'Para revisar',
-  rejected:    'Cambios pedidos',
-  approved:    'Aprobada',
-  published:   'Publicada',
 }
 
 export function ClientPortal() {
@@ -55,7 +40,7 @@ export function ClientPortal() {
             <QuotaBanner />
 
             {/* Hero block */}
-            <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+            <section className="client-hero-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{
                 background: 'radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%), var(--bg-1)',
                 border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 28,
@@ -99,7 +84,7 @@ export function ClientPortal() {
                 {[
                   { l: 'Aprobadas este mes', v: String(approvedCount) },
                   { l: 'Publicadas',          v: String(publishedCount) },
-                  { l: 'Próxima publicación',  v: nextPiece ? formatDate(nextPiece.scheduled_date, nextPiece.scheduled_time) : '—' },
+                  { l: 'Próxima publicación',  v: nextPiece ? formatDateWithTime(nextPiece.scheduled_date, nextPiece.scheduled_time) : '—' },
                 ].map((kv) => (
                   <div key={kv.l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                     <span style={{ color: 'var(--fg-3)' }}>{kv.l}</span>
@@ -119,7 +104,7 @@ export function ClientPortal() {
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+                <div className="client-pieces-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
                   {data.pending.map((p) => (
                     <Link
                       key={p.id}
@@ -149,7 +134,7 @@ export function ClientPortal() {
                         </div>
                         <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
                           <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            {p.type.toUpperCase()} · {formatDate(p.scheduled_date, p.scheduled_time)}
+                            {p.type.toUpperCase()} · {formatDateWithTime(p.scheduled_date, p.scheduled_time)}
                           </div>
                           <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>{p.title}</h3>
                           {p.copy && (
@@ -193,7 +178,7 @@ export function ClientPortal() {
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</div>
                         <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>
-                          {p.type.toUpperCase()} · {formatDate(p.scheduled_date, p.scheduled_time)}{p.platform ? ` · ${p.platform.toUpperCase()}` : ''}
+                          {p.type.toUpperCase()} · {formatDateWithTime(p.scheduled_date, p.scheduled_time)}{p.platform ? ` · ${p.platform.toUpperCase()}` : ''}
                         </div>
                       </div>
                       <span className="pill pill-published"><span className="dot" />Publicada</span>

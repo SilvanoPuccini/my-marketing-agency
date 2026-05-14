@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useAssignAccounts } from '@/features/team/hooks/useAssignAccounts'
 import { useAccounts } from '@/features/accounts/hooks/useAccounts'
 import { ROLE_LABELS } from '@/lib/roles'
+import { STATUS_LABELS, formatDateShort } from '@/lib/utils'
 
 const STATUS_PILL: Record<string, string> = {
   draft: 'pill-draft',
@@ -16,20 +17,6 @@ const STATUS_PILL: Record<string, string> = {
   approved: 'pill-approved',
   rejected: 'pill-rejected',
   published: 'pill-violet',
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  draft: 'Borrador',
-  sent_client: 'En revisión',
-  approved: 'Aprobada',
-  rejected: 'Cambios pedidos',
-  published: 'Publicada',
-}
-
-function formatDate(d: string): string {
-  return new Date(d + 'T12:00:00').toLocaleDateString('es-AR', {
-    day: '2-digit', month: 'short', year: undefined,
-  }).toUpperCase()
 }
 
 function timeSince(dateStr: string): string {
@@ -236,12 +223,12 @@ export function TeamMember() {
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{p.title}</div>
                   <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>
-                    {p.account_name} · {formatDate(p.scheduled_date)}
+                    {p.account_name} · {formatDateShort(p.scheduled_date)}
                     {p.scheduled_time ? ` · ${p.scheduled_time.slice(0, 5)}` : ''}
                   </div>
                 </div>
                 <span className={`pill ${STATUS_PILL[p.status] ?? 'pill-draft'}`}>
-                  <span className="dot" />{STATUS_LABEL[p.status] ?? p.status}
+                  <span className="dot" />{STATUS_LABELS[p.status] ?? p.status}
                 </span>
                 <span style={{ color: 'var(--fg-3)' }}>›</span>
               </div>

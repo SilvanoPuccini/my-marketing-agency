@@ -57,7 +57,7 @@ serve(async (req) => {
       )
     }
 
-    // Get inviter's agency_id and plan
+    // Get inviter's agency_id, role, and validate permissions
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -65,7 +65,7 @@ serve(async (req) => {
 
     const { data: inviterProfile } = await supabaseAdmin
       .from('users')
-      .select('agency_id')
+      .select('agency_id, role')
       .eq('id', inviter.id)
       .single()
 
@@ -76,7 +76,32 @@ serve(async (req) => {
       )
     }
 
+    // Only admin_agency can invite
+    if (inviterProfile.role !== 'admin_agency') {
+      return new Response(
+        JSON.stringify({ error: 'Solo el administrador puede enviar invitaciones' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     const agencyId = inviterProfile.agency_id
+
+    // Validate account_id belongs to inviter's agency
+    if (account_id) {
+      const { data: account } = await supabaseAdmin
+        .from('accounts')
+        .select('id')
+        .eq('id', account_id)
+        .eq('agency_id', agencyId)
+        .single()
+
+      if (!account) {
+        return new Response(
+          JSON.stringify({ error: 'La cuenta no pertenece a tu agencia' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        )
+      }
+    }
 
     // Pre-flight seat check (only for team roles, not clients)
     if (role !== 'client') {

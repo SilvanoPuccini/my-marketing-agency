@@ -385,6 +385,26 @@
   .auth-brand-panel { display: none !important; }
 }
 
+/* Client portal responsive */
+@media (max-width: 768px) {
+  .client-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .client-pieces-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .client-approval-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .client-nav {
+    padding: 10px 16px !important;
+    gap: 8px !important;
+  }
+  .client-nav nav {
+    gap: 2px !important;
+  }
+}
+
 /* Skeleton pulse animation */
 @keyframes pulse {
   0%, 100% { opacity: 1; }

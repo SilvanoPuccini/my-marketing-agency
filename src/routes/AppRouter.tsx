@@ -39,6 +39,7 @@ const ClientPortal = lazy(() => import('@/pages/client-portal/ClientPortal').the
 const ClientHistory = lazy(() => import('@/pages/client-portal/ClientHistory').then(m => ({ default: m.ClientHistory })))
 const ClientReports = lazy(() => import('@/pages/client-portal/ClientReports').then(m => ({ default: m.ClientReports })))
 const ClientApproval = lazy(() => import('@/pages/client-portal/ClientApproval').then(m => ({ default: m.ClientApproval })))
+const ClientProfile = lazy(() => import('@/pages/client-portal/ClientProfile').then(m => ({ default: m.ClientProfile })))
 
 function PageLoader() {
   return (
@@ -89,13 +90,14 @@ export function AppRouter() {
             </Route>
           </Route>
 
-          {/* Portal cliente */}
-          <Route element={<ProtectedRoute allowedRoles={['client', 'admin_agency', 'manager', 'creator', 'team_member']} />}>
+          {/* Portal cliente — solo rol client */}
+          <Route element={<ProtectedRoute allowedRoles={['client']} />}>
             <Route element={<ClientLayout />}>
               <Route path="/portal" element={<ClientPortal />} />
               <Route path="/portal/history" element={<ClientHistory />} />
               <Route path="/portal/reports" element={<ClientReports />} />
               <Route path="/portal/pieces/:id" element={<ClientApproval />} />
+              <Route path="/portal/profile" element={<ClientProfile />} />
             </Route>
           </Route>
 

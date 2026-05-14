@@ -3,12 +3,13 @@ import { Link, useParams } from 'react-router-dom'
 import { usePiece, useUpdatePieceStatus, useAddComment } from '@/features/pieces/hooks/usePiece'
 import { useCommentsRealtime } from '@/features/pieces/hooks/useCommentsRealtime'
 import { useAuthStore } from '@/stores/auth.store'
+import { mkInitials } from '@/lib/utils'
 
 const TYPE_RATIO: Record<string, string> = {
   post: '1/1', reel: '9/16', story: '9/16', carrusel: '1/1', ad: '1/1', blog: '1/1',
 }
 
-function formatDate(dateStr: string, timeStr: string | null): string {
+function formatDateFull(dateStr: string, timeStr: string | null): string {
   const d = new Date(dateStr + 'T00:00:00')
   const wd = d.toLocaleDateString('es-AR', { weekday: 'long' })
   const day = d.getDate()
@@ -26,10 +27,6 @@ function formatTs(isoStr: string): string {
   if (d.toDateString() === now.toDateString()) return `HOY ${time}`
   if (d.toDateString() === yesterday.toDateString()) return `AYER ${time}`
   return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase().replace('.', '') + ` · ${time}`
-}
-
-function initials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 }
 
 const panel: React.CSSProperties = {
@@ -71,7 +68,18 @@ export function ClientApproval() {
   function handleReject() {
     if (!id) return
     const reason = comment.trim() || undefined
-    updateStatus.mutate({ id, status: 'rejected', currentStatus: status, rejection_reason: reason }, { onSuccess: () => setLocalStatus('rejected') })
+    updateStatus.mutate(
+      { id, status: 'rejected', currentStatus: status, rejection_reason: reason },
+      {
+        onSuccess: () => {
+          setLocalStatus('rejected')
+          // If there was a comment, also post it as a comment
+          if (reason) {
+            addComment.mutate({ pieceId: id, content: reason }, { onSuccess: () => setComment('') })
+          }
+        },
+      },
+    )
   }
 
   function handleSendComment() {
@@ -133,12 +141,12 @@ export function ClientApproval() {
             <p style={{ margin: '6px 0 0', color: 'var(--fg-2)', fontSize: 14 }}>
               {piece.type.charAt(0).toUpperCase() + piece.type.slice(1)}
               {piece.platform ? ` · ${piece.platform}` : ''}
-              {piece.scheduled_date ? ` · programado para el ${formatDate(piece.scheduled_date, piece.scheduled_time)}` : ''}
+              {piece.scheduled_date ? ` · programado para el ${formatDateFull(piece.scheduled_date, piece.scheduled_time)}` : ''}
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'flex-start' }}>
+        <div className="client-approval-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'flex-start' }}>
           {/* Media side */}
           <section style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 20, position: 'sticky', top: 80 }}>
             {/* Media */}
@@ -253,7 +261,7 @@ export function ClientApproval() {
                 {[
                   { k: 'Plataforma', v: piece.platform ?? '—' },
                   { k: 'Formato', v: piece.type },
-                  { k: 'Programado', v: formatDate(piece.scheduled_date, piece.scheduled_time), mono: true },
+                  { k: 'Programado', v: formatDateFull(piece.scheduled_date, piece.scheduled_time), mono: true },
                   { k: 'Pauta sugerida', v: piece.has_pauta ? `$${piece.pauta_amount?.toLocaleString('es-AR') ?? '—'}` : 'Sin pauta' },
                 ].map((kv) => (
                   <div key={kv.k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', fontSize: 13, borderBottom: '1px dashed var(--line-1)' }}>
@@ -276,7 +284,7 @@ export function ClientApproval() {
                   <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>Sin comentarios todavía.</div>
                 )}
                 {piece.comments.map((c) => {
-                  const isMe = c.users?.full_name === user?.full_name
+                  const isMe = c.author_id === user?.id
                   return (
                     <div key={c.id} style={{ display: 'flex', gap: 10 }}>
                       <div style={{
@@ -287,7 +295,7 @@ export function ClientApproval() {
                         color: isMe ? 'var(--violet-400)' : 'var(--fg-1)',
                         fontSize: 10, fontWeight: 600, flexShrink: 0,
                       }}>
-                        {initials(c.users?.full_name ?? '?')}
+                        {mkInitials(c.users?.full_name ?? '?')}
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 }}>

@@ -30,7 +30,7 @@ export function Calendar() {
   const [year, setYear]  = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
-  const [accountFilter, setAccountFilter] = useState('Todas las cuentas')
+  const [accountFilter, setAccountFilter] = useState('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   const { data: pieces = [], isLoading } = useCalendarPieces(year, month)
@@ -46,8 +46,8 @@ export function Calendar() {
 
   const visiblePieces = (dateStr: string) => {
     const list = piecesByDate.get(dateStr) ?? []
-    if (accountFilter === 'Todas las cuentas') return list
-    return list.filter((p) => p.accounts?.name === accountFilter)
+    if (accountFilter === 'all') return list
+    return list.filter((p) => p.account_id === accountFilter)
   }
 
   function prevMonth() {
@@ -120,16 +120,16 @@ export function Calendar() {
 
       {/* Account filter */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '10px 24px', borderBottom: '1px solid var(--line-1)', fontSize: 12 }}>
-        {['Todas las cuentas', ...accounts.map(a => a.name)].map((name) => (
-          <button key={name} onClick={() => setAccountFilter(name)}
+        {[{ id: 'all', name: 'Todas las cuentas' }, ...accounts.map(a => ({ id: a.id, name: a.name }))].map((a) => (
+          <button key={a.id} onClick={() => setAccountFilter(a.id)}
             style={{
               display: 'inline-flex', alignItems: 'center', padding: '4px 10px',
-              background: accountFilter === name ? 'var(--violet-soft)' : 'var(--bg-2)',
-              border: `1px solid ${accountFilter === name ? 'transparent' : 'var(--line-2)'}`,
+              background: accountFilter === a.id ? 'var(--violet-soft)' : 'var(--bg-2)',
+              border: `1px solid ${accountFilter === a.id ? 'transparent' : 'var(--line-2)'}`,
               borderRadius: 999, fontSize: 11,
-              color: accountFilter === name ? 'var(--violet-400)' : 'var(--fg-2)', cursor: 'pointer',
+              color: accountFilter === a.id ? 'var(--violet-400)' : 'var(--fg-2)', cursor: 'pointer',
             }}>
-            {name}
+            {a.name}
           </button>
         ))}
         <div style={{ flex: 1 }} />

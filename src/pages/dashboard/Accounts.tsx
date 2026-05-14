@@ -3,27 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 import { useAccounts, type AccountRow } from '@/features/accounts/hooks/useAccounts'
 import { useAgencyUsage } from '@/features/agency/hooks/useAgencyUsage'
+import { useAuthStore } from '@/stores/auth.store'
 import { CreateAccountModal } from '@/features/accounts/components/CreateAccountModal'
 import { TableSkeleton } from '@/components/ui/page-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PlanLimitBanner } from '@/components/ui/plan-limit-banner'
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase().replace('.', '')
-  const day = d.getDate()
-  const mo = d.toLocaleDateString('es-AR', { month: 'short' }).toUpperCase().replace('.', '')
-  return `${wd} ${day} ${mo}`
-}
-
-function formatBudget(n: number | null): string {
-  if (!n) return '$0'
-  return `$${n.toLocaleString('es-AR')}`
-}
-
-function initials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
-}
+import { formatDateShort, formatBudget, mkInitials } from '@/lib/utils'
 
 function Avatar({ init, violet, small }: { init: string; violet?: boolean; small?: boolean }) {
   const size = small ? 22 : 28
@@ -67,6 +52,8 @@ export function Accounts() {
   const [view, setView] = useState<'list' | 'cards'>('list')
   const [showCreate, setShowCreate] = useState(false)
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const isAdmin = user?.role === 'admin_agency'
   const { data, isLoading, error } = useAccounts()
   const usage = useAgencyUsage()
   const canCreate = usage.data?.canCreateAccount ?? true
@@ -115,14 +102,16 @@ export function Accounts() {
             >
               Exportar
             </button>
-            <button
-              onClick={() => canCreate && setShowCreate(true)}
-              disabled={!canCreate}
-              title={canCreate ? undefined : `Límite de cuentas alcanzado (plan ${usage.data?.plan})`}
-              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: canCreate ? 'var(--violet-500)' : 'var(--violet-600)', cursor: canCreate ? 'pointer' : 'not-allowed', opacity: canCreate ? 1 : 0.5 }}
-            >
-              + Nueva cuenta {usage.data ? `(${usage.data.accounts.used}/${usage.data.accounts.limit})` : ''}
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => canCreate && setShowCreate(true)}
+                disabled={!canCreate}
+                title={canCreate ? undefined : `Límite de cuentas alcanzado (plan ${usage.data?.plan})`}
+                style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: '#fff', borderRadius: 'var(--r-2)', border: '1px solid var(--violet-400)', background: canCreate ? 'var(--violet-500)' : 'var(--violet-600)', cursor: canCreate ? 'pointer' : 'not-allowed', opacity: canCreate ? 1 : 0.5 }}
+              >
+                + Nueva cuenta {usage.data ? `(${usage.data.accounts.used}/${usage.data.accounts.limit})` : ''}
+              </button>
+            )}
           </div>
         }
       />
@@ -228,7 +217,7 @@ export function Accounts() {
                   >
                     <td style={tdStyle}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <Avatar init={initials(a.name)} />
+                        <Avatar init={mkInitials(a.name)} />
                         <div>
                           <div style={{ fontWeight: 500, fontSize: 13 }}>{a.name}</div>
                           <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
@@ -255,7 +244,7 @@ export function Accounts() {
                       </div>
                     </td>
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--fg-3)' }}>
-                      {a.next ? formatDate(a.next) : '—'}
+                      {a.next ? formatDateShort(a.next) : '—'}
                     </td>
                     <td style={tdStyle}>
                       <span className={`pill pill-${a.status}`}>
@@ -287,7 +276,7 @@ export function Accounts() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <Avatar init={initials(a.name)} />
+                      <Avatar init={mkInitials(a.name)} />
                       <div>
                         <div style={{ fontWeight: 600, fontSize: 13 }}>{a.name}</div>
                         <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
@@ -322,14 +311,10 @@ export function Accounts() {
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+        <div style={{ marginTop: 16 }}>
           <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Mostrando {filtered.length} de {accounts.length}
           </span>
-          <div style={{ flex: 1 }} />
-          <span className="kbd">←</span>
-          <span className="kbd">→</span>
-          <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>para navegar</span>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { mkInitials } from '@/lib/utils'
 
 function monthRange() {
   const now = new Date()
@@ -10,6 +11,7 @@ function monthRange() {
 }
 
 function deriveStatus(statuses: string[]): string {
+  if (statuses.length === 0) return 'approved'
   if (statuses.includes('rejected')) return 'rejected'
   if (statuses.includes('sent_client')) return 'sent_client'
   if (statuses.includes('draft')) return 'draft'
@@ -22,10 +24,6 @@ function deriveLabel(status: string): string {
   if (status === 'sent_client') return 'Esperando aprobación'
   if (status === 'draft') return 'En progreso'
   return 'Al día'
-}
-
-function mkInitials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
 }
 
 export type AccountRow = {
@@ -81,8 +79,8 @@ export function useAccounts() {
           .sort((a, b) => a.scheduled_date.localeCompare(b.scheduled_date))
         const nextDate = upcoming[0]?.scheduled_date ?? null
 
-        const allStatuses = pieces.map((p) => p.status)
-        const status = deriveStatus(allStatuses)
+        const monthStatuses = monthPieces.map((p) => p.status)
+        const status = deriveStatus(monthStatuses)
 
         return {
           id: acc.id,

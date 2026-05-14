@@ -1,37 +1,78 @@
+import { useState } from 'react'
 import { useAuthStore } from '@/stores/auth.store'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 import { Link } from 'react-router-dom'
+import { STATUS_LABELS, formatDateLong } from '@/lib/utils'
 
-const STATUS_LABELS: Record<string, string> = {
-  approved: 'Aprobado',
-  published: 'Publicado',
-  rejected: 'Con cambios',
-  sent_client: 'En revisión',
-  draft: 'Borrador',
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })
-}
+const STATUS_FILTERS = [
+  { key: 'all', label: 'Todas' },
+  { key: 'approved', label: 'Aprobadas' },
+  { key: 'published', label: 'Publicadas' },
+]
 
 export function ClientHistory() {
   const { user } = useAuthStore()
   const { data, isLoading } = useClientPieces(user?.id)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
 
-  // Historico: piezas aprobadas y publicadas
-  const historicPieces = [...(data?.published ?? [])].sort(
+  const allPieces = [
+    ...(data?.approved ?? []),
+    ...(data?.published ?? []),
+  ].sort(
     (a, b) => (b.scheduled_date ?? '').localeCompare(a.scheduled_date ?? ''),
   )
+
+  const filtered = allPieces
+    .filter((p) => statusFilter === 'all' || p.status === statusFilter)
+    .filter((p) =>
+      !search || p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.type.toLowerCase().includes(search.toLowerCase()) ||
+      (p.platform ?? '').toLowerCase().includes(search.toLowerCase()),
+    )
 
   return (
     <div style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
       <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 6px' }}>
         Histórico
       </h2>
-      <p style={{ color: 'var(--fg-3)', fontSize: 13, margin: '0 0 28px' }}>
+      <p style={{ color: 'var(--fg-3)', fontSize: 13, margin: '0 0 20px' }}>
         Todas las piezas aprobadas y publicadas de tu cuenta.
       </p>
+
+      {/* Search + filters */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por título, tipo o plataforma..."
+          style={{
+            maxWidth: 280, width: '100%', padding: '8px 12px', fontSize: 13,
+            background: 'var(--bg-2)', border: '1px solid var(--line-2)',
+            borderRadius: 'var(--r-2)', color: 'var(--fg-1)', outline: 'none',
+          }}
+        />
+        {STATUS_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setStatusFilter(f.key)}
+            style={{
+              padding: '6px 10px', fontSize: 12,
+              background: statusFilter === f.key ? 'var(--violet-soft)' : 'var(--bg-2)',
+              border: `1px solid ${statusFilter === f.key ? 'transparent' : 'var(--line-2)'}`,
+              borderRadius: 'var(--r-2)',
+              color: statusFilter === f.key ? 'var(--violet-400)' : 'var(--fg-2)',
+              cursor: 'pointer',
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
+          {filtered.length} pieza{filtered.length !== 1 ? 's' : ''}
+        </span>
+      </div>
 
       {isLoading && (
         <div style={{ color: 'var(--fg-3)', fontSize: 13, padding: 32, textAlign: 'center' }}>
@@ -39,21 +80,23 @@ export function ClientHistory() {
         </div>
       )}
 
-      {!isLoading && historicPieces.length === 0 && (
+      {!isLoading && filtered.length === 0 && (
         <div style={{
           padding: 40, textAlign: 'center',
           background: 'var(--bg-1)', border: '1px solid var(--line-1)',
           borderRadius: 'var(--r-3)',
         }}>
           <p style={{ color: 'var(--fg-3)', fontSize: 14, margin: 0 }}>
-            Todavía no hay piezas finalizadas para mostrar.
+            {allPieces.length === 0
+              ? 'Todavía no hay piezas finalizadas para mostrar.'
+              : 'No hay piezas que coincidan con tu búsqueda.'}
           </p>
         </div>
       )}
 
-      {!isLoading && historicPieces.length > 0 && (
+      {!isLoading && filtered.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {historicPieces.map((p) => (
+          {filtered.map((p) => (
             <Link
               key={p.id}
               to={`/portal/pieces/${p.id}`}
@@ -82,7 +125,7 @@ export function ClientHistory() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
-                  {p.scheduled_date ? formatDate(p.scheduled_date) : ''}
+                  {p.scheduled_date ? formatDateLong(p.scheduled_date) : ''}
                 </span>
                 <span className={`pill pill-${p.status}`}>
                   <span className="dot" />
