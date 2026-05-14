@@ -24,14 +24,30 @@ export function ResetPassword() {
   const [serverError, setServerError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Supabase puts recovery tokens in the hash — getSession() picks them up
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setReady(true)
-      } else {
-        setServerError('El link de recuperacion es invalido o ya expiro. Solicita uno nuevo.')
-      }
+    // Listen for Supabase auto-detecting the recovery token in the URL
+    // (detectSessionInUrl is true by default). Using onAuthStateChange
+    // avoids the auth lock race condition that getSession() causes.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) setReady(true)
     })
+
+    // Also check if session already exists (auto-detection may have fired before mount)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setReady(true)
+    })
+
+    // If after 8s still no session, show error
+    const timeout = setTimeout(() => {
+      setReady((r) => {
+        if (!r) setServerError('El link de recuperación es inválido o ya expiró. Solicitá uno nuevo.')
+        return r
+      })
+    }, 8000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   const {
@@ -45,12 +61,22 @@ export function ResetPassword() {
 
   async function onSubmit(values: FormValues) {
     setServerError(null)
-    const { error } = await supabase.auth.updateUser({ password: values.password })
-    if (error) {
-      setServerError(error.message)
-      return
+    try {
+      const { error } = await supabase.auth.updateUser({ password: values.password })
+      if (error) {
+        if (error.message.includes('same_password') || error.message.includes('same password')) {
+          setServerError('Elegí una contraseña diferente a la anterior.')
+        } else {
+          setServerError(error.message)
+        }
+        return
+      }
+      // Sign out the recovery session — user will login with new password
+      await supabase.auth.signOut()
+      setDone(true)
+    } catch (err) {
+      setServerError((err as Error).message ?? 'Error inesperado. Intentá de nuevo.')
     }
-    setDone(true)
   }
 
   const inputStyle: React.CSSProperties = {

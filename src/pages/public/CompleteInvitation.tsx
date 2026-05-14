@@ -87,15 +87,17 @@ export function CompleteInvitation() {
         return
       }
 
-      // 3. Password set successfully — now re-login with the new password
-      //    to get a clean session (the invite token session can be flaky).
+      // 3. Sign out the invite token session to release the auth lock,
+      //    then re-login with the new password for a clean session.
+      await supabase.auth.signOut()
+
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: currentUser.email!,
         password: values.password,
       })
 
       if (loginError) {
-        // If re-login fails, the password was still set.
+        // Password was set successfully, but auto-login failed.
         // Send user to login page as fallback.
         setSuccess(true)
         setTimeout(() => navigate('/login', { replace: true }), 1500)
