@@ -11,38 +11,49 @@ export function useClientQuota() {
     enabled: !!user?.id && user?.role === 'client',
     queryFn: async () => {
       const userId = user!.id
-      const currentMonth = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
+      const now = new Date()
+      const yearMonth = now.toISOString().slice(0, 7) // 'YYYY-MM'
+      const firstDay = `${yearMonth}-01`
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      const lastDay = nextMonth.toISOString().slice(0, 10)
 
-      const [quotaRes, profileRes] = await Promise.all([
-        supabase
-          .from('client_piece_quota')
-          .select('pieces_created, pieces_limit')
-          .eq('user_id', userId)
-          .eq('year_month', currentMonth)
-          .maybeSingle(),
-        supabase
-          .from('users')
-          .select('agency_id, agencies(plan)')
-          .eq('id', userId)
-          .single(),
-      ])
+      // Get client's account and agency plan
+      const { data: clientData, error: clientError } = await supabase
+        .from('account_clients')
+        .select('account_id, accounts(agency_id, agencies(plan))')
+        .eq('user_id', userId)
+        .limit(1)
+        .maybeSingle()
 
-      if (profileRes.error) throw profileRes.error
+      if (clientError) throw clientError
+      if (!clientData) return { used: 0, limit: 0, remaining: 0, atLimit: false, percentage: 0 }
 
       const plan = (
-        profileRes.data?.agencies as { plan: string } | null
-      )?.plan as PlanId ?? 'solo'
+        (clientData.accounts as { agency_id: string; agencies: { plan: string } | null } | null)
+          ?.agencies?.plan
+      ) as PlanId ?? 'solo'
       const limits = getPlanLimit(plan)
+      const pieceLimit = limits.piecesPerClient
 
-      const used = quotaRes.data?.pieces_created ?? 0
-      const limit = quotaRes.data?.pieces_limit ?? limits.piecesPerClient
+      // Count actual pieces for this account in current month
+      const { count, error: countError } = await supabase
+        .from('pieces')
+        .select('id', { count: 'exact', head: true })
+        .eq('account_id', clientData.account_id)
+        .is('archived_at', null)
+        .in('status', ['sent_client', 'approved', 'rejected', 'published'])
+        .gte('scheduled_date', firstDay)
+        .lt('scheduled_date', lastDay)
 
+      if (countError) throw countError
+
+      const used = count ?? 0
       return {
         used,
-        limit,
-        remaining: Math.max(0, limit - used),
-        atLimit: used >= limit,
-        percentage: limit > 0 ? Math.round((used / limit) * 100) : 0,
+        limit: pieceLimit,
+        remaining: Math.max(0, pieceLimit - used),
+        atLimit: used >= pieceLimit,
+        percentage: pieceLimit > 0 ? Math.round((used / pieceLimit) * 100) : 0,
       }
     },
     staleTime: 10_000,

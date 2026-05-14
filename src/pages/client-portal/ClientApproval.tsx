@@ -135,7 +135,7 @@ export function ClientApproval() {
           <div>
             <span className={`pill pill-${status}`} style={{ marginBottom: 12 }}>
               <span className="dot" />
-              {status === 'sent_client' ? 'Para tu revisión' : status === 'approved' ? 'Aprobada' : status === 'rejected' ? 'Cambios pedidos' : status}
+              {status === 'sent_client' ? 'Para tu revisión' : status === 'approved' ? 'Aprobada' : status === 'rejected' ? 'Cambios pedidos' : status === 'published' ? 'Publicada' : status}
             </span>
             <h1 style={{ margin: '12px 0 0', fontSize: 28, fontWeight: 600, letterSpacing: '-0.025em' }}>{piece.title}</h1>
             <p style={{ margin: '6px 0 0', color: 'var(--fg-2)', fontSize: 14 }}>
@@ -191,8 +191,8 @@ export function ClientApproval() {
 
           {/* Right column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Decision card — only for clients */}
-            {isClient && (
+            {/* Decision card — only for clients, only in review states */}
+            {isClient && status !== 'published' && (
               <div style={{
                 background: 'radial-gradient(60% 80% at 100% 0%, rgba(124,58,237,0.10), transparent 60%), var(--bg-1)',
                 border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 20,

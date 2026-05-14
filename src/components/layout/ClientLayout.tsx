@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { usePiecesRealtime } from '@/features/pieces/hooks/usePiecesRealtime'
 import { useAuthStore } from '@/stores/auth.store'
@@ -94,7 +94,6 @@ export function ClientLayout() {
             { to: '/portal', label: 'Tu mes' },
             { to: '/portal/history', label: 'Histórico' },
             { to: '/portal/reports', label: 'Reportes' },
-            { to: '/portal/profile', label: 'Mi perfil' },
           ].map((link) => (
             <NavLink
               key={link.to}
@@ -141,7 +140,10 @@ export function ClientLayout() {
           >
             {clientInitials}
           </div>
-          <span style={{ fontSize: 13 }}>{clientName}</span>
+          <Link to="/portal/profile" style={{ fontSize: 13, color: 'inherit', textDecoration: 'none' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--violet-400)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'inherit' }}
+          >{clientName}</Link>
           <button
             onClick={() => setShowLogout(true)}
             style={{

@@ -4,10 +4,6 @@ import { useAuthStore } from '@/stores/auth.store'
 import { QuotaBanner } from '@/features/client-portal/components/QuotaBanner'
 import { STATUS_LABELS, formatDateWithTime } from '@/lib/utils'
 
-const TYPE_RATIO: Record<string, string> = {
-  post: '1/1', reel: '9/16', story: '9/16', carrusel: '1/1', ad: '1/1', blog: '1/1',
-}
-
 function formatPublished(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
   const today = new Date()
@@ -117,10 +113,10 @@ export function ClientPortal() {
                         onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--line-1)' }}
                       >
                         <div style={{
-                          aspectRatio: TYPE_RATIO[p.type] ?? '1/1',
+                          aspectRatio: '1/1',
                           background: p.thumbnail_url ? `url(${p.thumbnail_url}) center/cover no-repeat` : 'repeating-linear-gradient(45deg, var(--bg-2) 0 12px, var(--bg-3) 12px 24px)',
                           borderBottom: '1px solid var(--line-1)',
-                          display: 'grid', placeItems: 'center',
+                          display: 'grid', placeItems: 'center', overflow: 'hidden',
                           color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 10,
                           textTransform: 'uppercase', letterSpacing: '0.06em', position: 'relative',
                         }}>
@@ -164,9 +160,10 @@ export function ClientPortal() {
 
                 <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
                   {data.published.map((p) => (
-                    <div
+                    <Link
                       key={p.id}
-                      style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto auto', gap: 14, alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--line-1)', cursor: 'pointer' }}
+                      to={`/portal/pieces/${p.id}`}
+                      style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto auto', gap: 14, alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--line-1)', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                     >
@@ -185,7 +182,7 @@ export function ClientPortal() {
                       <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
                         {formatPublished(p.scheduled_date)}
                       </span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </>
