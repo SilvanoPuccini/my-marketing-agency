@@ -207,7 +207,7 @@ export function Dashboard() {
 
       <div className="page-content" style={{ padding: '24px 32px', overflowY: 'auto' }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24, gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
           <div>
             <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
               {user ? greeting(user.full_name) : 'Buen día 👋'}
@@ -278,6 +278,7 @@ export function Dashboard() {
               <div
                 key={item.id}
                 onClick={() => setSelectedPiece(item.id)}
+                className="attention-row"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '32px 1fr auto auto auto',
@@ -303,8 +304,8 @@ export function Dashboard() {
                   </div>
                 </div>
                 <StatusPill status={item.status} label={STATUS_LABELS[item.status] ?? item.status} />
-                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{relativeTime(item.updated_at)}</span>
-                <span style={{ color: 'var(--fg-3)' }}>→</span>
+                <span className="mono col-hide-mobile" style={{ fontSize: 11, color: 'var(--fg-3)' }}>{relativeTime(item.updated_at)}</span>
+                <span className="col-hide-mobile" style={{ color: 'var(--fg-3)' }}>→</span>
               </div>
             ))}
           </section>

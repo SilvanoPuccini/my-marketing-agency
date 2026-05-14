@@ -563,7 +563,7 @@ export function Settings() {
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Contactá al equipo de MMA directamente desde acá.</p>
               </div>
               <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="settings-support-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 16 }}>
                     <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Soporte técnico</div>
                     <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 10 }}>Problemas con la plataforma, errores o consultas técnicas.</div>
@@ -592,7 +592,7 @@ export function Settings() {
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Descargá toda la información de tu agencia en formatos abiertos.</p>
               </div>
               <div style={{ padding: '18px 20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
+                <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>Piezas — CSV</div>
                     <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Todas las piezas con estado, fecha y cuenta.</div>
@@ -605,7 +605,7 @@ export function Settings() {
                     Descargar CSV
                   </button>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0' }}>
+                <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0' }}>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>Backup completo</div>
                     <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Piezas, cuentas y equipo en un ZIP.</div>
@@ -630,7 +630,7 @@ export function Settings() {
               <div style={{ padding: '18px 20px' }}>
 
                 {/* Transferir */}
-                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
+                <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>Transferir titularidad del estudio</div>
                     <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Pasar la propiedad a otro miembro con rol Admin.</div>
@@ -646,7 +646,7 @@ export function Settings() {
 
                 {/* Eliminar */}
                 <div style={{ padding: '10px 0' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center' }}>
+                  <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--status-rejected)' }}>Eliminar el estudio</div>
                       <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Borra todas las cuentas, piezas y portales. No se puede recuperar.</div>

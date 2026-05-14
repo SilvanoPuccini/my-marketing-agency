@@ -36,7 +36,7 @@ export function ClientHistory() {
   const { paged, totalPages, safePage } = usePaginated(filtered, 10, page)
 
   return (
-    <div style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
+    <div className="client-history-content" style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
       <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 6px' }}>
         Histórico
       </h2>

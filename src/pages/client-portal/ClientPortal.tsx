@@ -30,7 +30,7 @@ export function ClientPortal() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '32px' }}>
+      <div className="client-portal-content" style={{ maxWidth: 1080, margin: '0 auto', padding: '32px' }}>
         {isLoading ? (
           <div style={{ color: 'var(--fg-3)', fontSize: 14, padding: '60px 0', textAlign: 'center' }}>
             Cargando tu portal…
@@ -170,11 +170,12 @@ export function ClientPortal() {
                     <Link
                       key={p.id}
                       to={`/portal/pieces/${p.id}`}
+                      className="client-published-row"
                       style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto auto', gap: 14, alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--line-1)', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-2)' }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                     >
-                      <div style={{
+                      <div className="client-pub-thumb" style={{
                         width: 36, height: 36, borderRadius: 6,
                         background: p.thumbnail_url ? `url(${p.thumbnail_url}) center/cover no-repeat` : 'repeating-linear-gradient(45deg, var(--bg-3) 0 6px, var(--bg-4) 6px 12px)',
                         border: '1px solid var(--line-1)',
@@ -186,7 +187,7 @@ export function ClientPortal() {
                         </div>
                       </div>
                       <span className="pill pill-published"><span className="dot" />Publicada</span>
-                      <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
+                      <span className="client-pub-date mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
                         {formatPublished(p.scheduled_date)}
                       </span>
                     </Link>

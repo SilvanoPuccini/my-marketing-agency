@@ -122,7 +122,7 @@ export function ClientApproval() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      <main style={{ maxWidth: 1180, margin: '0 auto', padding: '24px 32px 64px' }}>
+      <main className="client-approval-content" style={{ maxWidth: 1180, margin: '0 auto', padding: '24px 32px 64px' }}>
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--fg-3)', fontSize: 13, marginBottom: 16 }}>
           <Link to="/portal" style={{ color: 'var(--fg-3)', textDecoration: 'none' }}>Tu mes</Link>
@@ -148,7 +148,7 @@ export function ClientApproval() {
 
         <div className="client-approval-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'flex-start' }}>
           {/* Media side */}
-          <section style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 20, position: 'sticky', top: 80 }}>
+          <section className="client-approval-media" style={{ background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', padding: 20, position: 'sticky', top: 80 }}>
             {/* Media */}
             {(() => {
               const files = piece.piece_files ?? []

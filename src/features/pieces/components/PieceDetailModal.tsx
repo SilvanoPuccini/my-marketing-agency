@@ -185,7 +185,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
         }}
       >
         {/* Header */}
-        <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', borderBottom: '1px solid var(--line-1)' }}>
+        <header className="piece-detail-header" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', borderBottom: '1px solid var(--line-1)' }}>
           {isLoading ? (
             <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>Cargando…</span>
           ) : (
@@ -198,7 +198,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
             </>
           )}
           <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div className="piece-detail-nav-btns" style={{ display: 'flex', gap: 4 }}>
             {(['‹', '›'] as const).map((ch, i) => (
               <button
                 key={ch}
@@ -209,7 +209,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
               </button>
             ))}
           </div>
-          <span className="kbd">ESC</span>
+          <span className="kbd piece-detail-kbd">ESC</span>
           <button
             onClick={onClose}
             style={{ width: 26, height: 26, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 5, color: 'var(--fg-2)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}
@@ -219,7 +219,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
         </header>
 
         {/* Body */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', overflow: 'hidden' }}>
+        <div className="piece-detail-body" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', overflow: 'hidden' }}>
           {/* Left — media + copy */}
           <div style={{ overflowY: 'auto', padding: 24, background: 'radial-gradient(60% 80% at 50% 0%, rgba(124,58,237,0.06), transparent 60%), var(--bg-1)' }}>
             {/* Media */}
@@ -445,7 +445,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
         </div>
 
         {/* Footer */}
-        <footer style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px', borderTop: '1px solid var(--line-1)', background: 'var(--bg-1)' }}>
+        <footer className="piece-detail-footer" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, padding: '14px 20px', borderTop: '1px solid var(--line-1)', background: 'var(--bg-1)' }}>
           <div style={{ display: 'flex', gap: 8 }}>
             {piece?.rejection_reason && (
               <span style={{ fontSize: 12, color: 'var(--status-rejected)', padding: '5px 10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 'var(--r-2)' }}>

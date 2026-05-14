@@ -89,34 +89,36 @@ export function ClientLayout() {
           </div>
         </div>
 
-        <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
-          {[
-            { to: '/portal', label: 'Tu mes' },
-            { to: '/portal/history', label: 'Histórico' },
-            { to: '/portal/reports', label: 'Reportes' },
-          ].map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end
-              style={({ isActive }) => ({
-                padding: '6px 12px',
-                fontSize: 13,
-                color: isActive ? 'var(--fg-1)' : 'var(--fg-2)',
-                borderRadius: 'var(--r-2)',
-                background: isActive ? 'var(--bg-2)' : 'transparent',
-                textDecoration: 'none',
-              })}
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="client-nav-links">
+          <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
+            {[
+              { to: '/portal', label: 'Tu mes' },
+              { to: '/portal/history', label: 'Histórico' },
+              { to: '/portal/reports', label: 'Reportes' },
+            ].map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end
+                style={({ isActive }) => ({
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  color: isActive ? 'var(--fg-1)' : 'var(--fg-2)',
+                  borderRadius: 'var(--r-2)',
+                  background: isActive ? 'var(--bg-2)' : 'transparent',
+                  textDecoration: 'none',
+                })}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         <div style={{ flex: 1 }} />
 
         <span
-          className="mono"
+          className="mono client-month-label"
           style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase' }}
         >
           {monthLabel}
@@ -140,7 +142,7 @@ export function ClientLayout() {
           >
             {clientInitials}
           </div>
-          <Link to="/portal/profile" style={{ fontSize: 13, color: 'inherit', textDecoration: 'none' }}
+          <Link to="/portal/profile" className="client-user-name" style={{ fontSize: 13, color: 'inherit', textDecoration: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--violet-400)' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'inherit' }}
           >{clientName}</Link>

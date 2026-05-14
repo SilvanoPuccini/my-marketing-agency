@@ -351,8 +351,11 @@
 }
 
 /* ===== Landing responsive ===== */
+.landing-mobile-menu-btn { display: none; }
+
 @media (max-width: 1023px) {
   .landing-nav-links { display: none !important; }
+  .landing-mobile-menu-btn { display: flex !important; }
   .landing-hero h1 { font-size: 40px !important; }
   .landing-hero-stats { flex-wrap: wrap; gap: 12px !important; }
   .landing-product-grid { grid-template-columns: 1fr !important; }
@@ -399,9 +402,87 @@
   .client-nav {
     padding: 10px 16px !important;
     gap: 8px !important;
+    flex-wrap: wrap !important;
   }
   .client-nav nav {
     gap: 2px !important;
+    order: 10;
+    width: 100%;
+    justify-content: center;
+  }
+  .client-month-label {
+    display: none !important;
+  }
+  .client-user-name {
+    display: none !important;
+  }
+  .client-portal-content,
+  .client-history-content {
+    padding: 16px !important;
+  }
+  .client-approval-content {
+    padding: 16px 16px 48px !important;
+  }
+  .client-approval-media {
+    position: static !important;
+  }
+  .client-published-row {
+    grid-template-columns: 1fr auto !important;
+    gap: 8px !important;
+  }
+  .client-published-row .client-pub-thumb,
+  .client-published-row .client-pub-date {
+    display: none !important;
+  }
+}
+
+/* Piece detail modal responsive */
+@media (max-width: 768px) {
+  .piece-detail-body {
+    grid-template-columns: 1fr !important;
+  }
+  .piece-detail-header {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  .piece-detail-footer {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  .piece-detail-kbd,
+  .piece-detail-nav-btns {
+    display: none !important;
+  }
+}
+
+/* Dashboard attention rows */
+@media (max-width: 768px) {
+  .attention-row {
+    grid-template-columns: 32px 1fr auto !important;
+  }
+  .attention-row .col-hide-mobile {
+    display: none !important;
+  }
+}
+
+/* File viewer modal */
+@media (max-width: 640px) {
+  .file-viewer-modal {
+    padding: 12px !important;
+  }
+}
+
+/* Accounts table scroll */
+@media (max-width: 1023px) {
+  .accounts-table-wrap,
+  .account-detail-table-wrap {
+    overflow-x: auto;
+  }
+  .account-detail-members {
+    grid-template-columns: 1fr !important;
+  }
+  .settings-support-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

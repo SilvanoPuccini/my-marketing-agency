@@ -176,6 +176,7 @@ export function Accounts() {
         {/* List view */}
         {view === 'list' && (
           <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
+            <div className="accounts-table-wrap" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
@@ -257,6 +258,7 @@ export function Accounts() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

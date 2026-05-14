@@ -172,7 +172,7 @@ function FileViewerModal({ file, onClose }: { file: LibraryFile; onClose: () => 
         </div>
 
         {/* Content */}
-        <div style={{
+        <div className="file-viewer-modal" style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: 20, overflow: 'auto', background: 'var(--bg-0)',
         }}>
@@ -333,7 +333,7 @@ function UploadModal({ files, onClose }: UploadModalProps) {
       <div
         style={{
           background: 'var(--bg-1)', border: '1px solid var(--line-2)',
-          borderRadius: 'var(--r-3)', padding: 24, width: 420,
+          borderRadius: 'var(--r-3)', padding: 24, width: 'min(420px, calc(100vw - 32px))',
           display: 'flex', flexDirection: 'column', gap: 16,
         }}
       >

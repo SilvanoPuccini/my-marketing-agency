@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
 
 // ── Shared button styles ───────────────────────────────────────────────────────
 const btnPrimary: React.CSSProperties = {
@@ -19,8 +20,28 @@ const btnSecondary: React.CSSProperties = {
 const btnPrimaryLg: React.CSSProperties = { ...btnPrimary, padding: '11px 18px', fontSize: 14 }
 const btnSecondaryLg: React.CSSProperties = { ...btnSecondary, padding: '11px 18px', fontSize: 14 }
 
+// ── Nav links list (shared between desktop and mobile) ────────────────────────
+const NAV_LINKS = [
+  { label: 'Producto', href: '#producto' },
+  { label: 'Flujo',    href: '#flujo' },
+  { label: 'Precios',  href: '#precios' },
+  { label: 'Casos',    href: '#casos' },
+  { label: 'Cambios',  href: '#cambios' },
+]
+
+function scrollTo(href: string) {
+  const id = href.replace('#', '')
+  const el = document.getElementById(id)
+  if (el) {
+    const y = el.getBoundingClientRect().top + window.scrollY - 70
+    window.scrollTo({ top: y, behavior: 'smooth' })
+  }
+}
+
 // ── NavBar ────────────────────────────────────────────────────────────────────
 function NavBar() {
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)', background: 'rgba(10,10,15,0.72)', borderBottom: '1px solid var(--line-1)' }}>
       <div className="landing-navbar-inner" style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 32, padding: '14px 32px' }}>
@@ -33,25 +54,11 @@ function NavBar() {
         </Link>
 
         <nav className="landing-nav-links" style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
-          {[
-            { label: 'Producto', href: '#producto' },
-            { label: 'Flujo',    href: '#flujo' },
-            { label: 'Precios',  href: '#precios' },
-            { label: 'Casos',    href: '#casos' },
-            { label: 'Cambios',  href: '#cambios' },
-          ].map(({ label, href }) => (
+          {NAV_LINKS.map(({ label, href }) => (
             <a
               key={label}
               href={href}
-              onClick={(e) => {
-                e.preventDefault()
-                const id = href.replace('#', '')
-                const el = document.getElementById(id)
-                if (el) {
-                  const y = el.getBoundingClientRect().top + window.scrollY - 70
-                  window.scrollTo({ top: y, behavior: 'smooth' })
-                }
-              }}
+              onClick={(e) => { e.preventDefault(); scrollTo(href) }}
               style={{ padding: '6px 12px', fontSize: 13, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', transition: 'color 120ms, background 120ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg-1)'; e.currentTarget.style.background = 'var(--bg-2)' }}
               onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-2)'; e.currentTarget.style.background = 'transparent' }}
@@ -69,10 +76,43 @@ function NavBar() {
         <Link to="/login" style={{ padding: '6px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid transparent', background: 'transparent' }}>
           Ingresar
         </Link>
-        <Link to="/registro" style={{ ...btnPrimary, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}>
+        <Link to="/registro" className="landing-cta-desktop" style={{ ...btnPrimary, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}>
           Crear cuenta
         </Link>
+
+        {/* Hamburger — visible only on mobile */}
+        <button
+          className="landing-mobile-menu-btn"
+          aria-label={showMobileMenu ? 'Cerrar menú' : 'Abrir menú'}
+          onClick={() => setShowMobileMenu((v) => !v)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--fg-1)', padding: 4, alignItems: 'center', justifyContent: 'center' }}
+        >
+          {showMobileMenu ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
+
+      {/* Mobile dropdown menu */}
+      {showMobileMenu && (
+        <div className="landing-mobile-menu" style={{ background: 'rgba(10,10,15,0.96)', borderTop: '1px solid var(--line-1)', padding: '12px 24px 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {NAV_LINKS.map(({ label, href }) => (
+            <a
+              key={label}
+              href={href}
+              onClick={(e) => { e.preventDefault(); scrollTo(href); setShowMobileMenu(false) }}
+              style={{ padding: '10px 8px', fontSize: 15, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', display: 'block' }}
+            >
+              {label}
+            </a>
+          ))}
+          <Link
+            to="/registro"
+            onClick={() => setShowMobileMenu(false)}
+            style={{ ...btnPrimary, marginTop: 8, justifyContent: 'center', boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}
+          >
+            Crear cuenta
+          </Link>
+        </div>
+      )}
     </header>
   )
 }
@@ -99,7 +139,7 @@ function Hero() {
         Calendario editorial, aprobaciones del cliente y reportes — pensado para agencias de marketing argentinas que manejan entre 5 y 50 cuentas. Llevá todo el ciclo, desde la idea hasta la publicación, con la prolijidad que tu cliente espera.
       </p>
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 28, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 10, marginTop: 28, alignItems: 'center', flexWrap: 'wrap' }}>
         <Link to="/registro" style={btnPrimaryLg}>Crear cuenta</Link>
         <a href="#producto" onClick={(e) => { e.preventDefault(); const el = document.getElementById('producto'); if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }) } }} style={btnSecondaryLg}>Ver el producto →</a>
       </div>

@@ -266,7 +266,7 @@ export function AccountDetail() {
             </div>
 
             {/* Members & Clients row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+            <div className="account-detail-members" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
               {/* Team members */}
               <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: '1px solid var(--line-1)' }}>
@@ -333,6 +333,7 @@ export function AccountDetail() {
                   {total} PIEZAS
                 </span>
               </div>
+              <div className="account-detail-table-wrap" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr>
@@ -384,6 +385,7 @@ export function AccountDetail() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </section>
 
             {/* Admin: Delete account */}
