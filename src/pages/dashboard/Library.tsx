@@ -118,17 +118,17 @@ function FileViewerModal({ file, onClose }: { file: LibraryFile; onClose: () => 
         maxHeight: 'calc(100vh - 48px)', display: 'flex', flexDirection: 'column',
       }}>
         {/* Header */}
-        <div style={{
+        <div className="file-viewer-header" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '14px 18px', borderBottom: '1px solid var(--line-1)',
+          padding: '14px 18px', borderBottom: '1px solid var(--line-1)', gap: 12, flexWrap: 'wrap',
         }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>{file.file_name}</div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.file_name}</div>
             <div className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', marginTop: 2 }}>
               {file.account_name} · {file.piece_title} · {kindLabel(file.piece_type)} · {file.file_size_kb} KB
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
             <button
               onClick={handleDelete}
               disabled={deleteFile.isPending}

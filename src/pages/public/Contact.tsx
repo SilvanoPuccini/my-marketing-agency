@@ -152,7 +152,7 @@ export function Contact() {
           ¿Tenés alguna pregunta o querés saber más sobre MMA? Completá el formulario y te respondemos pronto.
         </p>
 
-        <div style={grid}>
+        <div className="contact-grid" style={grid}>
           <form style={formCard} onSubmit={handleSubmit} noValidate>
             <div style={fieldWrap}>
               <label style={labelStyle} htmlFor="nombre">Nombre</label>

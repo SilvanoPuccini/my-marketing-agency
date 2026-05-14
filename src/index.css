@@ -492,6 +492,76 @@
   }
 }
 
+/* Account detail header responsive */
+@media (max-width: 640px) {
+  .account-detail-actions { justify-content: flex-end; }
+  .account-detail-header { flex-direction: column; align-items: flex-start !important; }
+  .account-detail-header > div:last-child { display: none; } /* hide spacer */
+}
+
+/* Team member profile responsive */
+@media (max-width: 768px) {
+  .team-member-header {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    text-align: left;
+  }
+  .team-member-header > div:nth-child(1) {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 24px !important;
+  }
+  .team-member-header > div:last-child {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .team-member-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .team-member-columns {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Library file viewer header responsive */
+@media (max-width: 640px) {
+  .file-viewer-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .file-viewer-header > div:last-child {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* Billing plan modal responsive */
+@media (max-width: 640px) {
+  .billing-plan-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Settings general panel alignment */
+@media (max-width: 1023px) {
+  .settings-layout > nav > div {
+    display: inline;
+  }
+  .settings-layout > nav > div > .mono {
+    display: none;
+  }
+}
+
+/* Contact form responsive */
+@media (max-width: 640px) {
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+}
+
 /* Skeleton pulse animation */
 @keyframes pulse {
   0%, 100% { opacity: 1; }

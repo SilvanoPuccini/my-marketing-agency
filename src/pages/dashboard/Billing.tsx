@@ -116,7 +116,7 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
             )}
           </div>
 
-          <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div className="billing-plan-grid" style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {PLANS.map((p) => {
               const isCurrent = p.key === currentPlan
               const showPrice = isAnnual ? p.yearlyPrice : p.price
@@ -522,7 +522,8 @@ export function Billing() {
               </span>
             </div>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div className="billing-invoice-table-wrap" style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 700 }}>
             <thead>
               <tr>
                 {['N° factura', 'Período', 'Emisión', 'Concepto', 'Subtotal', 'IVA', 'Total', 'Estado', ''].map((h) => (
@@ -571,6 +572,7 @@ export function Billing() {
               })}
             </tbody>
           </table>
+          </div>
         </section>
       </div>
       {showPlanModal && <PlanModal currentPlan={agency?.plan ?? 'estudio'} onClose={() => setShowPlanModal(false)} />}

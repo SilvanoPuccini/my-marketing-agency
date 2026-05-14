@@ -154,7 +154,7 @@ export function AccountDetail() {
       <TopBar
         breadcrumb={['Mi agencia', 'Cuentas', account?.name ?? 'Cargando...']}
         actions={
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="account-detail-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {isAdmin && account && (
               <>
                 <button
@@ -210,7 +210,7 @@ export function AccountDetail() {
             )}
 
             {/* Account header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+            <div className="account-detail-header" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 999,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',

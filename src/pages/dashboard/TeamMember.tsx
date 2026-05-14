@@ -84,7 +84,7 @@ export function TeamMember() {
       <div className="page-content" style={{ padding: '24px 32px' }}>
 
         {/* Header */}
-        <div style={{
+        <div className="team-member-header" style={{
           display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 28,
           alignItems: 'flex-start', paddingBottom: 24,
           borderBottom: '1px solid var(--line-1)', marginBottom: 24,
@@ -161,7 +161,7 @@ export function TeamMember() {
         </div>
 
         {/* Stats */}
-        <div style={{
+        <div className="team-member-stats" style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1,
           background: 'var(--line-1)', border: '1px solid var(--line-1)',
           borderRadius: 'var(--r-3)', overflow: 'hidden', marginBottom: 24,
@@ -184,7 +184,7 @@ export function TeamMember() {
         </div>
 
         {/* Two-column layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16 }}>
+        <div className="team-member-columns" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16 }}>
 
           {/* Left: Pieces */}
           <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)' }}>
