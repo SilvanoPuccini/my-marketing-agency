@@ -73,9 +73,10 @@ function countStatuses(data: { status: string }[]) {
   for (const row of data) map[row.status] = (map[row.status] ?? 0) + 1
   const active = (map.draft ?? 0) + (map.sent_client ?? 0) + (map.approved ?? 0) + (map.rejected ?? 0)
   const pending = map.sent_client ?? 0
+  const published = map.published ?? 0
   const decided = (map.approved ?? 0) + (map.rejected ?? 0)
   const approvalRate = decided > 0 ? Math.round(((map.approved ?? 0) / decided) * 100) : 0
-  return { active, pending, approvalRate }
+  return { active, pending, published, approvalRate }
 }
 
 export function useDashboardStats(agencyId: string | undefined, period: Period = 'week') {
@@ -90,14 +91,14 @@ export function useDashboardStats(agencyId: string | undefined, period: Period =
           .from('pieces')
           .select('status')
           .is('archived_at', null)
-          .gte('created_at', `${start}T00:00:00`)
-          .lte('created_at', `${end}T23:59:59`),
+          .gte('updated_at', `${start}T00:00:00`)
+          .lte('updated_at', `${end}T23:59:59`),
         supabase
           .from('pieces')
           .select('status')
           .is('archived_at', null)
-          .gte('created_at', `${prev.start}T00:00:00`)
-          .lte('created_at', `${prev.end}T23:59:59`),
+          .gte('updated_at', `${prev.start}T00:00:00`)
+          .lte('updated_at', `${prev.end}T23:59:59`),
       ])
       if (current.error) throw current.error
       const stats = countStatuses(current.data ?? [])
@@ -106,6 +107,7 @@ export function useDashboardStats(agencyId: string | undefined, period: Period =
         ...stats,
         prevActive: prevStats.active,
         prevPending: prevStats.pending,
+        prevPublished: prevStats.published,
         prevApprovalRate: prevStats.approvalRate,
       }
     },

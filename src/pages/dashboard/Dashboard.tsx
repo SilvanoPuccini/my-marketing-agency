@@ -153,6 +153,7 @@ export function Dashboard() {
 
   const activeDelta = stats.data ? deltaLabel(stats.data.active, stats.data.prevActive) : { text: '—', up: true }
   const pendingDelta = stats.data ? deltaLabel(stats.data.pending, stats.data.prevPending) : { text: '—', up: true }
+  const publishedDelta = stats.data ? deltaLabel(stats.data.published, stats.data.prevPublished) : { text: '—', up: true }
   const rateDelta = stats.data ? deltaLabel(stats.data.approvalRate, stats.data.prevApprovalRate, '%') : { text: '—', up: true }
 
   const statsCards = [
@@ -170,9 +171,9 @@ export function Dashboard() {
     },
     {
       label: 'Publicadas',
-      value: stats.isLoading ? '—' : String((stats.data?.active ?? 0) - (stats.data?.pending ?? 0)),
-      delta: stats.isLoading ? '—' : `En el período actual`,
-      deltaUp: true,
+      value: stats.isLoading ? '—' : String(stats.data?.published ?? 0),
+      delta: stats.isLoading ? '—' : publishedDelta.text,
+      deltaUp: publishedDelta.up,
     },
     {
       label: 'Tasa de aprobación',
