@@ -24,9 +24,8 @@ export function CompleteInvitation() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    // Supabase auto-detects ?code= or #access_token in the URL
-    // via detectSessionInUrl (default: true). We just listen for
-    // the auth state change instead of manually exchanging the code.
+    // Supabase auto-detects the #access_token or ?code= in the URL
+    // via detectSessionInUrl (default: true). We listen for the session.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setSessionReady(true)
@@ -88,9 +87,22 @@ export function CompleteInvitation() {
         return
       }
 
-      // 3. Success — fetch profile and update store
-      setSuccess(true)
+      // 3. Password set successfully — now re-login with the new password
+      //    to get a clean session (the invite token session can be flaky).
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: currentUser.email!,
+        password: values.password,
+      })
 
+      if (loginError) {
+        // If re-login fails, the password was still set.
+        // Send user to login page as fallback.
+        setSuccess(true)
+        setTimeout(() => navigate('/login', { replace: true }), 1500)
+        return
+      }
+
+      // 4. Fetch profile and update auth store
       const { data: profile } = await supabase
         .from('users')
         .select('*')
@@ -107,6 +119,8 @@ export function CompleteInvitation() {
         })
       }
 
+      // 5. Navigate based on role
+      setSuccess(true)
       const isStaff = profile?.role === 'admin_agency' || profile?.role === 'team_member' || profile?.role === 'manager' || profile?.role === 'creator'
       const destination = isStaff ? '/dashboard' : '/portal'
 

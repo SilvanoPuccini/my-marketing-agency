@@ -422,7 +422,7 @@ export function PieceDetailModal({ pieceId, onClose, onNavigate }: PieceDetailMo
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSendComment() }}
-                  placeholder="Escribí un comentario… ⌘Enter para enviar"
+                  placeholder="Escribí un comentario…"
                   style={{ flex: 1, background: 'transparent', border: 0, resize: 'none', color: 'var(--fg-1)', fontSize: 12.5, outline: 'none', minHeight: 48, fontFamily: 'var(--font-sans)' }}
                 />
                 <button

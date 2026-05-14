@@ -87,7 +87,7 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
             background: 'var(--bg-2)',
             border: '1px solid var(--line-1)',
             borderRadius: 'var(--r-2)',
-            padding: '7px 36px 7px 30px',
+            padding: '7px 12px 7px 30px',
             fontSize: 13,
             color: 'var(--fg-1)',
             outline: 'none',
@@ -99,19 +99,6 @@ export function TopBar({ breadcrumb, actions }: TopBarProps) {
             e.currentTarget.style.borderColor = 'var(--line-1)'
           }}
         />
-        <span
-          style={{
-            position: 'absolute',
-            right: 10,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: 'var(--fg-3)',
-            display: 'grid',
-            placeItems: 'center',
-          }}
-        >
-          <Search size={14} />
-        </span>
       </div>
 
       {/* Actions slot */}
