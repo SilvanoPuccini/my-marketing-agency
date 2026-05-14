@@ -75,13 +75,10 @@ export function ClientLayout() {
             </div>
           )}
           <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>{agencyName}</span>
-              <span style={{ fontSize: 11, color: 'var(--fg-3)' }}>agencia</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span style={{ fontSize: 11, color: 'var(--fg-3)' }}>Portal cliente ·</span>
-              <span style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 13 }}>{accountName}</span>
+            <div style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 14 }}>{agencyName}</div>
+            <div style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+              <span style={{ color: 'var(--fg-3)' }}>Portal cliente · </span>
+              <span style={{ fontWeight: 600 }}>{accountName}</span>
             </div>
           </div>
         </div>
