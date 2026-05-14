@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { Download, Trash2, X } from 'lucide-react'
+import { Pagination, usePaginated } from '@/components/ui/Pagination'
 import {
   useLibraryFiles,
   useLibraryFolders,
@@ -459,7 +460,7 @@ function UploadModal({ files, onClose }: UploadModalProps) {
 
 // ─── Library Page ─────────────────────────────────────────────
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 12
 
 export function Library() {
   const { librarySearch, libraryTypeFilter, setLibrarySearch, setLibraryTypeFilter } = useFiltersStore()
@@ -501,8 +502,7 @@ export function Library() {
     return matchesSearch && matchesType && matchesStore && matchesAccount
   })
 
-  const visible = filtered.slice(0, page * PAGE_SIZE)
-  const hasMore = filtered.length > visible.length
+  const { paged: visible, totalPages, safePage } = usePaginated(filtered, PAGE_SIZE, page)
 
   function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -772,17 +772,10 @@ export function Library() {
         {/* Footer */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 24 }}>
           <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Mostrando {visible.length} de {filtered.length}
+            {filtered.length} ARCHIVO{filtered.length !== 1 ? 'S' : ''}
           </span>
           <div style={{ flex: 1 }} />
-          {hasMore && (
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
-            >
-              Cargar más
-            </button>
-          )}
+          <Pagination page={safePage} totalPages={totalPages} onPrev={() => setPage(p => Math.max(1, p - 1))} onNext={() => setPage(p => Math.min(totalPages, p + 1))} />
         </div>
       </div>
 

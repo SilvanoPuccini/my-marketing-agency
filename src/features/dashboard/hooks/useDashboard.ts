@@ -137,7 +137,6 @@ export function useAttentionPieces(agencyId: string | undefined) {
         .is('archived_at', null)
         .in('status', ['draft', 'sent_client', 'rejected', 'approved'])
         .order('updated_at', { ascending: false })
-        .limit(8)
       if (error) throw error
       return (data ?? []).map((p): AttentionPiece => {
         const files = (p.piece_files ?? []) as { file_url: string; file_type: string }[]
@@ -220,7 +219,6 @@ export function useAccountsWithPauta(agencyId: string | undefined) {
         .gt('monthly_budget', 0)
         .eq('is_active', true)
         .order('monthly_budget', { ascending: false })
-        .limit(5)
       if (error) throw error
       return data ?? []
     },
@@ -246,10 +244,10 @@ export function useRecentActivity(agencyId: string | undefined) {
         .select('id, title, status, updated_at, accounts(name), users!author_id(full_name)')
         .is('archived_at', null)
         .order('updated_at', { ascending: false })
-        .limit(5)
       if (error) throw error
       return (data ?? []) as ActivityItem[]
     },
+    staleTime: 10_000,
   })
 }
 

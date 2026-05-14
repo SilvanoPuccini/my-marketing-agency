@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 import { Link } from 'react-router-dom'
 import { STATUS_LABELS, formatDateLong } from '@/lib/utils'
+import { Pagination, usePaginated } from '@/components/ui/Pagination'
 
 const STATUS_FILTERS = [
   { key: 'all', label: 'Todas' },
@@ -15,6 +16,7 @@ export function ClientHistory() {
   const { data, isLoading } = useClientPieces(user?.id)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [page, setPage] = useState(1)
 
   const allPieces = [
     ...(data?.approved ?? []),
@@ -31,6 +33,8 @@ export function ClientHistory() {
       (p.platform ?? '').toLowerCase().includes(search.toLowerCase()),
     )
 
+  const { paged, totalPages, safePage } = usePaginated(filtered, 10, page)
+
   return (
     <div style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
       <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 6px' }}>
@@ -44,7 +48,7 @@ export function ClientHistory() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por título, tipo o plataforma..."
           style={{
             maxWidth: 280, width: '100%', padding: '8px 12px', fontSize: 13,
@@ -55,7 +59,7 @@ export function ClientHistory() {
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.key}
-            onClick={() => setStatusFilter(f.key)}
+            onClick={() => { setStatusFilter(f.key); setPage(1) }}
             style={{
               padding: '6px 10px', fontSize: 12,
               background: statusFilter === f.key ? 'var(--violet-soft)' : 'var(--bg-2)',
@@ -72,6 +76,7 @@ export function ClientHistory() {
         <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)' }}>
           {filtered.length} pieza{filtered.length !== 1 ? 's' : ''}
         </span>
+        <Pagination page={safePage} totalPages={totalPages} onPrev={() => setPage(p => Math.max(1, p - 1))} onNext={() => setPage(p => p + 1)} />
       </div>
 
       {isLoading && (
@@ -96,7 +101,7 @@ export function ClientHistory() {
 
       {!isLoading && filtered.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {filtered.map((p) => (
+          {paged.map((p) => (
             <Link
               key={p.id}
               to={`/portal/pieces/${p.id}`}

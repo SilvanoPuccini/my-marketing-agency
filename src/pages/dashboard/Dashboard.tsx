@@ -15,6 +15,7 @@ import {
 } from '@/features/dashboard/hooks/useDashboard'
 import { CreatePieceModal } from '@/features/pieces/components/CreatePieceModal'
 import { PieceDetailModal } from '@/features/pieces/components/PieceDetailModal'
+import { Pagination, usePaginated } from '@/components/ui/Pagination'
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -126,6 +127,9 @@ export function Dashboard() {
   const [showCreate, setShowCreate] = useState(false)
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('week')
+  const [attPage, setAttPage] = useState(1)
+  const [actPage, setActPage] = useState(1)
+  const [pautaPage, setPautaPage] = useState(1)
 
   const isAdmin = user?.role === 'admin_agency'
   const isManager = user?.role === 'manager'
@@ -135,6 +139,10 @@ export function Dashboard() {
   const teamLoad = useTeamLoad(agencyId)
   const pauta = useAccountsWithPauta(agencyId)
   const activity = useRecentActivity(agencyId)
+
+  const attPaged = usePaginated(attention.data ?? [], 5, attPage)
+  const actPaged = usePaginated(activity.data ?? [], 5, actPage)
+  const pautaPaged = usePaginated(pauta.data ?? [], 5, pautaPage)
 
   // Only admin gets redirected to onboarding
   const skippedOnboarding = sessionStorage.getItem('skipped-onboarding') === '1'
@@ -255,15 +263,18 @@ export function Dashboard() {
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>
                 Necesitan tu atención
               </h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                {attention.isLoading ? '—' : `${attention.data?.length ?? 0} PIEZAS`} · ORDENADAS POR URGENCIA
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  {attention.isLoading ? '—' : `${attention.data?.length ?? 0} PIEZAS`}
+                </span>
+                <Pagination page={attPaged.safePage} totalPages={attPaged.totalPages} onPrev={() => setAttPage(p => Math.max(1, p - 1))} onNext={() => setAttPage(p => p + 1)} />
+              </div>
             </div>
             {attention.isLoading && <div style={{ padding: '12px 18px' }}>{[1,2,3].map(i => <div key={i} style={{ height: 48, background: 'var(--bg-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>}
             {!attention.isLoading && (attention.data?.length ?? 0) === 0 && (
               <EmptyRow message="No hay piezas pendientes. ¡Todo en orden!" />
             )}
-            {attention.data?.map((item) => (
+            {attPaged.paged.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setSelectedPiece(item.id)}
@@ -348,14 +359,17 @@ export function Dashboard() {
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Actividad reciente</h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ÚLTIMAS ACTUALIZACIONES</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ÚLTIMAS ACTUALIZACIONES</span>
+                <Pagination page={actPaged.safePage} totalPages={actPaged.totalPages} onPrev={() => setActPage(p => Math.max(1, p - 1))} onNext={() => setActPage(p => p + 1)} />
+              </div>
             </div>
             <div style={{ padding: '6px 0' }}>
               {activity.isLoading && <div style={{ padding: '6px 18px' }}>{[1,2,3].map(i => <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'center' }}><div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--bg-3)', animation: 'pulse 1.5s ease-in-out infinite' }} /><div style={{ flex: 1, height: 16, background: 'var(--bg-2)', borderRadius: 4, animation: 'pulse 1.5s ease-in-out infinite' }} /></div>)}</div>}
               {!activity.isLoading && (activity.data?.length ?? 0) === 0 && (
                 <EmptyRow message="Sin actividad reciente." />
               )}
-              {activity.data?.map((a) => (
+              {actPaged.paged.map((a) => (
                 <div
                   key={a.id}
                   style={{ display: 'flex', gap: 12, padding: '12px 18px' }}
@@ -383,15 +397,18 @@ export function Dashboard() {
           <section style={panel}>
             <div style={panelH}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Cuentas con pauta este mes</h3>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                {pauta.isLoading ? '—' : `${pauta.data?.length ?? 0} ACTIVAS`}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  {pauta.isLoading ? '—' : `${pauta.data?.length ?? 0} ACTIVAS`}
+                </span>
+                <Pagination page={pautaPaged.safePage} totalPages={pautaPaged.totalPages} onPrev={() => setPautaPage(p => Math.max(1, p - 1))} onNext={() => setPautaPage(p => p + 1)} />
+              </div>
             </div>
             {pauta.isLoading && <div style={{ padding: '12px 18px' }}>{[1,2].map(i => <div key={i} style={{ height: 44, background: 'var(--bg-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />)}</div>}
             {!pauta.isLoading && (pauta.data?.length ?? 0) === 0 && (
               <EmptyRow message="Sin cuentas con pauta este mes." />
             )}
-            {pauta.data?.map((a) => (
+            {pautaPaged.paged.map((a) => (
               <div
                 key={a.id}
                 style={{

@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useClientPieces } from '@/features/client-portal/hooks/useClientPieces'
 import { useAuthStore } from '@/stores/auth.store'
 import { QuotaBanner } from '@/features/client-portal/components/QuotaBanner'
 import { STATUS_LABELS, formatDateWithTime } from '@/lib/utils'
+import { Pagination, usePaginated } from '@/components/ui/Pagination'
 
 function formatPublished(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
@@ -17,12 +19,14 @@ function formatPublished(dateStr: string): string {
 export function ClientPortal() {
   const { user } = useAuthStore()
   const { data, isLoading } = useClientPieces(user?.id)
+  const [pubPage, setPubPage] = useState(1)
 
   const firstName = user?.full_name?.split(' ')[0] ?? 'Cliente'
   const pendingCount = data?.pendingCount ?? 0
   const approvedCount = data?.approvedCount ?? 0
   const publishedCount = data?.publishedCount ?? 0
   const nextPiece = data?.pending[0]
+  const pubPaged = usePaginated(data?.published ?? [], 5, pubPage)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
@@ -155,11 +159,14 @@ export function ClientPortal() {
               <>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
                   <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Lo último publicado</h2>
-                  <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>Tu equipo cerró estas piezas.</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>{data.published.length} pieza{data.published.length !== 1 ? 's' : ''}</span>
+                    <Pagination page={pubPaged.safePage} totalPages={pubPaged.totalPages} onPrev={() => setPubPage(p => Math.max(1, p - 1))} onNext={() => setPubPage(p => p + 1)} />
+                  </div>
                 </div>
 
                 <div style={{ background: 'var(--bg-1)', border: '1px solid var(--line-1)', borderRadius: 'var(--r-3)', overflow: 'hidden' }}>
-                  {data.published.map((p) => (
+                  {pubPaged.paged.map((p) => (
                     <Link
                       key={p.id}
                       to={`/portal/pieces/${p.id}`}
