@@ -105,9 +105,16 @@ function NavBar() {
             </a>
           ))}
           <Link
+            to="/login"
+            onClick={() => setShowMobileMenu(false)}
+            style={{ ...btnSecondary, marginTop: 8, justifyContent: 'center' }}
+          >
+            Iniciar sesión
+          </Link>
+          <Link
             to="/registro"
             onClick={() => setShowMobileMenu(false)}
-            style={{ ...btnPrimary, marginTop: 8, justifyContent: 'center', boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}
+            style={{ ...btnPrimary, justifyContent: 'center', boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}
           >
             Crear cuenta
           </Link>
