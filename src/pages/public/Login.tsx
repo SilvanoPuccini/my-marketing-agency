@@ -236,30 +236,28 @@ export function Login() {
           </p>
 
           {/* SSO */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {['G  Google', '@  Email mágico'].map((label) => (
-              <button
-                key={label}
-                type="button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '8px 14px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: 'var(--fg-1)',
-                  borderRadius: 'var(--r-2)',
-                  border: '1px solid var(--line-2)',
-                  background: 'var(--bg-2)',
-                  width: '100%',
-                }}
-              >
-                <span className="mono">{label}</span>
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '8px 14px',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--fg-1)',
+              borderRadius: 'var(--r-2)',
+              border: '1px solid var(--line-2)',
+              background: 'var(--bg-2)',
+              width: '100%',
+              cursor: 'default',
+              opacity: 0.7,
+            }}
+          >
+            <span className="mono">G  Google</span>
+            <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 'var(--r-1)', background: 'var(--violet-soft)', color: 'var(--violet-400)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Próximamente</span>
+          </button>
 
           {/* Separator */}
           <div
