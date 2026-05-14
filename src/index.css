@@ -411,10 +411,8 @@
     flex-wrap: wrap !important;
   }
   .client-nav-brand {
-    flex: 0 0 auto;
-  }
-  .client-nav-brand > div:last-child {
-    display: none !important;
+    flex: 1;
+    min-width: 0;
   }
   .client-nav-links {
     order: 10;
