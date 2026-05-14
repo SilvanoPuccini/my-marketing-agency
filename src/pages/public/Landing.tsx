@@ -46,11 +46,11 @@ function NavBar() {
     <header style={{ position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)', background: 'rgba(10,10,15,0.72)', borderBottom: '1px solid var(--line-1)' }}>
       <div className="landing-navbar-inner" style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 32, padding: '14px 32px' }}>
 
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{ width: 26, height: 26, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
+          <div style={{ width: 26, height: 26, flexShrink: 0, borderRadius: 7, background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff', boxShadow: '0 0 0 1px var(--violet-400) inset' }}>
             M
           </div>
-          <span style={{ fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--fg-1)' }}>My Marketing Agency</span>
+          <span className="landing-brand-text" style={{ fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--fg-1)' }}>My Marketing Agency</span>
         </Link>
 
         <nav className="landing-nav-links" style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
@@ -70,10 +70,10 @@ function NavBar() {
 
         <div style={{ flex: 1 }} />
 
-        <span className="mono" style={{ fontSize: 11, color: 'var(--fg-3)', padding: '4px 8px', border: '1px solid var(--line-2)', borderRadius: 'var(--r-1)' }}>
+        <span className="mono landing-es-badge" style={{ fontSize: 11, color: 'var(--fg-3)', padding: '4px 8px', border: '1px solid var(--line-2)', borderRadius: 'var(--r-1)' }}>
           ES‑AR
         </span>
-        <Link to="/login" style={{ padding: '6px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid transparent', background: 'transparent' }}>
+        <Link to="/login" className="landing-login-link" style={{ padding: '6px 14px', fontSize: 13, fontWeight: 500, color: 'var(--fg-2)', borderRadius: 'var(--r-2)', border: '1px solid transparent', background: 'transparent' }}>
           Ingresar
         </Link>
         <Link to="/registro" className="landing-cta-desktop" style={{ ...btnPrimary, boxShadow: '0 0 0 1px var(--violet-500), 0 1px 0 rgba(255,255,255,0.12) inset' }}>
@@ -661,7 +661,7 @@ function Cambios() {
 // ── Footer CTA ────────────────────────────────────────────────────────────────
 function FooterCta() {
   return (
-    <div className="landing-footer-cta landing-section" style={{ maxWidth: 1200, margin: '0 auto 64px', padding: '64px 48px', background: 'linear-gradient(135deg, var(--bg-1), var(--bg-2))', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, position: 'relative', overflow: 'hidden' }}>
+    <div className="landing-footer-cta landing-section" style={{ maxWidth: 'min(1200px, calc(100vw - 64px))', margin: '0 auto 64px', padding: '64px 48px', background: 'linear-gradient(135deg, var(--bg-1), var(--bg-2))', border: '1px solid var(--line-2)', borderRadius: 'var(--r-3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 80% at 80% 50%, var(--violet-glow), transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative' }}>
         <h3 style={{ margin: 0, fontSize: 28, letterSpacing: '-0.02em', maxWidth: 520 }}>Probalo con una de tus cuentas esta semana.</h3>

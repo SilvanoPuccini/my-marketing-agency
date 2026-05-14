@@ -193,11 +193,29 @@ export function Login() {
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           padding: 32,
         }}
       >
+        <Link
+          to="/"
+          className="auth-mobile-header"
+          style={{
+            alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit',
+            marginBottom: 32, alignSelf: 'flex-start',
+          }}
+        >
+          <div style={{
+            width: 28, height: 28, flexShrink: 0, borderRadius: 7,
+            background: 'linear-gradient(135deg, var(--violet-500), var(--violet-600))',
+            display: 'grid', placeItems: 'center',
+            fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13, color: '#fff',
+            boxShadow: '0 0 0 1px var(--violet-400) inset',
+          }}>M</div>
+          <span style={{ fontWeight: 600, letterSpacing: '-0.015em', fontSize: 15 }}>My Marketing Agency</span>
+        </Link>
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
