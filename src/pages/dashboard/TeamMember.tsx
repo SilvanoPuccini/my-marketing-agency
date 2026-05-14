@@ -206,6 +206,7 @@ export function TeamMember() {
               <div
                 key={p.id}
                 onClick={() => navigate(`/calendar`)}
+                className="team-member-piece-row"
                 style={{
                   display: 'grid', gridTemplateColumns: '36px 1fr auto auto',
                   gap: 14, alignItems: 'center', padding: '12px 18px',

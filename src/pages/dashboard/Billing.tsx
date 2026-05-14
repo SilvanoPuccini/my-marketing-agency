@@ -81,7 +81,7 @@ function PlanModal({ currentPlan, onClose }: { currentPlan: string; onClose: () 
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(5,5,9,0.72)', zIndex: 40 }} />
       <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, pointerEvents: 'none' }}>
-        <div style={{ width: 'min(720px, calc(100vw - 48px))', background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 14, boxShadow: '0 40px 80px -10px rgba(0,0,0,0.7)', overflow: 'hidden', pointerEvents: 'auto' }}>
+        <div style={{ width: 'min(720px, calc(100vw - 48px))', maxHeight: 'calc(100vh - 48px)', background: 'var(--bg-1)', border: '1px solid var(--line-2)', borderRadius: 14, boxShadow: '0 40px 80px -10px rgba(0,0,0,0.7)', overflow: 'hidden', overflowY: 'auto', pointerEvents: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--line-1)' }}>
             <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>Cambiar plan</h2>
             <button onClick={onClose} style={{ width: 26, height: 26, background: 'var(--bg-2)', border: '1px solid var(--line-2)', borderRadius: 5, color: 'var(--fg-2)', display: 'grid', placeItems: 'center', cursor: 'pointer', fontSize: 12 }}>X</button>

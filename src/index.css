@@ -442,6 +442,45 @@
   }
 }
 
+/* Client history item responsive */
+@media (max-width: 768px) {
+  .client-history-item {
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+  .client-history-meta {
+    align-self: flex-start !important;
+  }
+}
+
+/* Client section header & footer responsive */
+@media (max-width: 640px) {
+  .client-section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  .client-portal-footer {
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+  .client-profile-name-edit {
+    flex-wrap: wrap !important;
+  }
+  .client-profile-name-edit input {
+    width: 100% !important;
+  }
+}
+
+/* Client nav links responsive */
+@media (max-width: 768px) {
+  .client-nav-links nav {
+    margin-left: 0 !important;
+  }
+}
+
 /* Piece detail modal responsive */
 @media (max-width: 768px) {
   .piece-detail-body {
@@ -522,6 +561,17 @@
   }
   .team-member-columns {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* Team member piece row responsive */
+@media (max-width: 640px) {
+  .team-member-piece-row {
+    grid-template-columns: 1fr auto !important;
+  }
+  .team-member-piece-row > *:first-child,
+  .team-member-piece-row > *:last-child {
+    display: none !important;
   }
 }
 

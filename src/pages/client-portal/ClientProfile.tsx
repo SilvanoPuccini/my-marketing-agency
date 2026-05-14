@@ -124,7 +124,7 @@ export function ClientProfile() {
             </div>
             <div>
               {editingName ? (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="client-profile-name-edit" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}

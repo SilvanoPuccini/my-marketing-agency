@@ -105,6 +105,7 @@ export function ClientHistory() {
             <Link
               key={p.id}
               to={`/portal/pieces/${p.id}`}
+              className="client-history-item"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '14px 18px',
@@ -128,7 +129,7 @@ export function ClientHistory() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="client-history-meta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
                   {p.scheduled_date ? formatDateLong(p.scheduled_date) : ''}
                 </span>

@@ -97,7 +97,7 @@ export function ClientPortal() {
             {/* Pending approval */}
             {data && data.pending.length > 0 && (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
+                <div className="client-section-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
                   <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Esperando tu aprobación</h2>
                   <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>
                     {data.pending.length} pieza{data.pending.length !== 1 ? 's' : ''} · ordenadas por fecha
@@ -157,7 +157,7 @@ export function ClientPortal() {
             {/* Published */}
             {data && data.published.length > 0 && (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
+                <div className="client-section-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '32px 0 16px' }}>
                   <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em' }}>Lo último publicado</h2>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ color: 'var(--fg-3)', fontSize: 13 }}>{data.published.length} pieza{data.published.length !== 1 ? 's' : ''}</span>
@@ -196,7 +196,7 @@ export function ClientPortal() {
               </>
             )}
 
-            <div style={{ marginTop: 48, padding: 20, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--fg-3)', fontSize: 12 }}>
+            <div className="client-portal-footer" style={{ marginTop: 48, padding: 20, borderTop: '1px solid var(--line-1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--fg-3)', fontSize: 12 }}>
               <span>¿Algo no cierra? Hablale a tu account manager.</span>
               <span className="mono" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>VISTA DE CLIENTE</span>
             </div>

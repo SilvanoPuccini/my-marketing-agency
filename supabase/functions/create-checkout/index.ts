@@ -89,16 +89,9 @@ serve(async (req) => {
         })
       }
 
-      // Si tiene suscripción activa con OTRO plan → cancelar la anterior antes de crear nueva
-      if (agency?.stripe_subscription_id && agency.plan !== plan) {
-        try {
-          await stripe.subscriptions.cancel(agency.stripe_subscription_id, {
-            prorate: true,
-          })
-        } catch (cancelErr) {
-          console.warn('Could not cancel previous subscription:', (cancelErr as Error).message)
-        }
-      }
+      // La suscripción anterior se cancela en el webhook DESPUÉS de que el pago
+      // del nuevo plan se confirme (checkout.session.completed). No cancelar acá
+      // porque si el usuario abandona el checkout, quedaría sin suscripción.
     }
 
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173'

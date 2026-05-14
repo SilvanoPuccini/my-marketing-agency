@@ -32,16 +32,36 @@ serve(async (req) => {
     const session = event.data.object as Stripe.Checkout.Session
     const agencyId = session.metadata?.agency_id
     const plan = session.metadata?.plan
+    const newSubscriptionId = session.subscription as string
 
     if (agencyId && plan) {
+      // Leer la suscripción anterior ANTES de actualizar
+      const { data: agency } = await supabase
+        .from('agencies')
+        .select('stripe_subscription_id')
+        .eq('id', agencyId)
+        .single()
+
+      const oldSubscriptionId = agency?.stripe_subscription_id
+
+      // Actualizar al nuevo plan y suscripción
       await supabase
         .from('agencies')
         .update({
           plan,
           stripe_customer_id: session.customer as string,
-          stripe_subscription_id: session.subscription as string,
+          stripe_subscription_id: newSubscriptionId,
         })
         .eq('id', agencyId)
+
+      // Cancelar la suscripción anterior SOLO después de confirmar el nuevo pago
+      if (oldSubscriptionId && oldSubscriptionId !== newSubscriptionId) {
+        try {
+          await stripe.subscriptions.cancel(oldSubscriptionId, { prorate: true })
+        } catch (cancelErr) {
+          console.warn('Could not cancel previous subscription:', (cancelErr as Error).message)
+        }
+      }
     }
   }
 
