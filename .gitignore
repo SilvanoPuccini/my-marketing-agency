@@ -41,3 +41,13 @@ supabase/.temp/
 .windsurf/
 skills-lock.json
 .atl/
+
+# Prototype assets (not used by the app)
+src/assets/diseño claude/
+src/assets/Proyecto web 3.pdf
+
+# Windows Zone.Identifier metadata
+*:Zone.Identifier
+
+# Gitkeep (folders already have files)
+.gitkeep

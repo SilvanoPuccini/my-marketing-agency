@@ -33,6 +33,10 @@
 - **Repositorio:** https://github.com/SilvanoPuccini/my-marketing-agency
 - **App en producción:** https://my-marketing-agency.vercel.app/
 
+<div align="center">
+  <img src="public/My-My-Marketing-Agency.png" alt="My Marketing Agency Preview" width="700" height="350" />
+</div>
+
 ---
 
 ## 📖 Índice
