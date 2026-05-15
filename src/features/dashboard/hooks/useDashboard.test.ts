@@ -4,35 +4,25 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement, type ReactNode } from 'react'
 import { useDashboardStats, useAttentionPieces, useRecentActivity, getISOWeek } from './useDashboard'
 
-// Mock Supabase
+// Mock Supabase — fluent chain where every method returns the same object
 const mockData = vi.fn()
+
+function createFluentMock(): Record<string, () => Record<string, unknown>> {
+  const chain: Record<string, () => Record<string, unknown>> = {}
+  const handler = () => chain
+  for (const method of ['select', 'is', 'in', 'not', 'gte', 'gt', 'lte', 'eq', 'order', 'limit']) {
+    chain[method] = handler
+  }
+  // Terminal: .then() is called by await — delegates to mockData
+  chain.then = ((resolve: (v: unknown) => void, reject: (e: unknown) => void) => {
+    return mockData().then(resolve, reject)
+  }) as unknown as () => Record<string, unknown>
+  return chain
+}
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
-    from: () => ({
-      select: () => ({
-        gte: () => ({
-          lte: () => mockData(),
-        }),
-        in: () => ({
-          order: () => ({
-            limit: () => mockData(),
-          }),
-        }),
-        order: () => ({
-          limit: () => mockData(),
-        }),
-        not: () => ({
-          gt: () => ({
-            eq: () => ({
-              order: () => ({
-                limit: () => mockData(),
-              }),
-            }),
-          }),
-        }),
-      }),
-    }),
+    from: () => createFluentMock(),
   },
 }))
 

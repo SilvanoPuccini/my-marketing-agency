@@ -35,16 +35,23 @@ serve(async (req) => {
     const newSubscriptionId = session.subscription as string
 
     if (agencyId && plan) {
-      // Leer la suscripción anterior ANTES de actualizar
+      // Idempotency: read current agency state before updating
       const { data: agency } = await supabase
         .from('agencies')
-        .select('stripe_subscription_id')
+        .select('stripe_subscription_id, plan')
         .eq('id', agencyId)
         .single()
 
+      // Skip if this exact subscription is already set (duplicate webhook)
+      if (agency?.stripe_subscription_id === newSubscriptionId && agency?.plan === plan) {
+        return new Response(JSON.stringify({ received: true, skipped: 'duplicate' }), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
       const oldSubscriptionId = agency?.stripe_subscription_id
 
-      // Actualizar al nuevo plan y suscripción
+      // Update to new plan and subscription
       await supabase
         .from('agencies')
         .update({
@@ -54,7 +61,7 @@ serve(async (req) => {
         })
         .eq('id', agencyId)
 
-      // Cancelar la suscripción anterior SOLO después de confirmar el nuevo pago
+      // Cancel previous subscription ONLY after confirming new payment
       if (oldSubscriptionId && oldSubscriptionId !== newSubscriptionId) {
         try {
           await stripe.subscriptions.cancel(oldSubscriptionId, { prorate: true })

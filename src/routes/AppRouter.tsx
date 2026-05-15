@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ClientLayout } from '@/components/layout/ClientLayout'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
+import { ROUTES } from '@/routes/routes.config'
 
 // Public — static imports (small, always needed)
 import { Landing } from '@/pages/public/Landing'
@@ -56,48 +57,48 @@ export function AppRouter() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Publicas */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Register />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/complete-invitation" element={<CompleteInvitation />} />
-          <Route path="/recuperar-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/privacidad" element={<Privacy />} />
-          <Route path="/terminos" element={<Terms />} />
-          <Route path="/estado" element={<Status />} />
-          <Route path="/contacto" element={<Contact />} />
+          <Route path={ROUTES.HOME} element={<Landing />} />
+          <Route path={ROUTES.LOGIN} element={<Login />} />
+          <Route path={ROUTES.REGISTER} element={<Register />} />
+          <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallback />} />
+          <Route path={ROUTES.COMPLETE_INVITATION} element={<CompleteInvitation />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+          <Route path={ROUTES.PRIVACY} element={<Privacy />} />
+          <Route path={ROUTES.TERMS} element={<Terms />} />
+          <Route path={ROUTES.STATUS} element={<Status />} />
+          <Route path={ROUTES.CONTACT} element={<Contact />} />
 
           {/* Onboarding — requiere auth, sin layout */}
           <Route element={<ProtectedRoute allowedRoles={['admin_agency']} />}>
-            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path={ROUTES.ONBOARDING} element={<Onboarding />} />
           </Route>
 
           {/* Backoffice — requiere auth */}
           <Route element={<ProtectedRoute allowedRoles={['admin_agency', 'manager', 'creator', 'team_member']} />}>
             <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/accounts" element={<Accounts />} />
-              <Route path="/accounts/:id" element={<AccountDetail />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/team/:id" element={<TeamMember />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+              <Route path={ROUTES.ACCOUNTS} element={<Accounts />} />
+              <Route path={ROUTES.ACCOUNT_DETAIL} element={<AccountDetail />} />
+              <Route path={ROUTES.CALENDAR} element={<Calendar />} />
+              <Route path={ROUTES.LIBRARY} element={<Library />} />
+              <Route path={ROUTES.REPORTS} element={<Reports />} />
+              <Route path={ROUTES.TEAM} element={<Team />} />
+              <Route path={ROUTES.TEAM_MEMBER} element={<TeamMember />} />
+              <Route path={ROUTES.BILLING} element={<Billing />} />
+              <Route path={ROUTES.SETTINGS} element={<Settings />} />
+              <Route path={ROUTES.PROFILE} element={<Profile />} />
             </Route>
           </Route>
 
           {/* Portal cliente — solo rol client */}
           <Route element={<ProtectedRoute allowedRoles={['client']} />}>
             <Route element={<ClientLayout />}>
-              <Route path="/portal" element={<ClientPortal />} />
-              <Route path="/portal/history" element={<ClientHistory />} />
-              <Route path="/portal/reports" element={<ClientReports />} />
-              <Route path="/portal/pieces/:id" element={<ClientApproval />} />
-              <Route path="/portal/profile" element={<ClientProfile />} />
+              <Route path={ROUTES.PORTAL.ROOT} element={<ClientPortal />} />
+              <Route path={ROUTES.PORTAL.HISTORY} element={<ClientHistory />} />
+              <Route path={ROUTES.PORTAL.REPORTS} element={<ClientReports />} />
+              <Route path={ROUTES.PORTAL.PIECE} element={<ClientApproval />} />
+              <Route path={ROUTES.PORTAL.PROFILE} element={<ClientProfile />} />
             </Route>
           </Route>
 
