@@ -286,6 +286,76 @@ export function Settings() {
     }
   }
 
+  // ── Export: Cuentas-cliente ───────────────────────────────────────────────
+  async function handleExportAccountsCSV() {
+    const tid = toast.loading('Preparando exportación…')
+    try {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('name, industry, contact_name, contact_email, contact_phone, plan, is_active, created_at')
+        .order('name', { ascending: true })
+      if (error) throw error
+      const header = 'Nombre,Rubro,Contacto,Email,Teléfono,Plan,Activa,Alta'
+      const rows = (data ?? []).map(a => [
+        `"${a.name.replace(/"/g, '""')}"`,
+        a.industry ?? '',
+        `"${(a.contact_name ?? '').replace(/"/g, '""')}"`,
+        a.contact_email ?? '',
+        a.contact_phone ?? '',
+        a.plan ?? '',
+        a.is_active ? 'Sí' : 'No',
+        a.created_at ? a.created_at.split('T')[0] : '',
+      ].join(','))
+      const csv = '\uFEFF' + [header, ...rows].join('\n')
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `cuentas-${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      toast.success('CSV de cuentas descargado', { id: tid })
+    } catch {
+      toast.error('Error al exportar cuentas', { id: tid })
+    }
+  }
+
+  // ── Export: Equipo ────────────────────────────────────────────────────────
+  async function handleExportTeamCSV() {
+    const tid = toast.loading('Preparando exportación…')
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('full_name, email, role, position, is_active, created_at')
+        .order('full_name', { ascending: true })
+      if (error) throw error
+      const header = 'Nombre,Email,Rol,Cargo,Activo,Alta'
+      const rows = (data ?? []).map(u => [
+        `"${u.full_name.replace(/"/g, '""')}"`,
+        u.email,
+        u.role,
+        `"${(u.position ?? '').replace(/"/g, '""')}"`,
+        u.is_active ? 'Sí' : 'No',
+        u.created_at ? u.created_at.split('T')[0] : '',
+      ].join(','))
+      const csv = '\uFEFF' + [header, ...rows].join('\n')
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `equipo-${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      toast.success('CSV del equipo descargado', { id: tid })
+    } catch {
+      toast.error('Error al exportar equipo', { id: tid })
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <TopBar
@@ -592,6 +662,8 @@ export function Settings() {
                 <p style={{ margin: '4px 0 0', color: 'var(--fg-3)', fontSize: 12 }}>Descargá toda la información de tu agencia en formatos abiertos.</p>
               </div>
               <div style={{ padding: '18px 20px' }}>
+
+                {/* Piezas CSV — existente */}
                 <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>Piezas — CSV</div>
@@ -605,6 +677,38 @@ export function Settings() {
                     Descargar CSV
                   </button>
                 </div>
+
+                {/* Cuentas-cliente CSV — nuevo */}
+                <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
+                  <div>
+                    <div style={{ fontWeight: 500, fontSize: 13 }}>Cuentas-cliente — CSV</div>
+                    <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Todas las cuentas con contacto, plan y estado.</div>
+                  </div>
+                  <span style={{ color: 'var(--fg-3)', fontSize: 12 }}>Todas las cuentas · formato UTF-8</span>
+                  <button
+                    onClick={handleExportAccountsCSV}
+                    style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+                  >
+                    Descargar CSV
+                  </button>
+                </div>
+
+                {/* Equipo CSV — nuevo */}
+                <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line-1)' }}>
+                  <div>
+                    <div style={{ fontWeight: 500, fontSize: 13 }}>Equipo — CSV</div>
+                    <div style={{ color: 'var(--fg-3)', fontSize: 12, marginTop: 2 }}>Miembros del equipo con rol, cargo y estado.</div>
+                  </div>
+                  <span style={{ color: 'var(--fg-3)', fontSize: 12 }}>Todos los miembros · formato UTF-8</span>
+                  <button
+                    onClick={handleExportTeamCSV}
+                    style={{ padding: '6px 10px', fontSize: 12, fontWeight: 500, color: 'var(--fg-1)', borderRadius: 'var(--r-2)', border: '1px solid var(--line-2)', background: 'var(--bg-2)', cursor: 'pointer' }}
+                  >
+                    Descargar CSV
+                  </button>
+                </div>
+
+                {/* Backup completo — existente */}
                 <div className="settings-row" style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: 18, alignItems: 'center', padding: '10px 0' }}>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>Backup completo</div>
@@ -618,6 +722,7 @@ export function Settings() {
                     Próximamente
                   </button>
                 </div>
+
               </div>
             </section>}
 
